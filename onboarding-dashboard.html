@@ -167,12 +167,12 @@ tr:hover td { background: var(--surface-alt); }
 .insight-copy  { font-size: 13px; color: var(--text-light); line-height: 1.5; }
 
 /* ── NOTIFICATION ALERT ── */
-.notif-alert { display: flex; align-items: center; gap: 10px; background: var(--warning-soft); border: 1px solid rgba(245,158,11,0.3); border-left: 3px solid var(--warning); border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 10px; }
-.notif-alert-icon { font-size: 16px; flex-shrink: 0; }
-.notif-alert-body { flex: 1; min-width: 0; }
-.notif-alert-label { font-size: 12px; font-weight: 700; color: #92400e; }
-.notif-alert-ts { font-size: 11px; color: var(--text-light); margin-top: 1px; }
-.notif-resend-btn { padding: 6px 12px; border-radius: 7px; border: 1px solid rgba(245,158,11,0.4); background: #fff; color: #b45309; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s, border-color .15s; white-space: nowrap; flex-shrink: 0; }
+.notif-alert { background: var(--warning-soft); border: 1px solid rgba(245,158,11,0.3); border-left: 3px solid var(--warning); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px; }
+.notif-alert-top { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
+.notif-alert-icon { font-size: 14px; flex-shrink: 0; }
+.notif-alert-label { font-size: 12px; font-weight: 700; color: #92400e; line-height: 1.3; }
+.notif-alert-ts { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+.notif-resend-btn { display: block; width: 100%; padding: 7px 10px; border-radius: 7px; border: 1px solid rgba(245,158,11,0.4); background: #fff; color: #b45309; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s, border-color .15s; text-align: center; }
 .notif-resend-btn:hover { background: var(--warning-soft); border-color: var(--warning); }
 .notif-resend-btn.sent { background: var(--success-soft); border-color: rgba(16,185,129,0.3); color: var(--success); cursor: default; } margin-top: 16px; font-size: 12px; color: var(--text-light); font-weight: 600; }
 
@@ -673,10 +673,12 @@ function render() {
                           <div class="detail-item-val">${e.coordinator}</div>
                           ${e.notifSent ? `
                           <div class="notif-alert">
-                            <span class="notif-alert-icon">🔔</span>
-                            <div class="notif-alert-body">
-                              <div class="notif-alert-label">${t.notifSentLabel}</div>
-                              <div class="notif-alert-ts">${t.notifAt} ${timeFmt.format(e.notifTs)}</div>
+                            <div class="notif-alert-top">
+                              <span class="notif-alert-icon">🔔</span>
+                              <div>
+                                <div class="notif-alert-label">${t.notifSentLabel}</div>
+                                <div class="notif-alert-ts">${t.notifAt} ${timeFmt.format(e.notifTs)}</div>
+                              </div>
                             </div>
                             <button class="notif-resend-btn ${resentNotifs.has(e.id) ? 'sent' : ''}" data-resend="${e.id}">
                               ${resentNotifs.has(e.id) ? t.notifResent : t.notifResend}
