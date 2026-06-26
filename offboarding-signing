@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Offboarding Signature">
+<meta name="widget-description" content="Capture a handwritten e-signature to confirm an employee's offboarding / voluntary separation">
+<meta name="widget-tags" content="HR Data">
+<title>Offboarding Signature</title>
+
+<style>
+    :root {
+        --primary: var(--sb-brand, #2563eb);
+        --primary-soft: rgba(37, 99, 235, 0.1);
+        --success: #10b981;
+        --success-soft: #ecfdf5;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --text: #1f2937;
+        --text-light: #6b7280;
+        --bg: #ffffff;
+        --bg-gray: #f9fafb;
+        --border: #e5e7eb;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --primary: var(--sb-brand, #3b9eff);
+            --primary-soft: rgba(59, 158, 255, 0.15);
+            --success: #34d399;
+            --success-soft: #0b1f19;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --text: #f3f4f6;
+            --text-light: #9ca3af;
+            --bg: #1f2937;
+            --bg-gray: #111827;
+            --border: #374151;
+        }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .widget {
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 20px;
+    }
+
+    .cw-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 4px;
+    }
+
+    .cw-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--primary-soft);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .cw-icon svg { width: 18px; height: 18px; }
+
+    .cw-title {
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .cw-subtitle {
+        font-size: 13px;
+        color: var(--text-light);
+        margin: 0 0 16px 42px;
+    }
+
+    .doc-card {
+        background: var(--bg-gray);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+    }
+
+    .doc-card .doc-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+
+    .doc-card .doc-meta::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--warning);
+    }
+
+    .doc-card.signed .doc-meta::before {
+        background: var(--success);
+    }
+
+    .doc-card .doc-name {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .doc-card .doc-desc {
+        font-size: 13px;
+        color: var(--text-light);
+        line-height: 1.45;
+    }
+
+    .signing-label {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 4px 0 8px 0;
+    }
+
+    .signature-container {
+        border: 2px dashed var(--primary);
+        border-radius: 10px;
+        background: #ffffff;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .signature-container.dark-pad {
+        background: #ffffff;
+    }
+
+    #signature-pad {
+        display: block;
+        width: 100%;
+        height: auto;
+        cursor: crosshair;
+        touch-action: none;
+    }
+
+    .signature-placeholder {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        font-size: 13px;
+        pointer-events: none;
+        transition: opacity 0.2s;
+        font-style: italic;
+    }
+
+    .signature-placeholder.hidden { opacity: 0; }
+
+    .button-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .cw-btn {
+        flex: 1;
+        padding: 11px 14px;
+        font-size: 14px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-weight: 600;
+        font-family: inherit;
+        transition: filter 0.15s, opacity 0.15s;
+    }
+
+    .cw-btn:hover:not(:disabled) { filter: brightness(0.93); }
+
+    .cw-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .cw-btn.cw-btn-primary {
+        background: var(--primary);
+        color: #fff;
+        flex: 2;
+    }
+
+    .cw-btn.cw-btn-secondary {
+        background: var(--bg);
+        color: var(--text);
+        border-color: var(--border);
+    }
+
+    .cw-status-line {
+        margin-top: 14px;
+        font-size: 12px;
+        color: var(--text-light);
+        text-align: center;
+        line-height: 1.5;
+    }
+
+    /* Saved view */
+    .saved-view {
+        text-align: center;
+    }
+
+    .saved-icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 12px;
+        background: var(--success-soft);
+        color: var(--success);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .saved-icon svg { width: 28px; height: 28px; }
+
+    .saved-heading {
+        font-size: 17px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .saved-sub {
+        font-size: 13px;
+        color: var(--text-light);
+        margin-bottom: 16px;
+    }
+
+    .saved-svg-frame {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 12px;
+    }
+
+    .saved-svg-frame svg {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .resign-link {
+        background: none;
+        border: none;
+        color: var(--primary);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-family: inherit;
+    }
+
+    .resign-link:hover { background: var(--primary-soft); }
+
+    .hidden { display: none !important; }
+</style>
+</head>
+
+<body>
+
+<div class="widget">
+
+    <div class="cw-header">
+        <div class="cw-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/><path d="M14.06 6.19l3.75 3.75"/><path d="M3 21h18"/></svg>
+        </div>
+        <h1 class="cw-title" data-i18n="title"></h1>
+    </div>
+    <p class="cw-subtitle" data-i18n="subtitle"></p>
+
+    <!-- Signing view -->
+    <div id="signing-view">
+        <div class="doc-card">
+            <div class="doc-meta">
+                <span data-i18n="docStatus"></span>
+            </div>
+            <div class="doc-name" data-i18n="docName"></div>
+            <div class="doc-desc" data-i18n="docDesc"></div>
+        </div>
+
+        <div class="signing-label" data-i18n="signLabel"></div>
+
+        <div class="signature-container">
+            <svg id="signature-pad" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet" aria-label="Signature canvas"></svg>
+            <div id="signature-placeholder" class="signature-placeholder" data-i18n="placeholder"></div>
+        </div>
+
+        <div class="button-row">
+            <button id="clear-btn" class="cw-btn cw-btn-secondary" data-i18n="clearBtn"></button>
+            <button id="save-btn" class="cw-btn cw-btn-primary" data-i18n="saveBtn"></button>
+        </div>
+
+        <div class="cw-status-line" data-i18n="legalNote"></div>
+    </div>
+
+    <!-- Saved view -->
+    <div id="saved-view" class="saved-view hidden">
+        <div class="saved-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+        </div>
+        <div class="saved-heading" data-i18n="savedHeading"></div>
+        <div class="saved-sub" id="saved-sub"></div>
+        <div class="saved-svg-frame" id="saved-svg-frame"></div>
+        <button class="resign-link" id="resign-btn" data-i18n="resignBtn"></button>
+    </div>
+
+</div>
+
+<script>
+    // --- Language detection (per widgets/MULTILANGUAGE.md) ---
+    const LANG = (() => {
+        const l = navigator.language || '';
+        if (l.startsWith('de')) return 'de';
+        if (l.startsWith('fr')) return 'fr';
+        if (l.startsWith('es')) return 'es';
+        if (l.startsWith('ja')) return 'ja';
+        if (l === 'en-GB')      return 'en-GB';
+        return 'en-US';
+    })();
+    document.documentElement.lang = LANG;
+
+    const LOCALE = {
+        'de': 'de-DE', 'fr': 'fr-FR', 'es': 'es-ES',
+        'ja': 'ja-JP', 'en-GB': 'en-GB', 'en-US': 'en-US'
+    }[LANG];
+
+    // --- Translations ---
+    const T = {
+        de: {
+            title: 'Unterschrift erforderlich',
+            subtitle: 'Bitte unterschreiben Sie unten Ihr Offboarding-Dokument',
+            docStatus: 'Ausstehend',
+            docName: 'Offboarding-Bestätigung',
+            docDesc: 'Mit Ihrer Unterschrift bestätigen Sie Ihr freiwilliges Ausscheiden, die Rückgabe des gesamten Firmeneigentums und dass Sie Ihren Offboarding-Prozess abgeschlossen haben.',
+            signLabel: 'Hier unterschreiben:',
+            placeholder: 'Mit Maus oder Finger hier unterschreiben',
+            clearBtn: 'Löschen',
+            saveBtn: 'Unterschrift speichern',
+            legalNote: 'Mit dem Speichern bestätigen Sie, dass die obigen Angaben korrekt sind und Ihr Offboarding abgeschlossen ist.',
+            savedHeading: 'Offboarding bestätigt',
+            savedSub: 'Unterschrieben am {date}',
+            resignBtn: 'Erneut unterschreiben',
+            emptyAlert: 'Bitte zuerst eine Unterschrift abgeben.'
+        },
+        fr: {
+            title: 'Signature requise',
+            subtitle: 'Veuillez signer votre document de départ ci-dessous',
+            docStatus: 'En attente',
+            docName: 'Confirmation de départ',
+            docDesc: 'En signant, vous confirmez votre départ volontaire, la restitution de tout le matériel de l’entreprise et que vous avez terminé votre processus de départ (offboarding).',
+            signLabel: 'Signez ici :',
+            placeholder: 'Signez ici avec votre souris ou votre doigt',
+            clearBtn: 'Effacer',
+            saveBtn: 'Enregistrer la signature',
+            legalNote: 'En enregistrant, vous confirmez que les informations ci-dessus sont correctes et que votre départ est finalisé.',
+            savedHeading: 'Départ confirmé',
+            savedSub: 'Signé le {date}',
+            resignBtn: 'Signer à nouveau',
+            emptyAlert: 'Veuillez d’abord fournir une signature.'
+        },
+        es: {
+            title: 'Firma requerida',
+            subtitle: 'Por favor, firme su documento de salida a continuación',
+            docStatus: 'Pendiente',
+            docName: 'Confirmación de baja voluntaria',
+            docDesc: 'Al firmar, confirma su baja voluntaria, la devolución de los bienes de la empresa y que ha completado su proceso de salida (offboarding).',
+            signLabel: 'Firme aquí:',
+            placeholder: 'Firme aquí con el ratón o el dedo',
+            clearBtn: 'Borrar',
+            saveBtn: 'Guardar firma',
+            legalNote: 'Al guardar, confirma que la información anterior es correcta y que ha completado su offboarding.',
+            savedHeading: 'Salida confirmada',
+            savedSub: 'Firmado el {date}',
+            resignBtn: 'Firmar de nuevo',
+            emptyAlert: 'Por favor, proporcione una firma primero.'
+        },
+        ja: {
+            title: '署名が必要です',
+            subtitle: '以下のオフボーディング書類にご署名ください',
+            docStatus: '未対応',
+            docName: 'オフボーディング確認書',
+            docDesc: '署名することで、自主退職、会社貸与物の返却、およびオフボーディング手続きの完了を確認したものとみなされます。',
+            signLabel: 'ここに署名:',
+            placeholder: 'マウスまたは指で署名してください',
+            clearBtn: 'クリア',
+            saveBtn: '署名を保存',
+            legalNote: '保存することで、上記の内容が正しく、オフボーディングが完了したことを確認したものとみなされます。',
+            savedHeading: 'オフボーディングを確認しました',
+            savedSub: '{date}に署名済み',
+            resignBtn: '再度署名する',
+            emptyAlert: '先に署名を行ってください。'
+        },
+        'en-GB': {
+            title: 'Signature Required',
+            subtitle: 'Please sign your offboarding document below',
+            docStatus: 'Pending',
+            docName: 'Offboarding Acknowledgement',
+            docDesc: 'By signing, you acknowledge your voluntary separation, confirm the return of all company property, and that you have completed your offboarding steps.',
+            signLabel: 'Sign below:',
+            placeholder: 'Sign here with your mouse or finger',
+            clearBtn: 'Clear',
+            saveBtn: 'Save signature',
+            legalNote: 'By saving, you confirm the details above are correct and your offboarding is complete.',
+            savedHeading: 'Offboarding confirmed',
+            savedSub: 'Signed on {date}',
+            resignBtn: 'Sign again',
+            emptyAlert: 'Please provide a signature first.'
+        },
+        'en-US': {
+            title: 'Signature Required',
+            subtitle: 'Please sign your offboarding document below',
+            docStatus: 'Pending',
+            docName: 'Offboarding Acknowledgment',
+            docDesc: 'By signing, you acknowledge your voluntary separation, confirm the return of all company property, and that you have completed your offboarding steps.',
+            signLabel: 'Sign below:',
+            placeholder: 'Sign here with your mouse or finger',
+            clearBtn: 'Clear',
+            saveBtn: 'Save Signature',
+            legalNote: 'By saving, you confirm the details above are correct and your offboarding is complete.',
+            savedHeading: 'Offboarding confirmed',
+            savedSub: 'Signed on {date}',
+            resignBtn: 'Sign again',
+            emptyAlert: 'Please provide a signature first.'
+        }
+    };
+    const t = T[LANG] ?? T['en-US'];
+
+    function tr(key, vars) {
+        let s = t[key] || key;
+        if (vars) Object.keys(vars).forEach(k => { s = s.replaceAll('{' + k + '}', vars[k]); });
+        return s;
+    }
+
+    // --- Staffbase brand color passthrough ---
+    function applySBBrand() {
+        let sb = getComputedStyle(document.documentElement).getPropertyValue('--sb-brand').trim();
+        if (sb) {
+            document.documentElement.style.setProperty('--primary', sb);
+            return;
+        }
+        try {
+            sb = window.parent.getComputedStyle(window.parent.document.documentElement)
+                    .getPropertyValue('--sb-brand').trim();
+            if (sb) document.documentElement.style.setProperty('--primary', sb);
+        } catch (e) { /* cross-origin, ignore */ }
+    }
+
+    // --- Apply translations ---
+    function applyTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.dataset.i18n;
+            if (t[key] !== undefined) el.textContent = t[key];
+        });
+    }
+
+    // --- View switching ---
+    const signingView = document.getElementById('signing-view');
+    const savedView = document.getElementById('saved-view');
+    const savedSub = document.getElementById('saved-sub');
+    const savedFrame = document.getElementById('saved-svg-frame');
+
+    function showSavedView(svgString, dateStr) {
+        signingView.classList.add('hidden');
+        savedView.classList.remove('hidden');
+        savedFrame.innerHTML = svgString;
+        savedSub.textContent = tr('savedSub', { date: dateStr });
+    }
+
+    function showSigningView() {
+        savedView.classList.add('hidden');
+        signingView.classList.remove('hidden');
+        clearPad();
+    }
+
+    // --- Persistence (per-browser; mocked, no backend) ---
+    const STORAGE_KEY = 'offboarding-signing/voluntary-separation';
+
+    function loadSaved() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (e) { return null; }
+    }
+
+    function persistSaved(svgString) {
+        const record = { svg: svgString, ts: new Date().toISOString() };
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(record)); } catch (e) {}
+        return record;
+    }
+
+    function clearSaved() {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    }
+
+    function formatSavedDate(iso) {
+        const d = new Date(iso);
+        return new Intl.DateTimeFormat(LOCALE, {
+            year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        }).format(d);
+    }
+
+    // --- Signature pad (tapering Bézier strokes ported from source) ---
+    const svg = document.getElementById('signature-pad');
+    const placeholder = document.getElementById('signature-placeholder');
+    const clearBtn = document.getElementById('clear-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const resignBtn = document.getElementById('resign-btn');
+
+    let drawing = false;
+    let points = [];
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    function getEventPosition(e) {
+        const rect = svg.getBoundingClientRect();
+        const scaleX = 400 / rect.width;
+        const scaleY = 200 / rect.height;
+        const cx = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+        const cy = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+        return { x: (cx - rect.left) * scaleX, y: (cy - rect.top) * scaleY };
+    }
+
+    function distance(p1, p2) {
+        return Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    }
+
+    function midpoint(p1, p2) {
+        return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+    }
+
+    function strokeColor() {
+        const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+        return dark ? '#0f172a' : '#000000';
+    }
+
+    function appendPath(d, width) {
+        const path = document.createElementNS(SVG_NS, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', strokeColor());
+        path.setAttribute('stroke-width', width.toFixed(2));
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('fill', 'none');
+        svg.appendChild(path);
+    }
+
+    function startDrawing(e) {
+        e.preventDefault();
+        drawing = true;
+        const { x, y } = getEventPosition(e);
+        points = [{ x, y, width: 0.5 }];
+        placeholder.classList.add('hidden');
+    }
+
+    function draw(e) {
+        if (!drawing) return;
+        e.preventDefault();
+        const { x, y } = getEventPosition(e);
+        const lastPoint = points[points.length - 1];
+        const dist = distance(lastPoint, { x, y });
+        if (dist < 2) return;
+
+        const newWidth = Math.min(2.5, Math.max(0.5, 2.5 - dist / 14));
+        points.push({ x, y, width: newWidth });
+
+        if (points.length === 2) {
+            const p0 = points[0];
+            const p1 = points[1];
+            const mid1 = midpoint(p0, p1);
+            appendPath(
+                `M ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} L ${mid1.x.toFixed(2)} ${mid1.y.toFixed(2)}`,
+                (p0.width + p1.width) / 2
+            );
+        } else if (points.length > 2) {
+            const p0 = points[points.length - 3];
+            const p1 = points[points.length - 2];
+            const p2 = points[points.length - 1];
+            const mid1 = midpoint(p0, p1);
+            const mid2 = midpoint(p1, p2);
+            appendPath(
+                `M ${mid1.x.toFixed(2)} ${mid1.y.toFixed(2)} Q ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}, ${mid2.x.toFixed(2)} ${mid2.y.toFixed(2)}`,
+                (p1.width + p2.width) / 2
+            );
+        }
+    }
+
+    function stopDrawing() {
+        if (!drawing) return;
+        drawing = false;
+
+        if (points.length === 1) {
+            const p = points[0];
+            const dot = document.createElementNS(SVG_NS, 'circle');
+            dot.setAttribute('cx', p.x.toFixed(2));
+            dot.setAttribute('cy', p.y.toFixed(2));
+            dot.setAttribute('r', '1.25');
+            dot.setAttribute('fill', strokeColor());
+            svg.appendChild(dot);
+        } else if (points.length > 1) {
+            const last = points[points.length - 1];
+            const secondLast = points[points.length - 2];
+            const lastMid = midpoint(secondLast, last);
+            const curveWidth = (secondLast.width + last.width) / 2;
+            appendPath(
+                `M ${lastMid.x.toFixed(2)} ${lastMid.y.toFixed(2)} L ${last.x.toFixed(2)} ${last.y.toFixed(2)}`,
+                (curveWidth + 0.5) / 2
+            );
+        }
+        points = [];
+    }
+
+    function clearPad() {
+        svg.innerHTML = '';
+        placeholder.classList.remove('hidden');
+    }
+
+    function buildSvgString() {
+        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">${svg.innerHTML}</svg>`;
+    }
+
+    // --- Wire up events ---
+    svg.addEventListener('mousedown', startDrawing);
+    svg.addEventListener('mousemove', draw);
+    svg.addEventListener('touchstart', startDrawing, { passive: false });
+    svg.addEventListener('touchmove', draw, { passive: false });
+    window.addEventListener('mouseup', stopDrawing);
+    window.addEventListener('touchend', stopDrawing);
+
+    clearBtn.addEventListener('click', clearPad);
+
+    saveBtn.addEventListener('click', () => {
+        if (svg.children.length === 0) {
+            alert(t.emptyAlert);
+            return;
+        }
+        const svgString = buildSvgString();
+        saveBtn.disabled = true;
+        clearBtn.disabled = true;
+        // Mock a tiny network delay so the saved-state transition feels real.
+        setTimeout(() => {
+            const record = persistSaved(svgString);
+            showSavedView(record.svg, formatSavedDate(record.ts));
+            saveBtn.disabled = false;
+            clearBtn.disabled = false;
+        }, 350);
+    });
+
+    resignBtn.addEventListener('click', () => {
+        clearSaved();
+        showSigningView();
+    });
+
+    // --- Initial render ---
+    function init() {
+        applySBBrand();
+        applyTranslations();
+        const existing = loadSaved();
+        if (existing && existing.svg) {
+            showSavedView(existing.svg, formatSavedDate(existing.ts));
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<!-- Widget usage counter — see CLAUDE.md -->
+<script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})();</script>
+
+</body>
+</html>
