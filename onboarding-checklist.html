@@ -358,11 +358,11 @@ function render() {
             </div>
             <div class="cw-task-desc">${tk.desc}</div>
             <div class="cw-task-action">
-              <a class="cw-link-btn" href="${tk.url}" target="_blank" rel="noopener noreferrer">
+              <button class="cw-link-btn" onclick="sbOpenLink('${tk.url}')">
                 <span style="display:inline-flex;width:22px;height:22px;border-radius:6px;background:${ICON_COLORS[tk.badge]};color:${ICON_TEXT_COLORS[tk.badge]};align-items:center;justify-content:center;flex-shrink:0;">${TASK_ICONS[tk.id]}</span>
                 ${t.openTask}
                 ${LINK_SVG}
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -378,7 +378,18 @@ function render() {
   });
 }
 
-// ── Apply static text ─────────────────────────────────────────────────────
+// ── In-app navigation via Staffbase Plugins Client SDK ────────────────────
+// openLink() navigates inside the app; falls back to window.open on desktop/preview
+window.sbOpenLink = function(url) {
+  var sdk = window['plugins-client-sdk'];
+  if (sdk && sdk.openLink) {
+    sdk.openLink(url).catch(function() {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    });
+  } else {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+};
 function applyText() {
   document.getElementById('widget-title').textContent = t.title;
   document.getElementById('widget-sub').textContent   = t.sub;
@@ -396,6 +407,9 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 
+<!-- Staffbase Plugins Client SDK — enables openLink() for in-app navigation -->
+<script src="https://unpkg.com/@staffbase/plugins-client-sdk" crossorigin></script>
+<script>(function(){function sendHeight(){var h=document.documentElement.scrollHeight;if(window.parent!==window){try{window.parent.postMessage({type:'setHeight',height:h},'*');}catch(e){}}};var ro=new ResizeObserver(function(){sendHeight();});ro.observe(document.body);sendHeight();})();</script>
 <!-- Widget usage counter — see CLAUDE.md -->
 <script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})();</script>
 
