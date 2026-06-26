@@ -1,192 +1,702 @@
-# Staffbase Custom Widgets Collection
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Attestation Signing">
+<meta name="widget-description" content="Capture a handwritten e-signature for a policy or document attestation">
+<meta name="widget-tags" content="HR Data, Safety">
+<title>Attestation Signing</title>
 
-A curated collection of self-contained HTML widgets used by Staffbase Solutions Engineers for demos. Designed to be embedded in Staffbase via the Embedded Content widget.
-
-<p align="center">
-  <img src="screenshot.png" alt="Custom Widgets Collection Screenshot" width="700">
-</p>
-
-## Browse Widgets
-
-Visit the **[Widget Gallery](https://staffbase.github.io/solutions-monorepo/)** to browse all available widgets with live previews.
-
-## Usage
-
-### Embedding in Staffbase
-
-1. In Staffbase, add the [**Embedded Content widget**](https://mitarbeiterapp.atlassian.net/wiki/spaces/~712020777983b12cd94c21a21d7c6227c61607/pages/6216450054/Universal+Embedder+Widget).
-2. Enter the URL of the desired widget (e.g., `https://staffbase.github.io/solutions-monorepo/desk-booking.html`)
-
-### Local Preview
-
-Open any `.html` file directly in a browser. All widgets are self-contained — no build step or external dependencies.
-
-## Adding New Widgets
-
-### First time? 5 minutes to your first widget
-
-You don't need to know git, the terminal, or how to write code. The whole flow is three slash-commands inside Claude Code, and Claude does everything else for you.
-
-**Setup (once per Mac):**
-
-1. **Install Claude Code.** Download from <https://claude.com/code> and run the installer like any other Mac app. The first launch asks you to sign in with your Anthropic account — use your Staffbase work email. Then it asks to connect GitHub (so it can clone repos and open pull requests on your behalf) — say yes.
-2. **Open this repo.** In Claude Code, choose *Open from GitHub…* and paste `Staffbase/solutions-monorepo`. Claude Code clones it locally for you. This is the only time anyone touches git, and it's a button click.
-3. You're ready. Switch to the chat panel.
-
-**The three commands you need to know** (just type them in the chat):
-
-| Command | When to use it |
-| --- | --- |
-| `/new-widget` | You're starting from scratch. Claude asks for a name, description, and tags, scaffolds the file, and shows a live preview on the right. You then describe what you want the widget to do, in plain English ("show three cafeteria menus in a tab bar, today's lunch first"), and Claude writes the code. |
-| `/add-widget <https URL>` | You already have a working widget on your own GitHub Pages (or anywhere else) and want to import it 1-to-1. Claude fetches the URL, strips any customer branding, adds the standard styling and translations, and saves it as a new file. |
-| `/ship` | You're happy with the widget. Claude validates it, pushes the change to GitHub, and opens a pull request — no git commands required. |
-
-**The full workflow looks like:**
-
-1. `/new-widget` *or* `/add-widget https://your.example/widget/`
-2. Look at the live preview that opens in the right pane.
-3. Type changes in plain English: *"make the header smaller"*, *"the German translation of 'Course' should be 'Kurs'"*, *"add a 'Mark complete' button"*. Claude edits the file. Repeat until you're happy.
-4. `/ship`
-
-That's it.
-
-**If something goes wrong:**
-
-- **No preview on the right?** Click `widgets/<your-slug>.html` in the file explorer. The preview pane should appear.
-- **Something looks off / a translation reads weird?** Just describe it in chat. Claude will fix it.
-- **`/ship` reports a validation error?** The error text tells you what's wrong (e.g. *"this tag isn't in the canonical taxonomy"*). Paste it back into chat — Claude will fix it and re-run `/ship`.
-- **Stuck on anything else?** Ask your team lead, or use Claude itself — *"what does this error mean?"* works fine.
-
----
-
-### Reference — the three commands in detail
-
-Open the repo in Claude Code (or VS Code with Claude) and use one of these commands:
-
-```
-/new-widget parking-calendar
-```
-Claude asks for a display name, description, and proposes tags. It then scaffolds `widgets/parking-calendar.html` from the template at [`.claude/templates/widget.html`](../.claude/templates/widget.html) — already includes the standard color scheme, dark mode, i18n skeleton for all 6 locales, `applySBBrand()`, and the usage-counter snippet. You then build out the UI.
-
-```
-/add-widget https://your.github.io/some-widget/
-```
-Use this when you already have a working HTML widget hosted somewhere (e.g. an SE's personal GitHub Pages repo) and want to import it 1-to-1. Claude fetches the URL, audits it for customer-brand traces, lists the gaps vs. the rules below, proposes tags, and rewrites the file as `widgets/<slug>.html` with the standard color scheme, dark mode, all 6 locales, `applySBBrand()`, the usage-counter snippet, and the `cw-` class prefix applied. Refuses widgets with external `<script src>` / `<link rel=stylesheet>` dependencies unless you confirm.
-
-```
-/ship
-```
-Claude validates the widget against the rules below, creates a feature branch, commits, pushes, and opens a PR with auto-merge enabled. No git commands required.
-
-#### Handover
-
-Every widget produced or modified through `/new-widget` or `/add-widget` is
-automatically paired with a `handover/<slug>/` folder containing a structured
-`manifest.yaml` (APIs, dependencies, security flags, decision log) and a prose
-`README.md` for Sales → Tech Services handoff. `/ship` strictly gates on this
-folder: missing fields, unconfirmed decisions, or `security_flags.status: block`
-will stop the push. Override (rare) with `/ship --skip-handover` — this adds a
-`Handover-Skipped: true` commit trailer and a 🚧 banner on the PR. Existing
-widgets were retroactively backfilled by `/backfill-handover --all`. See
-[`../handover/README.md`](../handover/README.md) for the full layout and
-[`.claude/handover/schema.md`](../.claude/handover/schema.md) for the manifest
-schema.
-
-The full step-by-step rules (which Claude follows, and which you should follow if scaffolding manually):
-
-1. Create a new `.html` file in the root directory.
-2. Include meta tags so the gallery can discover, tag, and display the widget:
-   ```html
-   <meta name="widget-name" content="...">
-   <meta name="widget-description" content="...">
-   <meta name="widget-tags" content="Scheduling, HR Data">
-   ```
-   Gallery discovery is automatic via the generated `widgets.json` — no need to edit `index.html`.
-3. **Tags**: pick 1–3 functional tags (e.g. `Operations`, `File Management`, `Learning`, `HR Data`, `Reports & Dashboards`, `Communications`, `Scheduling`, `Logistics`, `Safety`, `Finance`, `Travel`, `Media`, `Recognition`, `Misc`) plus any applicable system-integration tag (`Workday`, `SAP Concur`, `ServiceNow`, `Personio`, `Cornerstone`). The gallery uses these for the top-of-page filter bar. When an AI assistant creates a new widget, it must propose tags and confirm them with you before committing.
-4. Keep all CSS/JS inline — no external dependencies.
-5. Use only names from [`Custom Widget Names.txt`](Custom%20Widget%20Names.txt) for any person names.
-6. Paste the usage-counter snippet verbatim just before `</body>` so the gallery can rank the widget by use:
-
-   ```html
-   <!-- Widget usage counter — see CLAUDE.md -->
-   <script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})();</script>
-   ```
-
-   The snippet bumps a shared global counter via a Cloudflare Worker (`widget-counter.klauejohann.workers.dev`), except when the URL carries `?preview=1` (used by the gallery's preview iframes). It also writes to `localStorage` as an instant-render cache; the gallery uses the cache for a flash-free initial paint and then fetches `GET /counts` for the canonical global numbers.
-
-## Git Workflow
-
-New widgets and changes are **never** pushed directly to `main`. Use a feature-branch flow:
-
-1. Create a new branch with a short, descriptive, kebab-case name (e.g. `add-cafeteria-menu-widget`). Branch names must not reference any prospect or customer.
-2. Stage and commit your changes with a generic commit message that describes the change itself.
-3. On the first push, set the upstream branch:
-   ```sh
-   git push --set-upstream origin <branch-name>
-   ```
-4. Open a pull request into `main` for review.
-
-## Confidentiality
-
-Commit messages, branch names, and documentation must **not** contain customer-, prospect-, or deal-specific content (company names, logos, account identifiers, opportunity references, etc.). Keep demo personalization inside widget mock data only, using names from [`Custom Widget Names.txt`](Custom%20Widget%20Names.txt).
-
-## Language
-
-Widgets support **German** (`de`), **British English** (`en-GB`), **American English** (`en-US`), **French** (`fr`), **Spanish** (`es`), and **Japanese** (`ja`). Language switches automatically based on the browser locale. American English (`en-US`) is the default and fallback.
-
-See [`MULTILANGUAGE.md`](MULTILANGUAGE.md) for the full i18n implementation guide (detection, translation objects, `data-i18n`, `loc()` helper, `Intl` formatting).
-
-## Design Guidelines
-
-- **Self-contained**: Each widget is a single HTML file with inline CSS and vanilla JS
-- **Colors**: CSS variables — primary blue, success green, warning amber, danger red. All widgets must use this standard scheme:
-
-```css
-:root {
-    --primary: var(--sb-brand, #2563eb);
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --text: #1f2937;
-    --text-light: #6b7280;
-    --bg: #ffffff;
-    --bg-gray: #f9fafb;
-    --border: #e5e7eb;
-}
-@media (prefers-color-scheme: dark) {
+<style>
     :root {
-        --primary: var(--sb-brand, #3b9eff);
-        --success: #34d399;
-        --warning: #fbbf24;
-        --danger: #f87171;
-        --text: #f3f4f6;
-        --text-light: #9ca3af;
-        --bg: #1f2937;
-        --bg-gray: #111827;
-        --border: #374151;
+        --primary: var(--sb-brand, #2563eb);
+        --primary-soft: rgba(37, 99, 235, 0.1);
+        --success: #10b981;
+        --success-soft: #ecfdf5;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --text: #1f2937;
+        --text-light: #6b7280;
+        --bg: #ffffff;
+        --bg-gray: #f9fafb;
+        --border: #e5e7eb;
     }
-}
-```
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --primary: var(--sb-brand, #3b9eff);
+            --primary-soft: rgba(59, 158, 255, 0.15);
+            --success: #34d399;
+            --success-soft: #0b1f19;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --text: #f3f4f6;
+            --text-light: #9ca3af;
+            --bg: #1f2937;
+            --bg-gray: #111827;
+            --border: #374151;
+        }
+    }
 
-- **Staffbase Branding**: `--primary` uses `var(--sb-brand, <fallback>)` so widgets automatically adopt the Staffbase instance's brand color. Since CSS custom properties don't cascade into iframes, widgets also include an `applySBBrand()` JS function (called at the start of `init()`) that reads `--sb-brand` from the iframe's own `:root` or from the parent frame (same-origin only) and sets `--primary` accordingly.
+    * { box-sizing: border-box; }
 
-- **Typography**: System font stack (`-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`)
-- **Layout**: Card-based UI with CSS Grid/Flexbox, mobile-first
-- **Dark mode**: `@media (prefers-color-scheme: dark)` with CSS variable overrides
-- **CSS prefixing**: Generic class names use a `cw-` prefix (e.g. `.cw-btn`, `.cw-badge`, `.cw-tab`) to avoid collisions with the Staffbase host app. Widget-specific compound names (e.g. `.delivery-card`) don't need the prefix.
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
 
-- **Recency of dates/times**: Mock data must always feel current. Never hardcode absolute date strings — anchor every date, month, or time to `new Date()` at runtime so the widget looks fresh whenever it loads.
-  - **Single-view data** (today's schedule, current shift, today's menu): use today's date.
-  - **Historical lists / activity feeds**: spread across the **past 7 days**.
-  - **Forward-looking views** (bookings, upcoming shifts, planned deliveries): spread across the **next 7 days**.
-  - Use small helpers like `daysAgo(n)` / `daysFromNow(n)` built on `new Date()`, and format with `Intl.DateTimeFormat(LANG, …)`.
+    .widget {
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 20px;
+    }
 
-  ```js
-  const now = new Date();
-  const daysAgo = n => { const d = new Date(now); d.setDate(d.getDate() - n); return d; };
-  const daysFromNow = n => { const d = new Date(now); d.setDate(d.getDate() + n); return d; };
-  ```
+    .cw-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 4px;
+    }
 
-## License
+    .cw-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--primary-soft);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
 
-Internal use only — Staffbase Solutions Engineering
+    .cw-icon svg { width: 18px; height: 18px; }
+
+    .cw-title {
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .cw-subtitle {
+        font-size: 13px;
+        color: var(--text-light);
+        margin: 0 0 16px 42px;
+    }
+
+    .doc-card {
+        background: var(--bg-gray);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+    }
+
+    .doc-card .doc-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+
+    .doc-card .doc-meta::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--warning);
+    }
+
+    .doc-card.signed .doc-meta::before {
+        background: var(--success);
+    }
+
+    .doc-card .doc-name {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .doc-card .doc-desc {
+        font-size: 13px;
+        color: var(--text-light);
+        line-height: 1.45;
+    }
+
+    .signing-label {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 4px 0 8px 0;
+    }
+
+    .signature-container {
+        border: 2px dashed var(--primary);
+        border-radius: 10px;
+        background: #ffffff;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .signature-container.dark-pad {
+        background: #ffffff;
+    }
+
+    #signature-pad {
+        display: block;
+        width: 100%;
+        height: auto;
+        cursor: crosshair;
+        touch-action: none;
+    }
+
+    .signature-placeholder {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        font-size: 13px;
+        pointer-events: none;
+        transition: opacity 0.2s;
+        font-style: italic;
+    }
+
+    .signature-placeholder.hidden { opacity: 0; }
+
+    .button-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .cw-btn {
+        flex: 1;
+        padding: 11px 14px;
+        font-size: 14px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-weight: 600;
+        font-family: inherit;
+        transition: filter 0.15s, opacity 0.15s;
+    }
+
+    .cw-btn:hover:not(:disabled) { filter: brightness(0.93); }
+
+    .cw-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .cw-btn.cw-btn-primary {
+        background: var(--primary);
+        color: #fff;
+        flex: 2;
+    }
+
+    .cw-btn.cw-btn-secondary {
+        background: var(--bg);
+        color: var(--text);
+        border-color: var(--border);
+    }
+
+    .cw-status-line {
+        margin-top: 14px;
+        font-size: 12px;
+        color: var(--text-light);
+        text-align: center;
+        line-height: 1.5;
+    }
+
+    /* Saved view */
+    .saved-view {
+        text-align: center;
+    }
+
+    .saved-icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 12px;
+        background: var(--success-soft);
+        color: var(--success);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .saved-icon svg { width: 28px; height: 28px; }
+
+    .saved-heading {
+        font-size: 17px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .saved-sub {
+        font-size: 13px;
+        color: var(--text-light);
+        margin-bottom: 16px;
+    }
+
+    .saved-svg-frame {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 12px;
+    }
+
+    .saved-svg-frame svg {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .resign-link {
+        background: none;
+        border: none;
+        color: var(--primary);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-family: inherit;
+    }
+
+    .resign-link:hover { background: var(--primary-soft); }
+
+    .hidden { display: none !important; }
+</style>
+</head>
+
+<body>
+
+<div class="widget">
+
+    <div class="cw-header">
+        <div class="cw-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/><path d="M14.06 6.19l3.75 3.75"/><path d="M3 21h18"/></svg>
+        </div>
+        <h1 class="cw-title" data-i18n="title"></h1>
+    </div>
+    <p class="cw-subtitle" data-i18n="subtitle"></p>
+
+    <!-- Signing view -->
+    <div id="signing-view">
+        <div class="doc-card">
+            <div class="doc-meta">
+                <span data-i18n="docStatus"></span>
+            </div>
+            <div class="doc-name" data-i18n="docName"></div>
+            <div class="doc-desc" data-i18n="docDesc"></div>
+        </div>
+
+        <div class="signing-label" data-i18n="signLabel"></div>
+
+        <div class="signature-container">
+            <svg id="signature-pad" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet" aria-label="Signature canvas"></svg>
+            <div id="signature-placeholder" class="signature-placeholder" data-i18n="placeholder"></div>
+        </div>
+
+        <div class="button-row">
+            <button id="clear-btn" class="cw-btn cw-btn-secondary" data-i18n="clearBtn"></button>
+            <button id="save-btn" class="cw-btn cw-btn-primary" data-i18n="saveBtn"></button>
+        </div>
+
+        <div class="cw-status-line" data-i18n="legalNote"></div>
+    </div>
+
+    <!-- Saved view -->
+    <div id="saved-view" class="saved-view hidden">
+        <div class="saved-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+        </div>
+        <div class="saved-heading" data-i18n="savedHeading"></div>
+        <div class="saved-sub" id="saved-sub"></div>
+        <div class="saved-svg-frame" id="saved-svg-frame"></div>
+        <button class="resign-link" id="resign-btn" data-i18n="resignBtn"></button>
+    </div>
+
+</div>
+
+<script>
+    // --- Language detection (per widgets/MULTILANGUAGE.md) ---
+    const LANG = (() => {
+        const l = navigator.language || '';
+        if (l.startsWith('de')) return 'de';
+        if (l.startsWith('fr')) return 'fr';
+        if (l.startsWith('es')) return 'es';
+        if (l.startsWith('ja')) return 'ja';
+        if (l === 'en-GB')      return 'en-GB';
+        return 'en-US';
+    })();
+    document.documentElement.lang = LANG;
+
+    const LOCALE = {
+        'de': 'de-DE', 'fr': 'fr-FR', 'es': 'es-ES',
+        'ja': 'ja-JP', 'en-GB': 'en-GB', 'en-US': 'en-US'
+    }[LANG];
+
+    // --- Translations ---
+    const T = {
+        de: {
+            title: 'Bestätigung erforderlich',
+            subtitle: 'Bitte unterschreiben Sie das untenstehende Dokument',
+            docStatus: 'Ausstehend',
+            docName: 'Verhaltenskodex 2026',
+            docDesc: 'Die jährliche Bestätigung unseres Verhaltenskodex ist verpflichtend. Bitte lesen und unterschreiben Sie unten.',
+            signLabel: 'Hier unterschreiben:',
+            placeholder: 'Mit Maus oder Finger hier unterschreiben',
+            clearBtn: 'Löschen',
+            saveBtn: 'Unterschrift speichern',
+            legalNote: 'Mit dem Speichern bestätigen Sie, dass Sie das Dokument gelesen und verstanden haben.',
+            savedHeading: 'Unterschrift gespeichert',
+            savedSub: 'Unterschrieben am {date}',
+            resignBtn: 'Erneut unterschreiben',
+            emptyAlert: 'Bitte zuerst eine Unterschrift abgeben.'
+        },
+        fr: {
+            title: 'Attestation requise',
+            subtitle: 'Veuillez signer le document ci-dessous',
+            docStatus: 'En attente',
+            docName: 'Code de conduite 2026',
+            docDesc: 'L’attestation annuelle de notre code de conduite est obligatoire. Veuillez lire et signer ci-dessous.',
+            signLabel: 'Signez ici :',
+            placeholder: 'Signez ici avec votre souris ou votre doigt',
+            clearBtn: 'Effacer',
+            saveBtn: 'Enregistrer la signature',
+            legalNote: 'En enregistrant, vous confirmez avoir lu et compris le document.',
+            savedHeading: 'Signature enregistrée',
+            savedSub: 'Signé le {date}',
+            resignBtn: 'Signer à nouveau',
+            emptyAlert: 'Veuillez d’abord fournir une signature.'
+        },
+        es: {
+            title: 'Atestación requerida',
+            subtitle: 'Por favor, firme el documento a continuación',
+            docStatus: 'Pendiente',
+            docName: 'Código de conducta 2026',
+            docDesc: 'La atestación anual de nuestro código de conducta es obligatoria. Por favor, lea y firme a continuación.',
+            signLabel: 'Firme aquí:',
+            placeholder: 'Firme aquí con el ratón o el dedo',
+            clearBtn: 'Borrar',
+            saveBtn: 'Guardar firma',
+            legalNote: 'Al guardar, confirma que ha leído y entendido el documento.',
+            savedHeading: 'Firma guardada',
+            savedSub: 'Firmado el {date}',
+            resignBtn: 'Firmar de nuevo',
+            emptyAlert: 'Por favor, proporcione una firma primero.'
+        },
+        ja: {
+            title: '署名が必要です',
+            subtitle: '下記の文書に署名してください',
+            docStatus: '未対応',
+            docName: '行動規範 2026',
+            docDesc: '行動規範の年次確認は必須です。お読みのうえ、下記にご署名ください。',
+            signLabel: 'ここに署名:',
+            placeholder: 'マウスまたは指で署名してください',
+            clearBtn: 'クリア',
+            saveBtn: '署名を保存',
+            legalNote: '保存することで、文書を読み理解したことを確認したものとみなされます。',
+            savedHeading: '署名を保存しました',
+            savedSub: '{date}に署名済み',
+            resignBtn: '再度署名する',
+            emptyAlert: '先に署名を行ってください。'
+        },
+        'en-GB': {
+            title: 'Attestation Required',
+            subtitle: 'Please sign the document below',
+            docStatus: 'Pending',
+            docName: 'Code of Conduct 2026',
+            docDesc: 'The yearly attestation of our Code of Conduct is mandatory. Please read and sign below.',
+            signLabel: 'Sign below:',
+            placeholder: 'Sign here with your mouse or finger',
+            clearBtn: 'Clear',
+            saveBtn: 'Save signature',
+            legalNote: 'By saving, you confirm you have read and understood the document.',
+            savedHeading: 'Signature saved',
+            savedSub: 'Signed on {date}',
+            resignBtn: 'Sign again',
+            emptyAlert: 'Please provide a signature first.'
+        },
+        'en-US': {
+            title: 'Attestation Required',
+            subtitle: 'Please sign the document below',
+            docStatus: 'Pending',
+            docName: 'Code of Conduct 2026',
+            docDesc: 'The annual attestation of our Code of Conduct is mandatory. Please read and sign below.',
+            signLabel: 'Sign below:',
+            placeholder: 'Sign here with your mouse or finger',
+            clearBtn: 'Clear',
+            saveBtn: 'Save Signature',
+            legalNote: 'By saving, you confirm you have read and understood the document.',
+            savedHeading: 'Signature saved',
+            savedSub: 'Signed on {date}',
+            resignBtn: 'Sign again',
+            emptyAlert: 'Please provide a signature first.'
+        }
+    };
+    const t = T[LANG] ?? T['en-US'];
+
+    function tr(key, vars) {
+        let s = t[key] || key;
+        if (vars) Object.keys(vars).forEach(k => { s = s.replaceAll('{' + k + '}', vars[k]); });
+        return s;
+    }
+
+    // --- Staffbase brand color passthrough ---
+    function applySBBrand() {
+        let sb = getComputedStyle(document.documentElement).getPropertyValue('--sb-brand').trim();
+        if (sb) {
+            document.documentElement.style.setProperty('--primary', sb);
+            return;
+        }
+        try {
+            sb = window.parent.getComputedStyle(window.parent.document.documentElement)
+                    .getPropertyValue('--sb-brand').trim();
+            if (sb) document.documentElement.style.setProperty('--primary', sb);
+        } catch (e) { /* cross-origin, ignore */ }
+    }
+
+    // --- Apply translations ---
+    function applyTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.dataset.i18n;
+            if (t[key] !== undefined) el.textContent = t[key];
+        });
+    }
+
+    // --- View switching ---
+    const signingView = document.getElementById('signing-view');
+    const savedView = document.getElementById('saved-view');
+    const savedSub = document.getElementById('saved-sub');
+    const savedFrame = document.getElementById('saved-svg-frame');
+
+    function showSavedView(svgString, dateStr) {
+        signingView.classList.add('hidden');
+        savedView.classList.remove('hidden');
+        savedFrame.innerHTML = svgString;
+        savedSub.textContent = tr('savedSub', { date: dateStr });
+    }
+
+    function showSigningView() {
+        savedView.classList.add('hidden');
+        signingView.classList.remove('hidden');
+        clearPad();
+    }
+
+    // --- Persistence (per-browser; mocked, no backend) ---
+    const STORAGE_KEY = 'attestation-signing/code-of-conduct-2026';
+
+    function loadSaved() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (e) { return null; }
+    }
+
+    function persistSaved(svgString) {
+        const record = { svg: svgString, ts: new Date().toISOString() };
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(record)); } catch (e) {}
+        return record;
+    }
+
+    function clearSaved() {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    }
+
+    function formatSavedDate(iso) {
+        const d = new Date(iso);
+        return new Intl.DateTimeFormat(LOCALE, {
+            year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        }).format(d);
+    }
+
+    // --- Signature pad (tapering Bézier strokes ported from source) ---
+    const svg = document.getElementById('signature-pad');
+    const placeholder = document.getElementById('signature-placeholder');
+    const clearBtn = document.getElementById('clear-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const resignBtn = document.getElementById('resign-btn');
+
+    let drawing = false;
+    let points = [];
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    function getEventPosition(e) {
+        const rect = svg.getBoundingClientRect();
+        const scaleX = 400 / rect.width;
+        const scaleY = 200 / rect.height;
+        const cx = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+        const cy = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+        return { x: (cx - rect.left) * scaleX, y: (cy - rect.top) * scaleY };
+    }
+
+    function distance(p1, p2) {
+        return Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    }
+
+    function midpoint(p1, p2) {
+        return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+    }
+
+    function strokeColor() {
+        const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+        return dark ? '#0f172a' : '#000000';
+    }
+
+    function appendPath(d, width) {
+        const path = document.createElementNS(SVG_NS, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', strokeColor());
+        path.setAttribute('stroke-width', width.toFixed(2));
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('fill', 'none');
+        svg.appendChild(path);
+    }
+
+    function startDrawing(e) {
+        e.preventDefault();
+        drawing = true;
+        const { x, y } = getEventPosition(e);
+        points = [{ x, y, width: 0.5 }];
+        placeholder.classList.add('hidden');
+    }
+
+    function draw(e) {
+        if (!drawing) return;
+        e.preventDefault();
+        const { x, y } = getEventPosition(e);
+        const lastPoint = points[points.length - 1];
+        const dist = distance(lastPoint, { x, y });
+        if (dist < 2) return;
+
+        const newWidth = Math.min(2.5, Math.max(0.5, 2.5 - dist / 14));
+        points.push({ x, y, width: newWidth });
+
+        if (points.length === 2) {
+            const p0 = points[0];
+            const p1 = points[1];
+            const mid1 = midpoint(p0, p1);
+            appendPath(
+                `M ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} L ${mid1.x.toFixed(2)} ${mid1.y.toFixed(2)}`,
+                (p0.width + p1.width) / 2
+            );
+        } else if (points.length > 2) {
+            const p0 = points[points.length - 3];
+            const p1 = points[points.length - 2];
+            const p2 = points[points.length - 1];
+            const mid1 = midpoint(p0, p1);
+            const mid2 = midpoint(p1, p2);
+            appendPath(
+                `M ${mid1.x.toFixed(2)} ${mid1.y.toFixed(2)} Q ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}, ${mid2.x.toFixed(2)} ${mid2.y.toFixed(2)}`,
+                (p1.width + p2.width) / 2
+            );
+        }
+    }
+
+    function stopDrawing() {
+        if (!drawing) return;
+        drawing = false;
+
+        if (points.length === 1) {
+            const p = points[0];
+            const dot = document.createElementNS(SVG_NS, 'circle');
+            dot.setAttribute('cx', p.x.toFixed(2));
+            dot.setAttribute('cy', p.y.toFixed(2));
+            dot.setAttribute('r', '1.25');
+            dot.setAttribute('fill', strokeColor());
+            svg.appendChild(dot);
+        } else if (points.length > 1) {
+            const last = points[points.length - 1];
+            const secondLast = points[points.length - 2];
+            const lastMid = midpoint(secondLast, last);
+            const curveWidth = (secondLast.width + last.width) / 2;
+            appendPath(
+                `M ${lastMid.x.toFixed(2)} ${lastMid.y.toFixed(2)} L ${last.x.toFixed(2)} ${last.y.toFixed(2)}`,
+                (curveWidth + 0.5) / 2
+            );
+        }
+        points = [];
+    }
+
+    function clearPad() {
+        svg.innerHTML = '';
+        placeholder.classList.remove('hidden');
+    }
+
+    function buildSvgString() {
+        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">${svg.innerHTML}</svg>`;
+    }
+
+    // --- Wire up events ---
+    svg.addEventListener('mousedown', startDrawing);
+    svg.addEventListener('mousemove', draw);
+    svg.addEventListener('touchstart', startDrawing, { passive: false });
+    svg.addEventListener('touchmove', draw, { passive: false });
+    window.addEventListener('mouseup', stopDrawing);
+    window.addEventListener('touchend', stopDrawing);
+
+    clearBtn.addEventListener('click', clearPad);
+
+    saveBtn.addEventListener('click', () => {
+        if (svg.children.length === 0) {
+            alert(t.emptyAlert);
+            return;
+        }
+        const svgString = buildSvgString();
+        saveBtn.disabled = true;
+        clearBtn.disabled = true;
+        // Mock a tiny network delay so the saved-state transition feels real.
+        setTimeout(() => {
+            const record = persistSaved(svgString);
+            showSavedView(record.svg, formatSavedDate(record.ts));
+            saveBtn.disabled = false;
+            clearBtn.disabled = false;
+        }, 350);
+    });
+
+    resignBtn.addEventListener('click', () => {
+        clearSaved();
+        showSigningView();
+    });
+
+    // --- Initial render ---
+    function init() {
+        applySBBrand();
+        applyTranslations();
+        const existing = loadSaved();
+        if (existing && existing.svg) {
+            showSavedView(existing.svg, formatSavedDate(existing.ts));
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<!-- Widget usage counter — see CLAUDE.md -->
+<script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})();</script>
+
+</body>
+</html>
