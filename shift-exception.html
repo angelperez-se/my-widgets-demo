@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Shift Exception">
+<meta name="widget-description" content="Employees report shift exceptions (shift change, absence, overtime) with a note and receive a timestamped folio for payroll and legal records.">
+<meta name="widget-tags" content="HR Workforce">
+<title>Shift Exception</title>
+
+<style>
+  :root {
+    --primary:       var(--sb-brand, #2563eb);
+    --primary-soft:  rgba(37, 99, 235, 0.10);
+    --success:       #10b981;
+    --success-soft:  #ecfdf5;
+    --warning:       #f59e0b;
+    --warning-soft:  #fffbeb;
+    --danger:        #ef4444;
+    --text:          #1f2937;
+    --text-light:    #6b7280;
+    --bg:            transparent;
+    --bg-card:       #ffffff;
+    --bg-gray:       #f9fafb;
+    --border:        #e5e7eb;
+    --radius:        12px;
+    --radius-sm:     8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --primary:       var(--sb-brand, #3b9eff);
+      --primary-soft:  rgba(59, 158, 255, 0.15);
+      --success:       #34d399;
+      --success-soft:  #0b1f19;
+      --warning:       #fbbf24;
+      --warning-soft:  #1c1307;
+      --danger:        #f87171;
+      --text:          #f3f4f6;
+      --text-light:    #9ca3af;
+      --bg-card:       #1f2937;
+      --bg-gray:       #111827;
+      --border:        #374151;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .cw-widget {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .cw-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .cw-icon {
+    width: 32px; height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cw-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .cw-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  .cw-subtitle { font-size: 13px; color: var(--text-light); margin: 0 0 16px 42px; }
+
+  /* ── Card ── */
+  .cw-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+
+  /* ── Warning notice ── */
+  .cw-notice {
+    background: var(--warning-soft);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-left: 3px solid var(--warning);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    font-size: 12px;
+    color: var(--text-light);
+    line-height: 1.5;
+  }
+  .cw-notice strong { color: var(--text); }
+
+  /* ── Employee pre-fill strip ── */
+  .cw-prefill {
+    background: var(--bg-gray);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cw-prefill-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cw-prefill-info { flex: 1; }
+  .cw-prefill-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .cw-prefill-meta { font-size: 11px; color: var(--text-light); margin-top: 1px; }
+  .cw-prefill-badge {
+    font-size: 10px; font-weight: 600;
+    padding: 2px 8px; border-radius: 20px;
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+
+  /* ── Form fields ── */
+  .cw-field { margin-bottom: 14px; }
+  .cw-field:last-child { margin-bottom: 0; }
+
+  .cw-label {
+    font-size: 12px; font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .cw-required { color: var(--danger); margin-left: 2px; }
+
+  /* Type selector chips */
+  .cw-type-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .cw-type-chip {
+    flex: 1; min-width: 100px;
+    padding: 10px 8px;
+    background: var(--bg-gray);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+  }
+  .cw-type-chip:hover { border-color: var(--primary); }
+  .cw-type-chip.active {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+  }
+  .cw-type-chip-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+  .cw-type-chip-label { font-size: 12px; font-weight: 600; color: var(--text); }
+
+  /* Date/time inputs */
+  .cw-input-row { display: flex; gap: 8px; }
+  .cw-input-row .cw-input-wrap { flex: 1; }
+
+  .cw-input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg-gray);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .cw-input:focus { outline: none; border-color: var(--primary); background: var(--bg-card); }
+  .cw-input.error { border-color: var(--danger); }
+
+  .cw-select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg-gray);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    transition: border-color 0.15s;
+  }
+  .cw-select:focus { outline: none; border-color: var(--primary); background-color: var(--bg-card); }
+
+  .cw-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg-gray);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    resize: vertical;
+    line-height: 1.5;
+    transition: border-color 0.15s;
+  }
+  .cw-textarea:focus { outline: none; border-color: var(--primary); background: var(--bg-card); }
+  .cw-textarea::placeholder { color: var(--text-light); }
+
+  .cw-field-hint { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+  .cw-error-msg { font-size: 11px; color: var(--danger); margin-top: 4px; display: none; }
+  .cw-error-msg.visible { display: block; }
+
+  /* ── Buttons ── */
+  .cw-btn-primary {
+    display: block; width: 100%;
+    padding: 12px 16px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 14px; font-weight: 600;
+    font-family: inherit;
+    border: none; border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: filter 0.15s, opacity 0.15s;
+    text-align: center;
+  }
+  .cw-btn-primary:hover { filter: brightness(1.1); }
+  .cw-btn-primary:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
+
+  /* ── Success screen ── */
+  .cw-success {
+    display: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 20px;
+    text-align: center;
+  }
+  .cw-success-icon {
+    width: 52px; height: 52px;
+    background: var(--success-soft);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+  }
+  .cw-success-icon svg { width: 26px; height: 26px; stroke: var(--success); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .cw-success-title { font-size: 17px; font-weight: 700; color: var(--text); margin: 0 0 6px; letter-spacing: -0.02em; }
+  .cw-success-sub { font-size: 13px; color: var(--text-light); line-height: 1.6; margin: 0 0 18px; }
+
+  .cw-receipt {
+    background: var(--bg-gray);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    text-align: left;
+    margin-bottom: 14px;
+  }
+  .cw-receipt-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .cw-receipt-row:last-child { border-bottom: none; }
+  .cw-receipt-label { color: var(--text-light); }
+  .cw-receipt-val { font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+  .cw-receipt-val.mono { font-family: ui-monospace, "SF Mono", monospace; font-size: 11px; }
+
+  .cw-success-note {
+    font-size: 11px; color: var(--text-light);
+    line-height: 1.5; margin: 0;
+  }
+  .cw-btn-secondary {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 9px 18px;
+    background: var(--bg-gray);
+    color: var(--text);
+    font-size: 13px; font-weight: 600;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="cw-widget">
+
+  <!-- Header -->
+  <div class="cw-header">
+    <div class="cw-icon">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+    </div>
+    <h2 class="cw-title" id="widget-title">Shift Exception</h2>
+  </div>
+  <p class="cw-subtitle" id="widget-sub">Report a shift change, absence, or overtime before payroll closes.</p>
+
+  <!-- Form -->
+  <form id="exception-form" onsubmit="handleSubmit(event)" novalidate>
+
+    <!-- Notice -->
+    <div class="cw-notice" id="notice-box">
+      <strong id="notice-title">⏱ Payroll deadline reminder</strong><br>
+      <span id="notice-body">Exceptions must be submitted before payroll closes. Late submissions may cause payment errors.</span>
+    </div>
+
+    <!-- Pre-fill employee card -->
+    <div class="cw-card" style="padding:12px 14px;margin-bottom:10px;">
+      <div class="cw-prefill">
+        <div class="cw-prefill-avatar" id="emp-initials">AG</div>
+        <div class="cw-prefill-info">
+          <div class="cw-prefill-name" id="emp-name">Ana González</div>
+          <div class="cw-prefill-meta" id="emp-meta">Ventas · Site Monterrey 3</div>
+        </div>
+        <span class="cw-prefill-badge" id="emp-badge">Pre-filled</span>
+      </div>
+    </div>
+
+    <!-- Main form card -->
+    <div class="cw-card">
+
+      <!-- Exception type -->
+      <div class="cw-field">
+        <label class="cw-label" id="lbl-type">Exception type <span class="cw-required">*</span></label>
+        <div class="cw-type-row" id="type-row">
+          <div class="cw-type-chip" data-type="shift" tabindex="0" role="button">
+            <span class="cw-type-chip-icon">🔄</span>
+            <span class="cw-type-chip-label" id="type-shift">Shift change</span>
+          </div>
+          <div class="cw-type-chip" data-type="absence" tabindex="0" role="button">
+            <span class="cw-type-chip-icon">🏠</span>
+            <span class="cw-type-chip-label" id="type-absence">Absence</span>
+          </div>
+          <div class="cw-type-chip" data-type="overtime" tabindex="0" role="button">
+            <span class="cw-type-chip-icon">⏱</span>
+            <span class="cw-type-chip-label" id="type-overtime">Overtime</span>
+          </div>
+        </div>
+        <p class="cw-error-msg" id="err-type">Please select an exception type.</p>
+      </div>
+
+      <!-- Date -->
+      <div class="cw-field">
+        <label class="cw-label" for="field-date" id="lbl-date">Date <span class="cw-required">*</span></label>
+        <input type="date" id="field-date" class="cw-input">
+        <p class="cw-error-msg" id="err-date">Please select a date.</p>
+      </div>
+
+      <!-- Time range — shown for shift/overtime, hidden for absence -->
+      <div class="cw-field" id="time-block">
+        <label class="cw-label" id="lbl-time">Time <span class="cw-required">*</span></label>
+        <div class="cw-input-row">
+          <div class="cw-input-wrap">
+            <input type="time" id="field-start" class="cw-input">
+          </div>
+          <div style="display:flex;align-items:center;color:var(--text-light);font-size:13px;padding:0 2px;">→</div>
+          <div class="cw-input-wrap">
+            <input type="time" id="field-end" class="cw-input">
+          </div>
+        </div>
+        <p class="cw-error-msg" id="err-time">Please enter start and end time.</p>
+      </div>
+
+      <!-- Reason (dropdown) -->
+      <div class="cw-field">
+        <label class="cw-label" for="field-reason" id="lbl-reason">Reason <span class="cw-required">*</span></label>
+        <select id="field-reason" class="cw-select">
+          <option value="" id="reason-placeholder">Select a reason…</option>
+        </select>
+        <p class="cw-error-msg" id="err-reason">Please select a reason.</p>
+      </div>
+
+      <!-- Note -->
+      <div class="cw-field">
+        <label class="cw-label" for="field-note" id="lbl-note">Additional note</label>
+        <textarea id="field-note" class="cw-textarea" rows="3"></textarea>
+        <p class="cw-field-hint" id="hint-note">Optional. Include any context that helps your coordinator or HR.</p>
+      </div>
+
+    </div>
+
+    <button type="submit" class="cw-btn-primary" id="submit-btn">Submit exception →</button>
+
+  </form>
+
+  <!-- Success -->
+  <div class="cw-success" id="success-screen">
+    <div class="cw-success-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h3 class="cw-success-title" id="success-title">Exception registered</h3>
+    <p class="cw-success-sub" id="success-sub">Your exception has been recorded. Your coordinator and HR Ops have been notified.</p>
+
+    <div class="cw-receipt" id="receipt"></div>
+
+    <p class="cw-success-note" id="success-note">Keep this folio as proof of submission. It is timestamped and logged.</p>
+    <button class="cw-btn-secondary" id="new-btn" onclick="resetForm()">Submit another →</button>
+  </div>
+
+</div>
+
+<script>
+(function () {
+
+  // ── Language ──────────────────────────────────────────────────────────────
+  const LANG = (() => {
+    const l = navigator.language || '';
+    if (l.startsWith('de'))    return 'de';
+    if (l.startsWith('fr'))    return 'fr';
+    if (l.startsWith('es'))    return 'es';
+    if (l.startsWith('ja'))    return 'ja';
+    if (l.startsWith('en-GB')) return 'en-GB';
+    return 'en-US';
+  })();
+  document.documentElement.lang = LANG;
+
+  const LOCALE = {
+    'de':'de-DE','fr':'fr-FR','es':'es-ES',
+    'ja':'ja-JP','en-GB':'en-GB','en-US':'en-US'
+  }[LANG];
+
+  // ── Translations ──────────────────────────────────────────────────────────
+  const T = {
+    'en-US': {
+      title: 'Shift Exception',
+      sub: 'Report a shift change, absence, or overtime before payroll closes.',
+      noticeTitle: '⏱ Payroll deadline reminder',
+      noticeBody: 'Exceptions must be submitted before payroll closes. Late submissions may cause payment errors on your next paycheck.',
+      empBadge: 'Pre-filled from HR system',
+      lblType: 'Exception type',
+      typeShift: 'Shift change', typeAbsence: 'Absence', typeOvertime: 'Overtime',
+      errType: 'Please select an exception type.',
+      lblDate: 'Date', errDate: 'Please select a date.',
+      lblTime: 'Time range', errTime: 'Please enter start and end time.',
+      lblReason: 'Reason', errReason: 'Please select a reason.',
+      reasonPlaceholder: 'Select a reason…',
+      reasonsShift:    ['Schedule adjustment by coordinator','Personal appointment','Medical appointment','Family emergency','Transport issue','Other'],
+      reasonsAbsence:  ['Illness (sick leave)','Personal emergency','Family emergency','Medical appointment','Bereavement','Other'],
+      reasonsOvertime: ['Project deadline','Shift coverage for colleague','Supervisor request','Client requirement','Other'],
+      lblNote: 'Additional note',
+      hintNote: 'Optional. Include any context that helps your coordinator or HR.',
+      notePlaceholder: 'e.g. Covering for Carlos who called in sick. Approved verbally by supervisor.',
+      submit: 'Submit exception →',
+      successTitle: 'Exception registered',
+      successSub: 'Your exception has been recorded. Your coordinator and HR Ops have been notified.',
+      receiptType: 'Type', receiptDate: 'Date', receiptTime: 'Time',
+      receiptReason: 'Reason', receiptFolio: 'Folio', receiptTs: 'Timestamp',
+      receiptStatus: 'Status', receiptStatusVal: 'Submitted — pending review',
+      successNote: 'Keep this folio as proof of submission. It is timestamped and logged for payroll and compliance.',
+      newBtn: 'Submit another →',
+    },
+    'en-GB': {
+      title: 'Shift Exception',
+      sub: 'Report a shift change, absence, or overtime before payroll closes.',
+      noticeTitle: '⏱ Payroll deadline reminder',
+      noticeBody: 'Exceptions must be submitted before payroll closes to avoid payment errors.',
+      empBadge: 'Pre-filled from HR system',
+      lblType: 'Exception type',
+      typeShift: 'Shift change', typeAbsence: 'Absence', typeOvertime: 'Overtime',
+      errType: 'Please select an exception type.',
+      lblDate: 'Date', errDate: 'Please select a date.',
+      lblTime: 'Time range', errTime: 'Please enter start and end time.',
+      lblReason: 'Reason', errReason: 'Please select a reason.',
+      reasonPlaceholder: 'Select a reason…',
+      reasonsShift:    ['Schedule adjustment by coordinator','Personal appointment','Medical appointment','Family emergency','Transport issue','Other'],
+      reasonsAbsence:  ['Illness (sick leave)','Personal emergency','Family emergency','Medical appointment','Bereavement','Other'],
+      reasonsOvertime: ['Project deadline','Shift coverage for colleague','Manager request','Client requirement','Other'],
+      lblNote: 'Additional note',
+      hintNote: 'Optional. Include any context that helps your coordinator or HR.',
+      notePlaceholder: 'e.g. Covering for a colleague. Approved verbally by manager.',
+      submit: 'Submit exception →',
+      successTitle: 'Exception registered',
+      successSub: 'Your exception has been recorded. Your coordinator and HR Ops have been notified.',
+      receiptType: 'Type', receiptDate: 'Date', receiptTime: 'Time',
+      receiptReason: 'Reason', receiptFolio: 'Folio', receiptTs: 'Timestamp',
+      receiptStatus: 'Status', receiptStatusVal: 'Submitted — pending review',
+      successNote: 'Keep this folio as proof of submission. Timestamped and logged for payroll and compliance.',
+      newBtn: 'Submit another →',
+    },
+    'es': {
+      title: 'Excepción de Turno',
+      sub: 'Registra un cambio de turno, ausencia o tiempo extra antes del cierre de nómina.',
+      noticeTitle: '⏱ Aviso de cierre de nómina',
+      noticeBody: 'Las excepciones deben registrarse antes del cierre de nómina. Los registros tardíos pueden causar errores en tu próximo pago.',
+      empBadge: 'Pre-llenado desde Oracle HCM',
+      lblType: 'Tipo de excepción',
+      typeShift: 'Cambio de turno', typeAbsence: 'Ausencia', typeOvertime: 'Tiempo extra',
+      errType: 'Selecciona el tipo de excepción.',
+      lblDate: 'Fecha', errDate: 'Selecciona una fecha.',
+      lblTime: 'Horario', errTime: 'Ingresa hora de inicio y fin.',
+      lblReason: 'Motivo', errReason: 'Selecciona un motivo.',
+      reasonPlaceholder: 'Selecciona un motivo…',
+      reasonsShift:    ['Ajuste de horario por coordinador','Cita personal','Cita médica','Emergencia familiar','Problema de transporte','Otro'],
+      reasonsAbsence:  ['Enfermedad (incapacidad)','Emergencia personal','Emergencia familiar','Cita médica','Duelo','Otro'],
+      reasonsOvertime: ['Cierre de proyecto','Cobertura de turno de compañero','Solicitud del supervisor','Requerimiento del cliente','Otro'],
+      lblNote: 'Nota adicional',
+      hintNote: 'Opcional. Incluye cualquier contexto que ayude a tu coordinador o a HR.',
+      notePlaceholder: 'Ej. Cubrí a Carlos que llamó enfermo. Aprobado verbalmente por el supervisor.',
+      submit: 'Registrar excepción →',
+      successTitle: 'Excepción registrada',
+      successSub: 'Tu excepción fue registrada. Tu coordinador y el equipo de HR Ops fueron notificados.',
+      receiptType: 'Tipo', receiptDate: 'Fecha', receiptTime: 'Horario',
+      receiptReason: 'Motivo', receiptFolio: 'Folio', receiptTs: 'Timestamp',
+      receiptStatus: 'Estado', receiptStatusVal: 'Enviada — pendiente de revisión',
+      successNote: 'Guarda este folio como comprobante de tu registro. Tiene timestamp y queda en el log de nómina.',
+      newBtn: 'Registrar otra →',
+    },
+    'de': {
+      title: 'Schichtausnahme',
+      sub: 'Melden Sie eine Schichtänderung, Abwesenheit oder Überstunden vor dem Lohnabschluss.',
+      noticeTitle: '⏱ Lohnabschluss-Erinnerung',
+      noticeBody: 'Ausnahmen müssen vor dem Lohnabschluss eingereicht werden, um Zahlungsfehler zu vermeiden.',
+      empBadge: 'Vorab aus HR-System befüllt',
+      lblType: 'Ausnahmetyp',
+      typeShift: 'Schichtänderung', typeAbsence: 'Abwesenheit', typeOvertime: 'Überstunden',
+      errType: 'Bitte Ausnahmetyp auswählen.',
+      lblDate: 'Datum', errDate: 'Bitte Datum auswählen.',
+      lblTime: 'Zeitraum', errTime: 'Bitte Start- und Endzeit eingeben.',
+      lblReason: 'Grund', errReason: 'Bitte Grund auswählen.',
+      reasonPlaceholder: 'Grund auswählen…',
+      reasonsShift:    ['Plananpassung durch Koordinator','Persönlicher Termin','Arzttermin','Familiennotfall','Transportproblem','Sonstiges'],
+      reasonsAbsence:  ['Krankheit','Persönlicher Notfall','Familiennotfall','Arzttermin','Trauerfall','Sonstiges'],
+      reasonsOvertime: ['Projektabschluss','Schichtvertretung','Vorgesetzte Anfrage','Kundenanforderung','Sonstiges'],
+      lblNote: 'Zusätzliche Notiz',
+      hintNote: 'Optional. Kontext für Ihren Koordinator oder HR.',
+      notePlaceholder: 'z.B. Vertretung für Kollegen. Mündlich vom Vorgesetzten genehmigt.',
+      submit: 'Ausnahme einreichen →',
+      successTitle: 'Ausnahme registriert',
+      successSub: 'Ihre Ausnahme wurde gespeichert. Koordinator und HR Ops wurden benachrichtigt.',
+      receiptType: 'Typ', receiptDate: 'Datum', receiptTime: 'Zeit',
+      receiptReason: 'Grund', receiptFolio: 'Referenz', receiptTs: 'Zeitstempel',
+      receiptStatus: 'Status', receiptStatusVal: 'Eingereicht — ausstehend',
+      successNote: 'Behalten Sie diese Referenz als Einreichungsnachweis.',
+      newBtn: 'Weitere einreichen →',
+    },
+    'fr': {
+      title: 'Exception de poste',
+      sub: 'Signalez un changement de poste, une absence ou des heures supplémentaires avant la clôture de la paie.',
+      noticeTitle: '⏱ Rappel clôture de paie',
+      noticeBody: 'Les exceptions doivent être soumises avant la clôture de la paie pour éviter des erreurs de paiement.',
+      empBadge: 'Pré-rempli depuis le système RH',
+      lblType: "Type d'exception",
+      typeShift: 'Changement de poste', typeAbsence: 'Absence', typeOvertime: 'Heures sup.',
+      errType: "Veuillez sélectionner un type d'exception.",
+      lblDate: 'Date', errDate: 'Veuillez sélectionner une date.',
+      lblTime: 'Plage horaire', errTime: "Veuillez indiquer l'heure de début et de fin.",
+      lblReason: 'Motif', errReason: 'Veuillez sélectionner un motif.',
+      reasonPlaceholder: 'Sélectionner un motif…',
+      reasonsShift:    ['Ajustement par le coordinateur','Rendez-vous personnel','Rendez-vous médical','Urgence familiale','Problème de transport','Autre'],
+      reasonsAbsence:  ['Maladie','Urgence personnelle','Urgence familiale','Rendez-vous médical','Deuil','Autre'],
+      reasonsOvertime: ['Clôture de projet','Remplacement de collègue','Demande du responsable','Exigence client','Autre'],
+      lblNote: 'Note supplémentaire',
+      hintNote: 'Facultatif. Tout contexte utile pour votre coordinateur ou RH.',
+      notePlaceholder: 'Ex. Remplacement d\'un collègue absent. Approuvé verbalement par le responsable.',
+      submit: 'Soumettre →',
+      successTitle: 'Exception enregistrée',
+      successSub: 'Votre exception a été enregistrée. Votre coordinateur et les RH ont été notifiés.',
+      receiptType: 'Type', receiptDate: 'Date', receiptTime: 'Horaire',
+      receiptReason: 'Motif', receiptFolio: 'Référence', receiptTs: 'Horodatage',
+      receiptStatus: 'Statut', receiptStatusVal: 'Soumis — en attente',
+      successNote: 'Conservez cette référence comme preuve de soumission.',
+      newBtn: 'Soumettre une autre →',
+    },
+    'ja': {
+      title: 'シフト例外申請',
+      sub: '給与締め切り前にシフト変更・欠勤・残業を申請してください。',
+      noticeTitle: '⏱ 給与締め切りリマインダー',
+      noticeBody: '例外申請は給与締め切り前に提出してください。遅延提出は給与エラーの原因となります。',
+      empBadge: 'HRシステムから自動入力',
+      lblType: '例外の種類',
+      typeShift: 'シフト変更', typeAbsence: '欠勤', typeOvertime: '残業',
+      errType: '例外の種類を選択してください。',
+      lblDate: '日付', errDate: '日付を選択してください。',
+      lblTime: '時間帯', errTime: '開始時刻と終了時刻を入力してください。',
+      lblReason: '理由', errReason: '理由を選択してください。',
+      reasonPlaceholder: '理由を選択…',
+      reasonsShift:    ['コーディネーターによるスケジュール変更','個人的な用事','医療予約','家族の緊急事態','交通問題','その他'],
+      reasonsAbsence:  ['病気（病欠）','個人的な緊急事態','家族の緊急事態','医療予約','忌引き','その他'],
+      reasonsOvertime: ['プロジェクト締め切り','同僚のシフトカバー','上司の要請','クライアントの要件','その他'],
+      lblNote: '追加メモ',
+      hintNote: '任意。コーディネーターまたはHRへのコンテキスト。',
+      notePlaceholder: '例：病欠した同僚をカバー。上司から口頭承認済み。',
+      submit: '申請する →',
+      successTitle: '例外が登録されました',
+      successSub: '申請が記録されました。コーディネーターとHR Opsに通知されました。',
+      receiptType: '種類', receiptDate: '日付', receiptTime: '時間帯',
+      receiptReason: '理由', receiptFolio: '受付番号', receiptTs: 'タイムスタンプ',
+      receiptStatus: 'ステータス', receiptStatusVal: '提出済み — レビュー中',
+      successNote: 'この受付番号を証明として保管してください。',
+      newBtn: '別の申請を送信 →',
+    },
+  };
+
+  const t = T[LANG] ?? T['en-US'];
+
+  // ── applySBBrand ──────────────────────────────────────────────────────────
+  function applySBBrand() {
+    const sb = getComputedStyle(document.documentElement).getPropertyValue('--sb-brand').trim();
+    if (sb) { document.documentElement.style.setProperty('--primary', sb); return; }
+    try {
+      const fallbacks = ['#e91e8c','#6d28d9','#0ea5e9','#10b981','#f59e0b'];
+      const h = location.hostname;
+      let n = 0;
+      for (let i = 0; i < h.length; i++) n = (n * 31 + h.charCodeAt(i)) & 0xffffffff;
+      document.documentElement.style.setProperty('--primary', fallbacks[Math.abs(n) % fallbacks.length]);
+    } catch (e) {}
+  }
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  let selectedType = null;
+
+  // ── Type selection ────────────────────────────────────────────────────────
+  document.querySelectorAll('.cw-type-chip').forEach(chip => {
+    chip.addEventListener('click', () => selectType(chip.dataset.type));
+    chip.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectType(chip.dataset.type); }
+    });
+  });
+
+  function selectType(type) {
+    selectedType = type;
+    document.querySelectorAll('.cw-type-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.type === type);
+    });
+    hide('err-type');
+
+    // Show/hide time block
+    const showTime = type === 'shift' || type === 'overtime';
+    document.getElementById('time-block').style.display = showTime ? 'block' : 'none';
+
+    // Rebuild reasons dropdown
+    const reasons = type === 'shift'    ? t.reasonsShift
+                  : type === 'absence'  ? t.reasonsAbsence
+                  : t.reasonsOvertime;
+    const sel = document.getElementById('field-reason');
+    sel.innerHTML = `<option value="">${t.reasonPlaceholder}</option>`;
+    reasons.forEach(r => {
+      const o = document.createElement('option');
+      o.value = r; o.textContent = r;
+      sel.appendChild(o);
+    });
+  }
+
+  // ── Folio generator ───────────────────────────────────────────────────────
+  function generateFolio() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const rand = String(Math.floor(Math.random() * 90000) + 10000);
+    return `SE-${y}${m}${d}-${rand}`;
+  }
+
+  // ── Validation helpers ────────────────────────────────────────────────────
+  function show(id) { document.getElementById(id).classList.add('visible'); }
+  function hide(id) { document.getElementById(id).classList.remove('visible'); }
+  function val(id)  { return document.getElementById(id).value.trim(); }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+  window.handleSubmit = function(e) {
+    e.preventDefault();
+    let ok = true;
+
+    if (!selectedType)        { show('err-type');   ok = false; } else { hide('err-type'); }
+    if (!val('field-date'))   { show('err-date');   ok = false; } else { hide('err-date'); }
+    if (!val('field-reason')) { show('err-reason'); ok = false; } else { hide('err-reason'); }
+
+    const showTime = selectedType === 'shift' || selectedType === 'overtime';
+    if (showTime && (!val('field-start') || !val('field-end'))) {
+      show('err-time'); ok = false;
+    } else { hide('err-time'); }
+
+    if (!ok) return;
+
+    const folio = generateFolio();
+    const now   = new Date();
+    const dateStr = new Date(val('field-date') + 'T12:00:00').toLocaleDateString(LOCALE, { day:'numeric', month:'short', year:'numeric' });
+    const tsStr   = now.toLocaleString(LOCALE, { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    const typeLabel = { shift: t.typeShift, absence: t.typeAbsence, overtime: t.typeOvertime }[selectedType];
+    const timeStr = showTime
+      ? `${val('field-start')} → ${val('field-end')}`
+      : '—';
+
+    // Build receipt
+    const rows = [
+      [t.receiptType,   typeLabel],
+      [t.receiptDate,   dateStr],
+      [t.receiptTime,   timeStr],
+      [t.receiptReason, val('field-reason')],
+      [t.receiptFolio,  folio],
+      [t.receiptTs,     tsStr],
+      [t.receiptStatus, t.receiptStatusVal],
+    ];
+
+    const receipt = document.getElementById('receipt');
+    receipt.innerHTML = rows.map(([label, value]) =>
+      `<div class="cw-receipt-row">
+        <span class="cw-receipt-label">${label}</span>
+        <span class="cw-receipt-val${label === t.receiptFolio ? ' mono' : ''}">${value}</span>
+      </div>`
+    ).join('');
+
+    document.getElementById('exception-form').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+  };
+
+  // ── Reset ─────────────────────────────────────────────────────────────────
+  window.resetForm = function() {
+    selectedType = null;
+    document.querySelectorAll('.cw-type-chip').forEach(c => c.classList.remove('active'));
+    document.getElementById('field-date').value = '';
+    document.getElementById('field-start').value = '';
+    document.getElementById('field-end').value = '';
+    document.getElementById('field-reason').innerHTML = `<option value="">${t.reasonPlaceholder}</option>`;
+    document.getElementById('field-note').value = '';
+    document.getElementById('time-block').style.display = 'block';
+    ['err-type','err-date','err-time','err-reason'].forEach(hide);
+    document.getElementById('success-screen').style.display = 'none';
+    document.getElementById('exception-form').style.display = 'block';
+  };
+
+  // ── Default date to today ─────────────────────────────────────────────────
+  function setDefaultDate() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    document.getElementById('field-date').value = `${y}-${m}-${d}`;
+  }
+
+  // ── Apply translations ────────────────────────────────────────────────────
+  function applyTranslations() {
+    document.getElementById('widget-title').textContent   = t.title;
+    document.getElementById('widget-sub').textContent     = t.sub;
+    document.getElementById('notice-title').textContent   = t.noticeTitle;
+    document.getElementById('notice-body').textContent    = t.noticeBody;
+    document.getElementById('emp-badge').textContent      = t.empBadge;
+    document.getElementById('lbl-type').innerHTML         = `${t.lblType} <span style="color:var(--danger)">*</span>`;
+    document.getElementById('type-shift').textContent     = t.typeShift;
+    document.getElementById('type-absence').textContent   = t.typeAbsence;
+    document.getElementById('type-overtime').textContent  = t.typeOvertime;
+    document.getElementById('err-type').textContent       = t.errType;
+    document.getElementById('lbl-date').innerHTML         = `${t.lblDate} <span style="color:var(--danger)">*</span>`;
+    document.getElementById('err-date').textContent       = t.errDate;
+    document.getElementById('lbl-time').innerHTML         = `${t.lblTime} <span style="color:var(--danger)">*</span>`;
+    document.getElementById('err-time').textContent       = t.errTime;
+    document.getElementById('lbl-reason').innerHTML       = `${t.lblReason} <span style="color:var(--danger)">*</span>`;
+    document.getElementById('err-reason').textContent     = t.errReason;
+    document.getElementById('field-reason').innerHTML     = `<option value="">${t.reasonPlaceholder}</option>`;
+    document.getElementById('lbl-note').textContent       = t.lblNote;
+    document.getElementById('hint-note').textContent      = t.hintNote;
+    document.getElementById('field-note').placeholder     = t.notePlaceholder;
+    document.getElementById('submit-btn').textContent     = t.submit;
+    document.getElementById('success-title').textContent  = t.successTitle;
+    document.getElementById('success-sub').textContent    = t.successSub;
+    document.getElementById('success-note').textContent   = t.successNote;
+    document.getElementById('new-btn').textContent        = t.newBtn;
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    applySBBrand();
+    applyTranslations();
+    setDefaultDate();
+  });
+
+})();
+</script>
+
+<!-- Widget usage counter — see CLAUDE.md -->
+<script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})();</script>
+
+</body>
+</html>
