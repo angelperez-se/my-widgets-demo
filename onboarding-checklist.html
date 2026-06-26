@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Onboarding Checklist">
+<meta name="widget-description" content="Day-1 onboarding task checklist with links to training, HR info, time management, shift changes and career path content.">
+<meta name="widget-tags" content="HR Onboarding">
+<title>Onboarding Checklist</title>
+<style>
+:root {
+  --primary:      var(--sb-brand, #2563eb);
+  --primary-soft: rgba(37,99,235,0.10);
+  --success:      #10b981;
+  --success-soft: #ecfdf5;
+  --warning:      #f59e0b;
+  --warning-soft: #fffbeb;
+  --text:         #1f2937;
+  --text-light:   #6b7280;
+  --bg:           transparent;
+  --bg-card:      #ffffff;
+  --bg-gray:      #f9fafb;
+  --border:       #e5e7eb;
+  --radius:       14px;
+  --radius-sm:    9px;
+  --shadow:       0 1px 4px rgba(0,0,0,0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary:      var(--sb-brand, #3b9eff);
+    --primary-soft: rgba(59,158,255,0.15);
+    --success:      #34d399;
+    --success-soft: #0b1f19;
+    --warning:      #fbbf24;
+    --warning-soft: #1c1307;
+    --text:         #f3f4f6;
+    --text-light:   #9ca3af;
+    --bg-card:      #1f2937;
+    --bg-gray:      #111827;
+    --border:       #374151;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+.cw-widget { width: 100%; max-width: 520px; margin: 0 auto; }
+
+/* Header */
+.cw-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.cw-hdr-icon { width: 32px; height: 32px; border-radius: var(--radius-sm); background: var(--primary-soft); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cw-hdr-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cw-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+.cw-subtitle { font-size: 13px; color: var(--text-light); margin: 0 0 14px 42px; }
+
+/* Progress */
+.cw-prog-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: var(--text-light); margin-bottom: 6px; }
+.cw-prog-track { height: 7px; background: var(--bg-gray); border: 1px solid var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 14px; }
+.cw-prog-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width 0.4s ease; }
+
+/* Task list card */
+.cw-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 6px 16px 12px; margin-bottom: 10px; }
+
+/* Task item */
+.cw-task { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.cw-task:last-child { border-bottom: none; padding-bottom: 0; }
+.cw-task:first-child { padding-top: 8px; }
+
+.cw-task-top { display: flex; align-items: flex-start; gap: 12px; }
+.cw-task.is-done .cw-task-label { color: var(--text-light); text-decoration: line-through; font-weight: 500; }
+
+.cw-checkbox {
+  width: 24px; height: 24px; flex-shrink: 0;
+  border: 2px solid var(--border);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .1s;
+  margin-top: 1px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.cw-checkbox.done { background: var(--success); border-color: var(--success); }
+.cw-checkbox.done svg { opacity: 1; }
+.cw-checkbox svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transition: opacity .15s; }
+.cw-task-body { flex: 1; min-width: 0; }
+
+.cw-task-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.cw-task-label { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.35; flex: 1; }
+.cw-task-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px; flex-shrink: 0; white-space: nowrap; }
+.cw-task-badge.required  { background: rgba(239,68,68,0.1); color: #dc2626; }
+.cw-task-badge.optional  { background: var(--bg-gray); color: var(--text-light); border: 1px solid var(--border); }
+.cw-task-badge.career    { background: rgba(139,92,246,0.1); color: #7c3aed; }
+
+.cw-task-desc { font-size: 12px; color: var(--text-light); margin-top: 3px; line-height: 1.5; }
+
+/* Link button */
+.cw-task-action { margin-top: 10px; }
+.cw-link-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  text-decoration: none;
+  transition: background .15s, border-color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.cw-link-btn:hover { background: var(--primary); color: #fff; }
+.cw-link-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+/* Done banner */
+.cw-done-banner {
+  display: none; align-items: center; gap: 10px;
+  background: var(--success-soft); color: var(--success);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  font-size: 13px; font-weight: 700; margin-top: 4px;
+}
+.cw-done-banner.show { display: flex; }
+.cw-done-banner svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+/* Reset */
+.cw-reset-row { text-align: center; margin-top: 8px; }
+.cw-reset-btn { background: none; border: none; color: var(--text-light); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; padding: 4px 8px; border-radius: 6px; }
+.cw-reset-btn:hover { color: var(--primary); background: var(--primary-soft); }
+</style>
+</head>
+<body>
+<div class="cw-widget">
+
+  <div class="cw-hdr">
+    <div class="cw-hdr-icon">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    </div>
+    <span class="cw-title" id="widget-title">Onboarding Checklist</span>
+  </div>
+  <p class="cw-subtitle" id="widget-sub">Complete all tasks to finish your onboarding journey.</p>
+
+  <div class="cw-prog-row">
+    <span id="prog-text">0 of 5 completed</span>
+    <span id="prog-pct">0%</span>
+  </div>
+  <div class="cw-prog-track"><div class="cw-prog-fill" id="prog-fill" style="width:0%"></div></div>
+
+  <div class="cw-card" id="task-list"></div>
+
+  <div class="cw-done-banner" id="done-banner">
+    <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <span id="done-text">All tasks complete — great work!</span>
+  </div>
+  <div class="cw-reset-row"><button class="cw-reset-btn" id="reset-btn" onclick="resetAll()"></button></div>
+
+</div>
+
+<script>
+(function () {
+
+// ── Language ──────────────────────────────────────────────────────────────
+const LANG = (() => {
+  const l = navigator.language || '';
+  if (l.startsWith('de'))    return 'de';
+  if (l.startsWith('fr'))    return 'fr';
+  if (l.startsWith('es'))    return 'es';
+  if (l.startsWith('ja'))    return 'ja';
+  if (l.startsWith('en-GB')) return 'en-GB';
+  return 'en-US';
+})();
+document.documentElement.lang = LANG;
+
+// ── Translations ──────────────────────────────────────────────────────────
+const T = {
+  'en-US': {
+    title: 'Onboarding Checklist',
+    sub: 'Complete all tasks to finish your onboarding journey.',
+    progress: '{done} of {total} completed',
+    allDone: 'All tasks complete — great work!',
+    reset: 'Reset',
+    required: 'Required', optional: 'Optional', career: 'Career',
+    openTask: 'Open',
+    tasks: [
+      { id: 't1', label: 'Start Day-1 Training', desc: 'Begin your mandatory first-day training program.', badge: 'required', url: 'https://angelperez-se.github.io/cornerstone-plugin/' },
+      { id: 't2', label: 'HR Information', desc: 'Review key HR policies, benefits and contacts.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' },
+      { id: 't3', label: 'Time Management & Scheduling', desc: 'Learn how to clock in/out, manage breaks and view your schedule.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' },
+      { id: 't4', label: 'Shift Changes', desc: 'Understand how to request or report a shift change.', badge: 'optional', url: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' },
+      { id: 't5', label: 'Professional Career Path', desc: 'Explore growth opportunities and your career trajectory.', badge: 'career', url: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' },
+    ],
+  },
+  'en-GB': {
+    title: 'Onboarding Checklist',
+    sub: 'Complete all tasks to finish your onboarding journey.',
+    progress: '{done} of {total} completed',
+    allDone: 'All tasks complete — well done!',
+    reset: 'Reset',
+    required: 'Required', optional: 'Optional', career: 'Career',
+    openTask: 'Open',
+    tasks: [
+      { id: 't1', label: 'Start Day-1 Training', desc: 'Begin your mandatory first-day training programme.', badge: 'required', url: 'https://angelperez-se.github.io/cornerstone-plugin/' },
+      { id: 't2', label: 'HR Information', desc: 'Review key HR policies, benefits and contacts.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' },
+      { id: 't3', label: 'Time Management & Scheduling', desc: 'Learn how to clock in/out, manage breaks and view your rota.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' },
+      { id: 't4', label: 'Shift Changes', desc: 'Understand how to request or report a shift change.', badge: 'optional', url: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' },
+      { id: 't5', label: 'Professional Career Path', desc: 'Explore growth opportunities and your career trajectory.', badge: 'career', url: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' },
+    ],
+  },
+  'es': {
+    title: 'Checklist de Incorporación',
+    sub: 'Completa todas las tareas para terminar tu journey de onboarding.',
+    progress: '{done} de {total} completadas',
+    allDone: '¡Todas las tareas completadas — excelente trabajo!',
+    reset: 'Reiniciar',
+    required: 'Requerido', optional: 'Opcional', career: 'Carrera',
+    openTask: 'Abrir',
+    tasks: [
+      { id: 't1', label: 'Comenzar Capacitación del Primer Día', desc: 'Inicia tu programa de capacitación obligatoria del primer día.', badge: 'required', url: 'https://angelperez-se.github.io/cornerstone-plugin/' },
+      { id: 't2', label: 'Información de Recursos Humanos', desc: 'Revisa las políticas clave de RRHH, beneficios y contactos importantes.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' },
+      { id: 't3', label: 'Gestión de Tiempos: fichaje, pausas y horarios', desc: 'Aprende a fichar entrada y salida, gestionar pausas y consultar tu horario.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' },
+      { id: 't4', label: 'Aprender sobre Cambio de Turno', desc: 'Conoce cómo solicitar o reportar un cambio de turno.', badge: 'optional', url: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' },
+      { id: 't5', label: 'Trayectoria Profesional', desc: 'Explora las oportunidades de crecimiento y tu trayectoria dentro de la empresa.', badge: 'career', url: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' },
+    ],
+  },
+  'de': {
+    title: 'Onboarding-Checkliste',
+    sub: 'Erledige alle Aufgaben, um dein Onboarding abzuschließen.',
+    progress: '{done} von {total} erledigt',
+    allDone: 'Alle Aufgaben erledigt — gut gemacht!',
+    reset: 'Zurücksetzen',
+    required: 'Pflicht', optional: 'Optional', career: 'Karriere',
+    openTask: 'Öffnen',
+    tasks: [
+      { id: 't1', label: 'Erste-Tag-Training starten', desc: 'Beginne dein verpflichtendes Training für den ersten Tag.', badge: 'required', url: 'https://angelperez-se.github.io/cornerstone-plugin/' },
+      { id: 't2', label: 'HR-Informationen', desc: 'Lies die wichtigsten HR-Richtlinien, Benefits und Kontakte.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' },
+      { id: 't3', label: 'Zeiterfassung & Schichtplanung', desc: 'Lerne Ein- und Ausstempeln, Pausen verwalten und deinen Dienstplan einsehen.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' },
+      { id: 't4', label: 'Schichtwechsel beantragen', desc: 'Erfahre, wie du einen Schichttausch beantragen oder melden kannst.', badge: 'optional', url: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' },
+      { id: 't5', label: 'Berufsweg & Karrierepfad', desc: 'Entdecke Wachstumsmöglichkeiten und deine Karrierechancen.', badge: 'career', url: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' },
+    ],
+  },
+  'fr': {
+    title: "Liste de tâches d'intégration",
+    sub: "Effectue toutes les tâches pour terminer ton parcours d'intégration.",
+    progress: '{done} sur {total} complétées',
+    allDone: "Toutes les tâches sont complétées — excellent travail !",
+    reset: 'Réinitialiser',
+    required: 'Obligatoire', optional: 'Optionnel', career: 'Carrière',
+    openTask: 'Ouvrir',
+    tasks: [
+      { id: 't1', label: 'Commencer la formation du premier jour', desc: 'Lance ton programme de formation obligatoire du premier jour.', badge: 'required', url: 'https://angelperez-se.github.io/cornerstone-plugin/' },
+      { id: 't2', label: 'Informations RH', desc: 'Consulte les politiques RH clés, les avantages et les contacts importants.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' },
+      { id: 't3', label: 'Gestion du temps et des horaires', desc: 'Apprends à pointer, gérer les pauses et consulter ton planning.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' },
+      { id: 't4', label: 'Changements de poste', desc: 'Comprends comment demander ou signaler un changement de poste.', badge: 'optional', url: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' },
+      { id: 't5', label: 'Parcours professionnel', desc: "Explore les opportunités de croissance et ta trajectoire au sein de l'entreprise.", badge: 'career', url: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' },
+    ],
+  },
+  'ja': {
+    title: 'オンボーディングチェックリスト',
+    sub: 'すべてのタスクを完了してオンボーディングを終わらせましょう。',
+    progress: '{total}件中{done}件完了',
+    allDone: 'すべてのタスク完了 — よく頑張りました！',
+    reset: 'リセット',
+    required: '必須', optional: '任意', career: 'キャリア',
+    openTask: '開く',
+    tasks: [
+      { id: 't1', label: '初日研修を開始する', desc: '必須の初日研修プログラムを開始してください。', badge: 'required', url: 'https://angelperez-se.github.io/cornerstone-plugin/' },
+      { id: 't2', label: '人事情報を確認する', desc: '主要な人事ポリシー、福利厚生、連絡先を確認してください。', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' },
+      { id: 't3', label: '勤怠管理・シフト確認', desc: '打刻方法、休憩の管理、シフトの確認方法を学びましょう。', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' },
+      { id: 't4', label: 'シフト変更について学ぶ', badge: 'optional', desc: 'シフト変更の申請・報告方法を理解しましょう。', url: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' },
+      { id: 't5', label: 'キャリアパス', desc: '社内での成長機会とキャリアの軌跡を探ってみましょう。', badge: 'career', url: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' },
+    ],
+  },
+};
+
+const t = T[LANG] ?? T['en-US'];
+function tr(s, v) { if (!s) return ''; if (v) Object.keys(v).forEach(k => { s = s.replaceAll('{' + k + '}', v[k]); }); return s; }
+
+// ── applySBBrand ──────────────────────────────────────────────────────────
+function applySBBrand() {
+  const sb = getComputedStyle(document.documentElement).getPropertyValue('--sb-brand').trim();
+  if (sb) { document.documentElement.style.setProperty('--primary', sb); return; }
+  try {
+    const sb2 = window.parent.getComputedStyle(window.parent.document.documentElement).getPropertyValue('--sb-brand').trim();
+    if (sb2) document.documentElement.style.setProperty('--primary', sb2);
+  } catch(e) {}
+}
+
+// ── State ─────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'onboarding-checklist/v1';
+let state = (() => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; } })();
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} }
+function toggle(id) { state[id] = !state[id]; saveState(); render(); }
+window.resetAll = function() { state = {}; saveState(); render(); };
+
+// ── Icons ─────────────────────────────────────────────────────────────────
+const CHECK_SVG = `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`;
+const LINK_SVG  = `<svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+
+const TASK_ICONS = {
+  t1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+  t2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>`,
+  t3: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  t4: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
+  t5: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+};
+
+const ICON_COLORS = {
+  required: 'rgba(37,99,235,0.12)',
+  optional:  'rgba(245,158,11,0.12)',
+  career:    'rgba(139,92,246,0.12)',
+};
+const ICON_TEXT_COLORS = {
+  required: 'var(--primary)',
+  optional:  'var(--warning)',
+  career:    '#7c3aed',
+};
+
+// ── Render ────────────────────────────────────────────────────────────────
+function render() {
+  const tasks = t.tasks;
+  const done  = tasks.filter(tk => state[tk.id]).length;
+  const total = tasks.length;
+  const pct   = Math.round((done / total) * 100);
+
+  // Progress
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = tr(t.progress, { done, total });
+  document.getElementById('prog-pct').textContent  = pct + '%';
+
+  // All done banner
+  document.getElementById('done-banner').classList.toggle('show', done === total);
+
+  // Task list
+  document.getElementById('task-list').innerHTML = tasks.map(tk => {
+    const isDone = !!state[tk.id];
+    const badgeLabel = t[tk.badge] || tk.badge;
+    return `
+      <div class="cw-task${isDone ? ' is-done' : ''}">
+        <div class="cw-task-top">
+          <div class="cw-checkbox${isDone ? ' done' : ''}" data-id="${tk.id}" role="checkbox" tabindex="0" aria-checked="${isDone}">
+            ${CHECK_SVG}
+          </div>
+          <div class="cw-task-body">
+            <div class="cw-task-meta">
+              <span class="cw-task-label">${tk.label}</span>
+              <span class="cw-task-badge ${tk.badge}">${badgeLabel}</span>
+            </div>
+            <div class="cw-task-desc">${tk.desc}</div>
+            <div class="cw-task-action">
+              <a class="cw-link-btn" href="${tk.url}" target="_blank" rel="noopener noreferrer">
+                <span style="display:inline-flex;width:22px;height:22px;border-radius:6px;background:${ICON_COLORS[tk.badge]};color:${ICON_TEXT_COLORS[tk.badge]};align-items:center;justify-content:center;flex-shrink:0;">${TASK_ICONS[tk.id]}</span>
+                ${t.openTask}
+                ${LINK_SVG}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Wire checkbox clicks — full row tap area
+  document.querySelectorAll('.cw-checkbox').forEach(box => {
+    const handler = () => toggle(box.dataset.id);
+    box.addEventListener('click', handler);
+    box.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); handler(); } });
+  });
+}
+
+// ── Apply static text ─────────────────────────────────────────────────────
+function applyText() {
+  document.getElementById('widget-title').textContent = t.title;
+  document.getElementById('widget-sub').textContent   = t.sub;
+  document.getElementById('done-text').textContent    = t.allDone;
+  document.getElementById('reset-btn').textContent    = t.reset;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  applySBBrand();
+  applyText();
+  render();
+});
+
+})();
+</script>
+
+<!-- Widget usage counter — see CLAUDE.md -->
+<script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})();</script>
+
+</body>
+</html>
