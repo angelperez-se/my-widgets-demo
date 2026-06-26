@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Exit Survey">
+<meta name="widget-description" content="5-question exit survey for offboarding employees — anonymous, with open comment field and success confirmation screen">
+<meta name="widget-tags" content="HR Offboarding">
+<title>Exit Survey</title>
+
+<style>
+  :root {
+    --primary:       var(--sb-brand, #2563eb);
+    --primary-soft:  rgba(37, 99, 235, 0.10);
+    --success:       #10b981;
+    --success-soft:  #ecfdf5;
+    --warning:       #f59e0b;
+    --text:          #1f2937;
+    --text-light:    #6b7280;
+    --bg:            transparent;
+    --bg-card:       #ffffff;
+    --bg-gray:       #f9fafb;
+    --border:        #e5e7eb;
+    --radius:        12px;
+    --radius-sm:     8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --primary:      var(--sb-brand, #3b9eff);
+      --primary-soft: rgba(59, 158, 255, 0.15);
+      --success:      #34d399;
+      --success-soft: #0b1f19;
+      --warning:      #fbbf24;
+      --text:         #f3f4f6;
+      --text-light:   #9ca3af;
+      --bg-card:      #1f2937;
+      --bg-gray:      #111827;
+      --border:       #374151;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .cw-widget {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* Header card */
+  .cw-header-card {
+    background: #0f172a;
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 18px 20px 20px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+  .cw-header-card::after {
+    content: '';
+    position: absolute;
+    right: -30px; top: -30px;
+    width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(var(--primary-rgb, 37,99,235), 0.25) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .cw-header-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 1;
+  }
+  .cw-header-icon {
+    width: 32px; height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cw-header-icon svg { width: 18px; height: 18px; fill: #fff; }
+  .cw-header-title {
+    font-size: 16px; font-weight: 700;
+    color: #fff; margin: 0;
+    letter-spacing: -0.02em;
+    position: relative; z-index: 1;
+  }
+  .cw-header-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    margin: 2px 0 0 42px;
+    position: relative; z-index: 1;
+  }
+
+  /* Progress bar */
+  .cw-progress {
+    margin: 14px 0 0;
+    position: relative; z-index: 1;
+  }
+  .cw-progress-meta {
+    display: flex; justify-content: space-between;
+    font-size: 10px; color: rgba(255,255,255,0.35);
+    margin-bottom: 5px;
+  }
+  .cw-progress-track {
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px; height: 4px;
+  }
+  .cw-progress-fill {
+    background: var(--primary);
+    height: 4px; border-radius: 4px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  /* Form card */
+  .cw-form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 20px;
+  }
+
+  /* Question block */
+  .cw-q {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .cw-q:first-child { padding-top: 0; }
+  .cw-q:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .cw-q-num {
+    font-size: 9px; font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin: 0 0 4px;
+  }
+  .cw-q-text {
+    font-size: 14px; font-weight: 600;
+    color: var(--text);
+    margin: 0 0 12px;
+    line-height: 1.4;
+  }
+
+  /* Stars */
+  .cw-stars { display: flex; gap: 8px; }
+  .cw-star {
+    width: 40px; height: 40px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-gray);
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .cw-star.active {
+    background: #fef9c3;
+    border-color: #fde047;
+  }
+
+  /* Radio options */
+  .cw-option {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-gray);
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 11px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .cw-option:last-child { margin-bottom: 0; }
+  .cw-option.selected {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+  }
+  .cw-option-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .cw-option.selected .cw-option-dot {
+    border-color: var(--primary);
+    background: var(--primary);
+  }
+  .cw-option-dot-inner {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    display: none;
+  }
+  .cw-option.selected .cw-option-dot-inner { display: block; }
+  .cw-option-label { font-size: 13px; color: var(--text); }
+
+  /* Textarea */
+  .cw-textarea {
+    width: 100%;
+    min-height: 100px;
+    background: var(--bg-gray);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text);
+    font-family: inherit;
+    resize: vertical;
+    line-height: 1.5;
+    transition: border-color 0.15s;
+  }
+  .cw-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--bg-card);
+  }
+  .cw-textarea::placeholder { color: var(--text-light); }
+
+  /* Submit button */
+  .cw-btn-primary {
+    display: block; width: 100%;
+    padding: 13px 16px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 14px; font-weight: 600;
+    font-family: inherit;
+    border: none; border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-top: 20px;
+    transition: filter 0.15s;
+    text-align: center;
+  }
+  .cw-btn-primary:hover { filter: brightness(1.1); }
+  .cw-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+
+  .cw-submit-note {
+    font-size: 11px; color: var(--text-light);
+    text-align: center; margin: 8px 0 0;
+    line-height: 1.5;
+  }
+
+  /* Success screen */
+  .cw-success {
+    display: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 36px 20px 28px;
+    text-align: center;
+  }
+  .cw-success-icon {
+    width: 56px; height: 56px;
+    background: var(--success-soft);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .cw-success-icon svg { width: 28px; height: 28px; stroke: var(--success); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .cw-success-title {
+    font-size: 18px; font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin: 0 0 6px;
+  }
+  .cw-success-sub {
+    font-size: 13px; color: var(--text-light);
+    line-height: 1.6; margin: 0 0 20px;
+  }
+  .cw-success-meta {
+    background: var(--bg-gray);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    text-align: left;
+  }
+  .cw-success-meta-label {
+    font-size: 10px; font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin: 0 0 3px;
+  }
+  .cw-success-meta-val {
+    font-size: 12px; font-weight: 600;
+    color: var(--text); margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+<div class="cw-widget">
+
+  <!-- Header -->
+  <div class="cw-header-card">
+    <div class="cw-header-top">
+      <div class="cw-header-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h5l5 5v11a2 2 0 01-2 2z"/></svg>
+      </div>
+      <h2 class="cw-header-title" id="hdr-title">Exit Survey</h2>
+    </div>
+    <p class="cw-header-sub" id="hdr-sub">5 questions · Anonymous · Under 3 min</p>
+    <div class="cw-progress">
+      <div class="cw-progress-meta">
+        <span id="prog-label">Question 1 of 5</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div class="cw-progress-track">
+        <div class="cw-progress-fill" id="prog-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <form class="cw-form-card" id="survey-form" onsubmit="handleSubmit(event)" novalidate>
+
+    <!-- Q1: Stars -->
+    <div class="cw-q">
+      <p class="cw-q-num" id="q1-num">Question 1 of 5</p>
+      <p class="cw-q-text" id="q1-text">How would you rate your overall experience working here?</p>
+      <div class="cw-stars" id="stars-row" role="radiogroup" aria-label="Rating">
+        <div class="cw-star" data-val="1" tabindex="0" role="radio" aria-checked="false">⭐</div>
+        <div class="cw-star" data-val="2" tabindex="0" role="radio" aria-checked="false">⭐</div>
+        <div class="cw-star" data-val="3" tabindex="0" role="radio" aria-checked="false">⭐</div>
+        <div class="cw-star" data-val="4" tabindex="0" role="radio" aria-checked="false">⭐</div>
+        <div class="cw-star" data-val="5" tabindex="0" role="radio" aria-checked="false">⭐</div>
+      </div>
+    </div>
+
+    <!-- Q2: Reason -->
+    <div class="cw-q">
+      <p class="cw-q-num" id="q2-num">Question 2 of 5</p>
+      <p class="cw-q-text" id="q2-text">What is the main reason for leaving?</p>
+      <div id="q2-opts"></div>
+    </div>
+
+    <!-- Q3: Recommend -->
+    <div class="cw-q">
+      <p class="cw-q-num" id="q3-num">Question 3 of 5</p>
+      <p class="cw-q-text" id="q3-text">Would you recommend this company as a workplace to a friend?</p>
+      <div id="q3-opts"></div>
+    </div>
+
+    <!-- Q4: Tools -->
+    <div class="cw-q">
+      <p class="cw-q-num" id="q4-num">Question 4 of 5</p>
+      <p class="cw-q-text" id="q4-text">Did you feel you had the information and tools you needed to do your job?</p>
+      <div id="q4-opts"></div>
+    </div>
+
+    <!-- Q5: Open -->
+    <div class="cw-q">
+      <p class="cw-q-num" id="q5-num">Question 5 of 5</p>
+      <p class="cw-q-text" id="q5-text">Is there anything we could have done differently to improve your experience?</p>
+      <textarea class="cw-textarea" id="q5-comment" rows="4"></textarea>
+    </div>
+
+    <button type="submit" class="cw-btn-primary" id="submit-btn">Submit →</button>
+    <p class="cw-submit-note" id="submit-note">Your answers are anonymous and confidential.</p>
+  </form>
+
+  <!-- Success -->
+  <div class="cw-success" id="success-screen">
+    <div class="cw-success-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h3 class="cw-success-title" id="success-title">Thank you!</h3>
+    <p class="cw-success-sub" id="success-sub">Your feedback was recorded. It helps us improve the experience for everyone on the team.</p>
+    <div class="cw-success-meta">
+      <p class="cw-success-meta-label" id="success-folio-label">Reference</p>
+      <p class="cw-success-meta-val" id="success-folio-val"></p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  // ── Language detection ────────────────────────────────────────────────────
+  const LANG = (() => {
+    const l = navigator.language || '';
+    if (l.startsWith('de'))    return 'de';
+    if (l.startsWith('fr'))    return 'fr';
+    if (l.startsWith('es'))    return 'es';
+    if (l.startsWith('ja'))    return 'ja';
+    if (l.startsWith('en-GB')) return 'en-GB';
+    return 'en-US';
+  })();
+  document.documentElement.lang = LANG;
+
+  // ── Translations ──────────────────────────────────────────────────────────
+  const T = {
+    'en-US': {
+      hdrTitle: 'Exit Survey',
+      hdrSub: '5 questions · Anonymous · Under 3 min',
+      qLabel: 'Question {n} of 5',
+      progLabel: 'Question {n} of 5',
+      q1: 'How would you rate your overall experience working here?',
+      q2: 'What is the main reason for leaving?',
+      q3: 'Would you recommend this company as a workplace to a friend or family member?',
+      q4: 'Did you feel you had the information and tools you needed to do your job?',
+      q5: 'Is there anything the company could have done differently to improve your experience?',
+      q2opts: ['Job offer at another company', 'Personal or family reasons', 'Work environment or team relationship', 'Compensation or benefits', 'Growth opportunities'],
+      q3opts: ['Definitely yes', 'Probably yes', "I'm not sure", 'Probably not'],
+      q4opts: ['Always', 'Most of the time', 'Sometimes', 'Rarely'],
+      q5placeholder: 'Write your comments here. Your response is confidential and helps us improve for the rest of the team...',
+      submit: 'Submit →',
+      submitNote: 'Your answers are anonymous and confidential.',
+      successTitle: 'Thank you!',
+      successSub: 'Your feedback was recorded. It helps us improve the experience for everyone on the team.',
+      folioLabel: 'Reference',
+    },
+    'en-GB': {
+      hdrTitle: 'Exit Survey',
+      hdrSub: '5 questions · Anonymous · Under 3 min',
+      qLabel: 'Question {n} of 5',
+      progLabel: 'Question {n} of 5',
+      q1: 'How would you rate your overall experience working here?',
+      q2: 'What is the main reason for leaving?',
+      q3: 'Would you recommend this organisation as a workplace to a friend or family member?',
+      q4: 'Did you feel you had the information and tools you needed to do your job?',
+      q5: 'Is there anything the organisation could have done differently to improve your experience?',
+      q2opts: ['Job offer at another company', 'Personal or family reasons', 'Work environment or team relationship', 'Compensation or benefits', 'Growth opportunities'],
+      q3opts: ['Definitely yes', 'Probably yes', "I'm not sure", 'Probably not'],
+      q4opts: ['Always', 'Most of the time', 'Sometimes', 'Rarely'],
+      q5placeholder: 'Write your comments here. Your response is confidential...',
+      submit: 'Submit →',
+      submitNote: 'Your answers are anonymous and confidential.',
+      successTitle: 'Thank you!',
+      successSub: 'Your feedback was recorded. It helps us improve for everyone.',
+      folioLabel: 'Reference',
+    },
+    'es': {
+      hdrTitle: 'Encuesta de Salida',
+      hdrSub: '5 preguntas · Anónima · Menos de 3 minutos',
+      qLabel: 'Pregunta {n} de 5',
+      progLabel: 'Pregunta {n} de 5',
+      q1: '¿Cómo calificarías tu experiencia general trabajando aquí?',
+      q2: '¿Cuál es el motivo principal de tu salida?',
+      q3: '¿Recomendarías esta empresa como lugar de trabajo a un amigo o familiar?',
+      q4: '¿Sentiste que tuviste acceso a la información y herramientas para hacer tu trabajo?',
+      q5: '¿Hay algo que la empresa podría haber hecho diferente para mejorar tu experiencia?',
+      q2opts: ['Oferta de trabajo en otra empresa', 'Razones personales o familiares', 'Ambiente de trabajo o relación con el equipo', 'Compensación o beneficios', 'Oportunidades de crecimiento'],
+      q3opts: ['Definitivamente sí', 'Probablemente sí', 'No lo sé', 'Probablemente no'],
+      q4opts: ['Siempre', 'La mayoría de las veces', 'A veces', 'Casi nunca'],
+      q5placeholder: 'Escribe aquí tus comentarios. Tu respuesta es confidencial y nos ayuda a mejorar para el resto del equipo...',
+      submit: 'Enviar respuestas →',
+      submitNote: 'Tu respuesta es anónima y confidencial.',
+      successTitle: '¡Gracias!',
+      successSub: 'Tu respuesta fue registrada. Nos ayuda a mejorar la experiencia de todos en el equipo.',
+      folioLabel: 'Folio de registro',
+    },
+    'de': {
+      hdrTitle: 'Austrittsbefragung',
+      hdrSub: '5 Fragen · Anonym · Unter 3 Minuten',
+      qLabel: 'Frage {n} von 5',
+      progLabel: 'Frage {n} von 5',
+      q1: 'Wie bewerten Sie Ihre allgemeine Erfahrung bei uns?',
+      q2: 'Was ist der Hauptgrund für Ihren Austritt?',
+      q3: 'Würden Sie unser Unternehmen als Arbeitgeber weiterempfehlen?',
+      q4: 'Hatten Sie Zugang zu den Informationen und Werkzeugen, die Sie für Ihre Arbeit benötigten?',
+      q5: 'Gibt es etwas, das wir hätten anders machen können?',
+      q2opts: ['Jobangebot bei einem anderen Unternehmen', 'Persönliche oder familiäre Gründe', 'Arbeitsumgebung oder Teambeziehung', 'Vergütung oder Benefits', 'Wachstumsmöglichkeiten'],
+      q3opts: ['Auf jeden Fall', 'Wahrscheinlich schon', 'Ich bin unsicher', 'Wahrscheinlich nicht'],
+      q4opts: ['Immer', 'Meistens', 'Manchmal', 'Selten'],
+      q5placeholder: 'Schreiben Sie Ihre Kommentare hier. Ihre Antwort ist vertraulich...',
+      submit: 'Antworten senden →',
+      submitNote: 'Ihre Antworten sind anonym und vertraulich.',
+      successTitle: 'Vielen Dank!',
+      successSub: 'Ihr Feedback wurde gespeichert. Es hilft uns, die Erfahrung für alle zu verbessern.',
+      folioLabel: 'Referenz',
+    },
+    'fr': {
+      hdrTitle: 'Enquête de départ',
+      hdrSub: '5 questions · Anonyme · Moins de 3 min',
+      qLabel: 'Question {n} sur 5',
+      progLabel: 'Question {n} sur 5',
+      q1: 'Comment évalueriez-vous votre expérience globale ici ?',
+      q2: 'Quelle est la principale raison de votre départ ?',
+      q3: 'Recommanderiez-vous cette entreprise comme lieu de travail ?',
+      q4: 'Avez-vous eu accès aux informations et outils nécessaires ?',
+      q5: "Y a-t-il quelque chose que l'entreprise aurait pu faire différemment ?",
+      q2opts: ["Offre d'emploi dans une autre entreprise", 'Raisons personnelles ou familiales', "Environnement de travail ou relation d'équipe", 'Rémunération ou avantages', 'Opportunités de croissance'],
+      q3opts: ['Définitivement oui', 'Probablement oui', 'Je ne sais pas', 'Probablement non'],
+      q4opts: ['Toujours', 'La plupart du temps', 'Parfois', 'Rarement'],
+      q5placeholder: 'Écrivez vos commentaires ici. Votre réponse est confidentielle...',
+      submit: 'Envoyer →',
+      submitNote: 'Vos réponses sont anonymes et confidentielles.',
+      successTitle: 'Merci !',
+      successSub: 'Votre réponse a été enregistrée. Elle nous aide à améliorer l\'expérience pour toute l\'équipe.',
+      folioLabel: 'Référence',
+    },
+    'ja': {
+      hdrTitle: '退職アンケート',
+      hdrSub: '5問・匿名・3分以内',
+      qLabel: '質問 {n} / 5',
+      progLabel: '質問 {n} / 5',
+      q1: 'ここでの全体的な経験をどのように評価しますか？',
+      q2: '退職の主な理由は何ですか？',
+      q3: 'この会社を職場として友人や家族に勧めますか？',
+      q4: '仕事に必要な情報やツールにアクセスできていましたか？',
+      q5: '経験を改善するために会社が違う行動を取れたことはありましたか？',
+      q2opts: ['他社からの内定', '個人的・家庭的な理由', '職場環境やチームとの関係', '給与や福利厚生', '成長機会'],
+      q3opts: ['ぜひ勧める', 'おそらく勧める', 'わからない', 'あまり勧めない'],
+      q4opts: ['いつも', 'ほとんどの場合', 'ときどき', 'めったにない'],
+      q5placeholder: 'コメントをここに記入してください。回答は機密扱いです...',
+      submit: '送信 →',
+      submitNote: '回答は匿名かつ機密です。',
+      successTitle: 'ありがとうございます！',
+      successSub: 'フィードバックが記録されました。チーム全員の経験改善に役立てます。',
+      folioLabel: '参照番号',
+    },
+  };
+
+  const t = T[LANG] ?? T['en-US'];
+
+  function tr(key, vars) {
+    let s = t[key] || key;
+    if (vars) Object.keys(vars).forEach(k => { s = s.replaceAll('{' + k + '}', vars[k]); });
+    return s;
+  }
+
+  // ── SB brand color ────────────────────────────────────────────────────────
+  function applySBBrand() {
+    const sb = getComputedStyle(document.documentElement).getPropertyValue('--sb-brand').trim();
+    if (sb) {
+      document.documentElement.style.setProperty('--primary', sb);
+      return;
+    }
+    const fallbacks = ['#e91e8c','#6d28d9','#0ea5e9','#10b981','#f59e0b'];
+    const host = location.hostname;
+    let h = 0;
+    for (let i = 0; i < host.length; i++) h = (h * 31 + host.charCodeAt(i)) & 0xffffffff;
+    document.documentElement.style.setProperty('--primary', fallbacks[Math.abs(h) % fallbacks.length]);
+  }
+
+  // ── Folio generator ───────────────────────────────────────────────────────
+  function generateFolio() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const rand = String(Math.floor(Math.random() * 90000) + 10000);
+    return `EX-${y}${m}-${rand}`;
+  }
+
+  // ── Build radio options ───────────────────────────────────────────────────
+  function buildOptions(containerId, groupName, options) {
+    const container = document.getElementById(containerId);
+    options.forEach((label, i) => {
+      const div = document.createElement('div');
+      div.className = 'cw-option';
+      div.dataset.val = String(i);
+      div.dataset.group = groupName;
+      div.innerHTML = `
+        <div class="cw-option-dot"><div class="cw-option-dot-inner"></div></div>
+        <span class="cw-option-label">${label}</span>
+      `;
+      div.addEventListener('click', () => selectOption(groupName, i));
+      div.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectOption(groupName, i); } });
+      div.setAttribute('tabindex', '0');
+      div.setAttribute('role', 'radio');
+      div.setAttribute('aria-checked', 'false');
+      container.appendChild(div);
+    });
+  }
+
+  function selectOption(groupName, val) {
+    document.querySelectorAll(`.cw-option[data-group="${groupName}"]`).forEach(el => {
+      const selected = String(el.dataset.val) === String(val);
+      el.classList.toggle('selected', selected);
+      el.setAttribute('aria-checked', selected ? 'true' : 'false');
+    });
+    updateProgress();
+  }
+
+  // ── Stars ─────────────────────────────────────────────────────────────────
+  let starRating = 0;
+  document.querySelectorAll('.cw-star').forEach(star => {
+    star.addEventListener('click', () => {
+      starRating = parseInt(star.dataset.val);
+      document.querySelectorAll('.cw-star').forEach(s => {
+        s.classList.toggle('active', parseInt(s.dataset.val) <= starRating);
+        s.setAttribute('aria-checked', parseInt(s.dataset.val) === starRating ? 'true' : 'false');
+      });
+      updateProgress();
+    });
+    star.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); star.click(); }
+    });
+  });
+
+  // ── Progress ──────────────────────────────────────────────────────────────
+  function updateProgress() {
+    let answered = 0;
+    if (starRating > 0) answered++;
+    ['q2','q3','q4'].forEach(g => {
+      if (document.querySelector(`.cw-option[data-group="${g}"].selected`)) answered++;
+    });
+    const comment = document.getElementById('q5-comment').value.trim();
+    if (comment.length > 0) answered++;
+
+    const pct = Math.round((answered / 5) * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-pct').textContent = pct + '%';
+    const next = Math.min(answered + 1, 5);
+    document.getElementById('prog-label').textContent = tr('progLabel', { n: next });
+  }
+
+  document.getElementById('q5-comment').addEventListener('input', updateProgress);
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+  window.handleSubmit = function(e) {
+    e.preventDefault();
+    document.getElementById('prog-fill').style.width = '100%';
+    document.getElementById('prog-pct').textContent = '100%';
+    document.getElementById('prog-label').textContent = tr('progLabel', { n: 5 });
+
+    const folio = generateFolio();
+    document.getElementById('success-folio-val').textContent = folio;
+
+    setTimeout(() => {
+      document.getElementById('survey-form').style.display = 'none';
+      document.getElementById('success-screen').style.display = 'block';
+    }, 250);
+  };
+
+  // ── Apply translations ────────────────────────────────────────────────────
+  function applyTranslations() {
+    document.getElementById('hdr-title').textContent        = t.hdrTitle;
+    document.getElementById('hdr-sub').textContent          = t.hdrSub;
+    document.getElementById('prog-label').textContent       = tr('progLabel', { n: 1 });
+    document.getElementById('q1-num').textContent           = tr('qLabel', { n: 1 });
+    document.getElementById('q1-text').textContent          = t.q1;
+    document.getElementById('q2-num').textContent           = tr('qLabel', { n: 2 });
+    document.getElementById('q2-text').textContent          = t.q2;
+    document.getElementById('q3-num').textContent           = tr('qLabel', { n: 3 });
+    document.getElementById('q3-text').textContent          = t.q3;
+    document.getElementById('q4-num').textContent           = tr('qLabel', { n: 4 });
+    document.getElementById('q4-text').textContent          = t.q4;
+    document.getElementById('q5-num').textContent           = tr('qLabel', { n: 5 });
+    document.getElementById('q5-text').textContent          = t.q5;
+    document.getElementById('q5-comment').placeholder       = t.q5placeholder;
+    document.getElementById('submit-btn').textContent       = t.submit;
+    document.getElementById('submit-note').textContent      = t.submitNote;
+    document.getElementById('success-title').textContent    = t.successTitle;
+    document.getElementById('success-sub').textContent      = t.successSub;
+    document.getElementById('success-folio-label').textContent = t.folioLabel;
+
+    buildOptions('q2-opts', 'q2', t.q2opts);
+    buildOptions('q3-opts', 'q3', t.q3opts);
+    buildOptions('q4-opts', 'q4', t.q4opts);
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    applySBBrand();
+    applyTranslations();
+  });
+
+})();
+</script>
+
+<!-- Widget usage counter — see CLAUDE.md -->
+<script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})();</script>
+
+</body>
+</html>
