@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Handover Checklist">
+<meta name="widget-description" content="Employee self-service handover checklist with system actions (ServiceNow, scheduling, e-signature, payroll) and required / IT / HR tags">
+<meta name="widget-tags" content="HR Data, ServiceNow">
+<title>Handover Checklist</title>
+
+<style>
+    :root {
+        --primary: var(--sb-brand, #2563eb);
+        --primary-soft: rgba(37, 99, 235, 0.1);
+        --success: #10b981;
+        --success-soft: #ecfdf5;
+        --warning: #f59e0b;
+        --warning-soft: rgba(245, 158, 11, 0.1);
+        --danger: #ef4444;
+        --danger-soft: rgba(239, 68, 68, 0.1);
+        --text: #1f2937;
+        --text-light: #6b7280;
+        --bg: #ffffff;
+        --bg-gray: #f9fafb;
+        --border: #e5e7eb;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --primary: var(--sb-brand, #3b9eff);
+            --primary-soft: rgba(59, 158, 255, 0.15);
+            --success: #34d399;
+            --success-soft: #0b1f19;
+            --warning: #fbbf24;
+            --warning-soft: rgba(251, 191, 36, 0.12);
+            --danger: #f87171;
+            --danger-soft: rgba(248, 113, 113, 0.15);
+            --text: #f3f4f6;
+            --text-light: #9ca3af;
+            --bg: #1f2937;
+            --bg-gray: #111827;
+            --border: #374151;
+        }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 16px;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .widget { width: 100%; max-width: 560px; margin: 0 auto; }
+
+    .section-label {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-light);
+        margin-bottom: 12px;
+    }
+
+    /* Warning banner */
+    .notice {
+        display: flex;
+        gap: 10px;
+        background: var(--warning-soft);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        border-left: 4px solid var(--warning);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+    }
+    .notice-ic { color: var(--warning); flex-shrink: 0; margin-top: 1px; }
+    .notice-ic svg { width: 18px; height: 18px; display: block; }
+    .notice-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+    .notice-body { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+    /* Progress */
+    .progress-row {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; margin-bottom: 8px;
+        font-size: 12px; font-weight: 600; color: var(--text-light);
+    }
+    .progress-track {
+        width: 100%; height: 8px;
+        background: var(--bg-gray); border: 1px solid var(--border);
+        border-radius: 999px; overflow: hidden; margin-bottom: 16px;
+    }
+    .progress-fill {
+        height: 100%; width: 0%;
+        background: var(--primary); border-radius: 999px;
+        transition: width 0.35s ease;
+    }
+
+    /* Checklist card */
+    .card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 4px 16px;
+    }
+
+    .item { display: flex; align-items: flex-start; gap: 14px; padding: 16px 0; }
+    .item + .item { border-top: 1px solid var(--border); }
+    .item.clickable { cursor: pointer; user-select: none; }
+
+    .checkbox {
+        width: 26px; height: 26px; flex-shrink: 0;
+        border: 2px solid var(--border); border-radius: 7px;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; margin-top: 1px;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .item.done .checkbox { background: var(--success); border-color: var(--success); }
+    .checkbox svg { width: 15px; height: 15px; opacity: 0; }
+    .item.done .checkbox svg { opacity: 1; }
+
+    .item-body { flex: 1; min-width: 0; }
+    .item-head { display: flex; align-items: flex-start; gap: 10px; justify-content: space-between; }
+    .item-label { flex: 1; font-size: 14px; font-weight: 600; line-height: 1.35; }
+    .item.done .item-label { text-decoration: line-through; color: var(--text-light); font-weight: 500; }
+
+    .cw-badge {
+        flex-shrink: 0;
+        font-size: 11px; font-weight: 700;
+        padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+        margin-top: 1px;
+    }
+    .cw-badge.req { background: var(--danger-soft); color: var(--danger); }
+    .cw-badge.ti  { background: var(--success-soft); color: var(--success); }
+    .cw-badge.hr  { background: var(--primary-soft); color: var(--primary); }
+
+    .item-action { margin-top: 10px; }
+    .cw-btn {
+        padding: 8px 14px; font-size: 13px; border-radius: 8px;
+        border: 1px solid var(--primary); background: var(--primary); color: #fff;
+        cursor: pointer; font-weight: 600; font-family: inherit; white-space: nowrap;
+        transition: filter 0.15s;
+    }
+    .cw-btn:hover:not(:disabled) { filter: brightness(0.93); }
+    .cw-btn.done {
+        background: var(--bg); color: var(--text-light); border-color: var(--border);
+        cursor: default; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .cw-btn.done svg { width: 13px; height: 13px; }
+
+    .item-meta {
+        display: flex; align-items: center; gap: 5px;
+        font-size: 12px; font-weight: 600; color: var(--success); margin-top: 8px;
+    }
+    .item-meta svg { width: 12px; height: 12px; }
+
+    .all-done {
+        display: none; align-items: center; gap: 8px;
+        margin-top: 14px; padding: 12px 14px;
+        background: var(--success-soft); color: var(--success);
+        border-radius: 10px; font-size: 13px; font-weight: 600;
+    }
+    .all-done.show { display: flex; }
+    .all-done svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .reset-row { text-align: center; margin-top: 12px; }
+    .reset-link {
+        background: none; border: none; color: var(--text-light);
+        font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+        padding: 4px 8px; border-radius: 6px;
+    }
+    .reset-link:hover { color: var(--primary); background: var(--primary-soft); }
+</style>
+</head>
+
+<body>
+
+<div class="widget">
+
+    <div class="section-label" id="section-label"></div>
+
+    <div class="notice">
+        <div class="notice-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div>
+            <div class="notice-title" id="notice-title"></div>
+            <div class="notice-body" id="notice-body"></div>
+        </div>
+    </div>
+
+    <div class="progress-row"><span id="progress-text"></span></div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+    <div class="card" id="task-list"></div>
+
+    <div class="all-done" id="all-done">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+        <span id="all-done-text"></span>
+    </div>
+
+    <div class="reset-row"><button class="reset-link" id="reset-btn"></button></div>
+
+</div>
+
+<input type="file" id="upload-input" style="display:none" />
+
+<script>
+    // ===== Optional: link to your e-signature widget =====
+    // Paste the URL of your offboarding-signing.html so the "Sign" button opens it.
+    // Leave '' and the Sign button will just mark the item as done.
+    const SIGN_URL = '';
+
+    // --- Language detection (per widgets/MULTILANGUAGE.md) ---
+    const LANG = (() => {
+        const l = navigator.language || '';
+        if (l.startsWith('de')) return 'de';
+        if (l.startsWith('fr')) return 'fr';
+        if (l.startsWith('es')) return 'es';
+        if (l.startsWith('ja')) return 'ja';
+        if (l === 'en-GB')      return 'en-GB';
+        return 'en-US';
+    })();
+    document.documentElement.lang = LANG;
+    const LOCALE = { 'de':'de-DE','fr':'fr-FR','es':'es-ES','ja':'ja-JP','en-GB':'en-GB','en-US':'en-US' }[LANG];
+
+    // --- Translations ---
+    const T = {
+        de: {
+            title: 'Übergabe-Checkliste',
+            noticeTitle: 'Wichtig vor Ihrem Austritt',
+            noticeBody: 'Stellen Sie sicher, dass Sie alle als {req} markierten Punkte erledigen. Die Unterschrift des Austrittsdokuments bestätigt, dass Sie alles ordnungsgemäß übergeben haben.',
+            required: 'Erforderlich', ti: 'IT', hr: 'HR',
+            progressLabel: '{done} von {total} erledigt',
+            i1: 'Zugangsausweis zurückgegeben',
+            i2: 'Computer oder Headset an die IT zurückgegeben',
+            i3: 'Systemzugänge entzogen (mit der IT bestätigen)',
+            i4: 'Austrittsgespräch mit HR abgeschlossen',
+            i5: 'Persönliche Dokumente abgeholt (Verträge, Belege)',
+            i6: 'Aufhebungsdokument unterschrieben',
+            i7: 'Bankverbindung für die Abschlusszahlung mit der Lohnbuchhaltung bestätigt',
+            btnTicket: 'Ticket erstellen', btnRevoke: 'Entzug anfordern', btnSchedule: 'Termin planen',
+            btnSign: 'Unterschreiben', btnConfirm: 'Bestätigen', doneLabel: 'Erledigt',
+            ticketCreated: 'Ticket {id} erstellt', scheduledFor: 'Geplant für {date}',
+            signed: 'Unterschrieben', confirmed: 'Mit der Lohnbuchhaltung bestätigt',
+            allDone: 'Alles erledigt! Ihre Übergabe ist abgeschlossen.', resetBtn: 'Zurücksetzen'
+        },
+        fr: {
+            title: 'Liste de remise',
+            noticeTitle: 'Important avant votre départ',
+            noticeBody: 'Veillez à compléter tous les points marqués {req}. La signature du document de départ confirme que vous avez tout remis en ordre.',
+            required: 'Obligatoire', ti: 'IT', hr: 'RH',
+            progressLabel: '{done} sur {total} terminées',
+            i1: "Badge d'accès restitué",
+            i2: "Ordinateur ou casque restitué à l'IT",
+            i3: "Accès aux systèmes révoqués (à confirmer avec l'IT)",
+            i4: 'Entretien de départ réalisé avec les RH',
+            i5: 'Documents personnels récupérés (contrats, reçus)',
+            i6: 'Document de rupture signé',
+            i7: 'Coordonnées bancaires pour le solde confirmées avec la paie',
+            btnTicket: 'Créer un ticket', btnRevoke: 'Demander la révocation', btnSchedule: 'Planifier',
+            btnSign: 'Signer', btnConfirm: 'Confirmer', doneLabel: 'Terminé',
+            ticketCreated: 'Ticket {id} créé', scheduledFor: 'Planifié pour le {date}',
+            signed: 'Signé', confirmed: 'Confirmé avec la paie',
+            allDone: 'Tout est prêt ! Votre remise est terminée.', resetBtn: 'Réinitialiser'
+        },
+        es: {
+            title: 'Checklist de entrega',
+            noticeTitle: 'Importante antes de salir',
+            noticeBody: 'Asegúrate de completar todos los puntos marcados como {req}. La firma del documento de salida confirma que entregaste todo en orden.',
+            required: 'Requerido', ti: 'TI', hr: 'HR',
+            progressLabel: '{done} de {total} completadas',
+            i1: 'Credencial de acceso entregada',
+            i2: 'Equipo de cómputo o headset entregado a TI',
+            i3: 'Accesos a sistemas revocados (confirmar con TI)',
+            i4: 'Entrevista de salida completada con HR',
+            i5: 'Documentos personales recogidos (contratos, recibos)',
+            i6: 'Firma del documento de separación laboral',
+            i7: 'CLABE para depósito de liquidación confirmada con nómina',
+            btnTicket: 'Crear ticket', btnRevoke: 'Solicitar baja', btnSchedule: 'Agendar',
+            btnSign: 'Firmar', btnConfirm: 'Confirmar', doneLabel: 'Hecho',
+            ticketCreated: 'Ticket {id} creado', scheduledFor: 'Agendada para el {date}',
+            signed: 'Firmado', confirmed: 'Confirmado con nómina',
+            allDone: '¡Todo listo! Has completado tu entrega.', resetBtn: 'Reiniciar'
+        },
+        ja: {
+            title: '引き継ぎチェックリスト',
+            noticeTitle: '退職前の重要事項',
+            noticeBody: '{req} と記載されたすべての項目を完了してください。退職書類への署名は、すべてを正しく引き継いだことを確認するものです。',
+            required: '必須', ti: 'IT', hr: '人事',
+            progressLabel: '{total} 件中 {done} 件完了',
+            i1: '入館証の返却',
+            i2: 'PCまたはヘッドセットをITに返却',
+            i3: 'システムアクセスの停止（ITに確認）',
+            i4: '人事との退職面談を完了',
+            i5: '個人書類の受け取り（契約書、領収書）',
+            i6: '退職書類への署名',
+            i7: '最終給与の振込口座を給与担当に確認',
+            btnTicket: 'チケット作成', btnRevoke: '停止を申請', btnSchedule: '予約',
+            btnSign: '署名', btnConfirm: '確認', doneLabel: '完了',
+            ticketCreated: 'チケット {id} を作成しました', scheduledFor: '{date} に予約しました',
+            signed: '署名済み', confirmed: '給与担当に確認済み',
+            allDone: 'すべて完了しました！引き継ぎが完了しました。', resetBtn: 'リセット'
+        },
+        'en-GB': {
+            title: 'Handover Checklist',
+            noticeTitle: 'Important before you leave',
+            noticeBody: 'Make sure you complete every item marked {req}. Signing the exit document confirms you handed everything over in order.',
+            required: 'Required', ti: 'IT', hr: 'HR',
+            progressLabel: '{done} of {total} completed',
+            i1: 'Access badge returned',
+            i2: 'Computer or headset returned to IT',
+            i3: 'System access revoked (confirm with IT)',
+            i4: 'Exit interview completed with HR',
+            i5: 'Personal documents collected (contracts, receipts)',
+            i6: 'Separation document signed',
+            i7: 'Bank details for final pay confirmed with payroll',
+            btnTicket: 'Create ticket', btnRevoke: 'Request removal', btnSchedule: 'Schedule',
+            btnSign: 'Sign', btnConfirm: 'Confirm', doneLabel: 'Done',
+            ticketCreated: 'Ticket {id} created', scheduledFor: 'Scheduled for {date}',
+            signed: 'Signed', confirmed: 'Confirmed with payroll',
+            allDone: "All set! You've completed your handover.", resetBtn: 'Reset'
+        },
+        'en-US': {
+            title: 'Handover Checklist',
+            noticeTitle: 'Important before you leave',
+            noticeBody: 'Make sure you complete every item marked {req}. Signing the exit document confirms you handed everything over in order.',
+            required: 'Required', ti: 'IT', hr: 'HR',
+            progressLabel: '{done} of {total} completed',
+            i1: 'Access badge returned',
+            i2: 'Computer or headset returned to IT',
+            i3: 'System access revoked (confirm with IT)',
+            i4: 'Exit interview completed with HR',
+            i5: 'Personal documents collected (contracts, receipts)',
+            i6: 'Separation document signed',
+            i7: 'Bank details for final pay confirmed with payroll',
+            btnTicket: 'Create ticket', btnRevoke: 'Request removal', btnSchedule: 'Schedule',
+            btnSign: 'Sign', btnConfirm: 'Confirm', doneLabel: 'Done',
+            ticketCreated: 'Ticket {id} created', scheduledFor: 'Scheduled for {date}',
+            signed: 'Signed', confirmed: 'Confirmed with payroll',
+            allDone: "All set! You've completed your handover.", resetBtn: 'Reset'
+        }
+    };
+    const t = T[LANG] ?? T['en-US'];
+
+    function tr(key, vars) {
+        let s = t[key] || key;
+        if (vars) Object.keys(vars).forEach(k => { s = s.replaceAll('{' + k + '}', vars[k]); });
+        return s;
+    }
+
+    // --- Staffbase brand color passthrough ---
+    function applySBBrand() {
+        let sb = getComputedStyle(document.documentElement).getPropertyValue('--sb-brand').trim();
+        if (sb) { document.documentElement.style.setProperty('--primary', sb); return; }
+        try {
+            sb = window.parent.getComputedStyle(window.parent.document.documentElement)
+                    .getPropertyValue('--sb-brand').trim();
+            if (sb) document.documentElement.style.setProperty('--primary', sb);
+        } catch (e) {}
+    }
+
+    // --- Date helpers (always current; per CLAUDE.md recency rule) ---
+    const now = new Date();
+    const daysFromNow = n => { const d = new Date(now); d.setDate(d.getDate() + n); return d; };
+    const fmtDate = d => new Intl.DateTimeFormat(LOCALE, { year:'numeric', month:'long', day:'numeric' }).format(d);
+
+    // --- Items ---
+    // badge: 'req' | 'ti' | 'hr'   |   action: null | 'ticket' | 'schedule' | 'sign' | 'confirm'
+    const ITEMS = [
+        { id: 'i1', nameKey: 'i1', badge: 'req', action: null },
+        { id: 'i2', nameKey: 'i2', badge: 'ti',  action: 'ticket',   btnKey: 'btnTicket' },
+        { id: 'i3', nameKey: 'i3', badge: 'ti',  action: 'ticket',   btnKey: 'btnRevoke' },
+        { id: 'i4', nameKey: 'i4', badge: 'hr',  action: 'schedule', btnKey: 'btnSchedule' },
+        { id: 'i5', nameKey: 'i5', badge: 'req', action: null },
+        { id: 'i6', nameKey: 'i6', badge: 'req', action: 'sign',     btnKey: 'btnSign' },
+        { id: 'i7', nameKey: 'i7', badge: 'hr',  action: 'confirm',  btnKey: 'btnConfirm' }
+    ];
+    const badgeLabel = b => b === 'req' ? t.required : (b === 'ti' ? t.ti : t.hr);
+    const randomTicket = () => 'INC-' + Math.floor(1000000 + Math.random() * 9000000);
+
+    // --- State ---
+    const STORAGE_KEY = 'handover-checklist/v2';
+    let state = (() => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch (e) { return {}; } })();
+    function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {} }
+    function setDone(id, meta) { state[id] = { done: true, meta: meta || '' }; saveState(); render(); }
+    function toggle(id) {
+        const cur = state[id] && state[id].done;
+        state[id] = { done: !cur, meta: '' };
+        saveState(); render();
+    }
+
+    function runAction(item) {
+        if (state[item.id] && state[item.id].done) return;
+        switch (item.action) {
+            case 'ticket':   setDone(item.id, tr('ticketCreated', { id: randomTicket() })); break;
+            case 'schedule': setDone(item.id, tr('scheduledFor', { date: fmtDate(daysFromNow(3)) })); break;
+            case 'sign':     if (SIGN_URL) { try { window.open(SIGN_URL, '_blank', 'noopener'); } catch (e) {} } setDone(item.id, t.signed); break;
+            case 'confirm':  setDone(item.id, t.confirmed); break;
+        }
+    }
+
+    const listEl = document.getElementById('task-list');
+    const fillEl = document.getElementById('progress-fill');
+    const progressTextEl = document.getElementById('progress-text');
+    const allDoneEl = document.getElementById('all-done');
+    const checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+
+    function render() {
+        listEl.innerHTML = '';
+        let done = 0;
+
+        ITEMS.forEach(item => {
+            const st = state[item.id] || { done: false, meta: '' };
+            if (st.done) done++;
+            const hasAction = !!item.action;
+
+            const row = document.createElement('div');
+            row.className = 'item' + (st.done ? ' done' : '') + (hasAction ? '' : ' clickable');
+
+            const box = document.createElement('div');
+            box.className = 'checkbox';
+            box.innerHTML = checkSvg;
+
+            const body = document.createElement('div');
+            body.className = 'item-body';
+
+            const head = document.createElement('div');
+            head.className = 'item-head';
+            const label = document.createElement('div');
+            label.className = 'item-label';
+            label.textContent = t[item.nameKey];
+            const badge = document.createElement('span');
+            badge.className = 'cw-badge ' + item.badge;
+            badge.textContent = badgeLabel(item.badge);
+            head.appendChild(label);
+            head.appendChild(badge);
+            body.appendChild(head);
+
+            if (hasAction) {
+                if (st.done) {
+                    if (st.meta) {
+                        const meta = document.createElement('div');
+                        meta.className = 'item-meta';
+                        meta.innerHTML = checkSvg + '<span></span>';
+                        meta.querySelector('span').textContent = st.meta;
+                        body.appendChild(meta);
+                    }
+                } else {
+                    const actionWrap = document.createElement('div');
+                    actionWrap.className = 'item-action';
+                    const btn = document.createElement('button');
+                    btn.className = 'cw-btn';
+                    btn.textContent = t[item.btnKey];
+                    btn.addEventListener('click', e => { e.stopPropagation(); runAction(item); });
+                    actionWrap.appendChild(btn);
+                    body.appendChild(actionWrap);
+                }
+            }
+
+            row.appendChild(box);
+            row.appendChild(body);
+
+            if (!hasAction) {
+                row.addEventListener('click', () => toggle(item.id));
+                row.tabIndex = 0;
+                row.setAttribute('role', 'checkbox');
+                row.setAttribute('aria-checked', st.done ? 'true' : 'false');
+                row.addEventListener('keydown', e => {
+                    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(item.id); }
+                });
+            }
+
+            listEl.appendChild(row);
+        });
+
+        const total = ITEMS.length;
+        fillEl.style.width = Math.round((done / total) * 100) + '%';
+        progressTextEl.textContent = tr('progressLabel', { done: done, total: total });
+        allDoneEl.classList.toggle('show', done === total);
+    }
+
+    function init() {
+        applySBBrand();
+        document.getElementById('section-label').textContent = t.title;
+        document.getElementById('notice-title').textContent = t.noticeTitle;
+        const body = document.getElementById('notice-body');
+        const parts = t.noticeBody.split('{req}');
+        body.innerHTML = '';
+        body.appendChild(document.createTextNode(parts[0]));
+        const strong = document.createElement('strong');
+        strong.textContent = t.required;
+        body.appendChild(strong);
+        if (parts[1]) body.appendChild(document.createTextNode(parts[1]));
+
+        document.getElementById('all-done-text').textContent = t.allDone;
+        const resetBtn = document.getElementById('reset-btn');
+        resetBtn.textContent = t.resetBtn;
+        resetBtn.addEventListener('click', () => { state = {}; saveState(); render(); });
+        render();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<!-- Widget usage counter — see CLAUDE.md -->
+<script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})();</script>
+
+</body>
+</html>
