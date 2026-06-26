@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Offboarding Completo">
+<meta name="widget-description" content="Proceso de salida completo: derechos del empleado, checklist de entrega con acciones, firma digital y encuesta de salida anonima.">
+<meta name="widget-tags" content="HR Offboarding">
+<title>Proceso de Salida</title>
+<style>
+:root{--primary:var(--sb-brand,#2563eb);--primary-soft:rgba(37,99,235,0.10);--success:#10b981;--success-soft:#ecfdf5;--warning:#f59e0b;--warning-soft:#fffbeb;--danger:#ef4444;--danger-soft:rgba(239,68,68,0.1);--text:#1f2937;--text-light:#6b7280;--bg:transparent;--bg-card:#ffffff;--bg-gray:#f9fafb;--border:#e5e7eb;--r:14px;--rs:8px;--sh:0 1px 4px rgba(0,0,0,0.08);}
+@media(prefers-color-scheme:dark){:root{--primary:var(--sb-brand,#3b9eff);--primary-soft:rgba(59,158,255,0.15);--success:#34d399;--success-soft:#0b1f19;--warning:#fbbf24;--warning-soft:#1c1307;--danger:#f87171;--danger-soft:rgba(248,113,113,0.15);--text:#f3f4f6;--text-light:#9ca3af;--bg-card:#1f2937;--bg-gray:#111827;--border:#374151;}}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
+.cw{width:100%;max-width:480px;margin:0 auto;}
+
+/* HEADER */
+.cw-hdr{background:#0f172a;padding:20px 20px 24px;position:relative;overflow:hidden;}
+.cw-hdr::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(37,99,235,.18) 0%,transparent 65%);pointer-events:none;}
+.cw-hdr-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:relative;z-index:1;}
+.cw-brand{display:flex;align-items:center;gap:9px;}
+.cw-brand img{width:20px;height:21px;}
+.cw-brand-name{color:#fff;font-size:15px;font-weight:700;}
+.cw-folio-pill{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:4px 10px;font-size:9px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.04em;}
+.cw-hdr-eyebrow{font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.1em;margin:0 0 6px;position:relative;z-index:1;}
+.cw-hdr-h1{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.1;margin:0 0 8px;position:relative;z-index:1;}
+.cw-hdr-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.5;position:relative;z-index:1;}
+.cw-hdr-line{position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(to right,var(--primary),transparent);}
+
+/* BODY */
+.cw-body{padding:18px 16px 48px;}
+.cw-sec{font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.09em;margin:20px 0 10px;}
+.cw-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:12px;}
+.cw-cp{padding:14px 16px;}
+
+/* Employee card */
+.emp-strip{display:flex;align-items:center;gap:14px;padding:14px 16px;}
+.emp-av{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--primary) 0%,#60a5fa 100%);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0;}
+.emp-name{font-size:15px;font-weight:700;color:var(--text);}
+.emp-role{font-size:12px;color:var(--text-light);margin:2px 0 5px;}
+.emp-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.emp-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--bg-gray);color:var(--text-light);}
+.emp-dt-lbl{font-size:9px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;text-align:right;}
+.emp-dt-val{font-size:13px;font-weight:700;color:var(--text);text-align:right;white-space:nowrap;}
+
+/* Card header */
+.chdr{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);}
+.chdr-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.chdr-title{font-size:14px;font-weight:700;color:var(--text);}
+.chdr-sub{font-size:11px;color:var(--text-light);margin-top:1px;}
+
+/* Info rows */
+.info-row{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--bg-gray);font-size:13px;color:var(--text);line-height:1.5;}
+.info-row:last-of-type{border-bottom:none;}
+.info-dot{width:6px;height:6px;border-radius:50%;background:var(--primary);margin-top:5px;flex-shrink:0;}
+
+/* Warning */
+.warn-box{background:var(--warning-soft);border:1px solid rgba(245,158,11,.25);border-left:3px solid var(--warning);border-radius:var(--rs);padding:11px 14px;margin-bottom:12px;font-size:12px;color:var(--text-light);line-height:1.5;}
+.warn-title{font-size:13px;font-weight:700;color:var(--warning);margin-bottom:3px;}
+
+/* Legal */
+.legal-box{background:var(--primary-soft);border:1px solid rgba(37,99,235,.18);border-left:4px solid var(--primary);border-radius:var(--rs);padding:12px 14px;margin-bottom:12px;}
+.legal-title{font-size:12px;font-weight:700;color:var(--primary);margin-bottom:8px;}
+.legal-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(37,99,235,.08);font-size:11px;}
+.legal-row:last-child{border-bottom:none;}
+.legal-lbl{color:var(--text-light);}
+.legal-val{font-weight:700;color:var(--text);text-align:right;}
+
+/* Checklist */
+.prog-row{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--text-light);margin-bottom:6px;}
+.prog-track{height:7px;background:var(--bg-gray);border:1px solid var(--border);border-radius:99px;overflow:hidden;margin-bottom:14px;}
+.prog-fill{height:100%;background:var(--primary);border-radius:99px;transition:width .35s ease;width:0%;}
+.chk-item{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--border);}
+.chk-item:last-child{border-bottom:none;padding-bottom:0;}
+.chk-item:first-child{padding-top:0;}
+.chk-box{width:23px;height:23px;flex-shrink:0;border:2px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;margin-top:1px;transition:background .15s,border-color .15s;}
+.chk-box.done{background:var(--success);border-color:var(--success);}
+.chk-body{flex:1;min-width:0;}
+.chk-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.chk-lbl{font-size:13px;font-weight:600;color:var(--text);line-height:1.35;flex:1;}
+.chk-item.is-done .chk-lbl{text-decoration:line-through;color:var(--text-light);font-weight:500;}
+.cw-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;flex-shrink:0;margin-top:1px;}
+.cw-badge.req{background:var(--danger-soft);color:var(--danger);}
+.cw-badge.ti{background:var(--success-soft);color:var(--success);}
+.cw-badge.hr{background:var(--primary-soft);color:var(--primary);}
+.chk-action{margin-top:8px;}
+.chk-btn{padding:7px 13px;font-size:12px;border-radius:var(--rs);border:none;background:var(--primary);color:#fff;cursor:pointer;font-weight:600;font-family:inherit;transition:filter .15s;}
+.chk-btn:hover{filter:brightness(.93);}
+.chk-meta{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--success);margin-top:6px;}
+.all-done{display:none;align-items:center;gap:8px;margin-top:12px;padding:11px 13px;background:var(--success-soft);color:var(--success);border-radius:var(--rs);font-size:13px;font-weight:600;}
+.all-done.show{display:flex;}
+.reset-row{text-align:center;margin-top:10px;}
+.reset-link{background:none;border:none;color:var(--text-light);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:6px;}
+.reset-link:hover{color:var(--primary);background:var(--primary-soft);}
+
+/* Signature */
+.sig-container{border:2px dashed var(--primary);border-radius:var(--rs);background:#fff;position:relative;overflow:hidden;}
+#sig-pad{display:block;width:100%;height:auto;cursor:crosshair;touch-action:none;}
+.sig-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:13px;pointer-events:none;font-style:italic;transition:opacity .2s;}
+.sig-ph.hidden{opacity:0;}
+.sig-btns{display:flex;gap:8px;margin-top:10px;}
+.cw-btn{flex:1;padding:10px 13px;font-size:13px;border-radius:var(--rs);border:1px solid transparent;cursor:pointer;font-weight:600;font-family:inherit;transition:filter .15s;}
+.cw-btn-p{background:var(--primary);color:#fff;flex:2;}
+.cw-btn-s{background:var(--bg-card);color:var(--text);border-color:var(--border);}
+.cw-btn:hover:not(:disabled){filter:brightness(.93);}
+.cw-btn:disabled{opacity:.5;cursor:not-allowed;}
+.sig-note{margin-top:10px;font-size:11px;color:var(--text-light);text-align:center;line-height:1.5;}
+.sig-saved{text-align:center;}
+.sig-saved-icon{width:46px;height:46px;margin:0 auto 10px;background:var(--success-soft);color:var(--success);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.sig-saved-icon svg{width:22px;height:22px;}
+.sig-saved-title{font-size:15px;font-weight:700;margin-bottom:4px;}
+.sig-saved-sub{font-size:12px;color:var(--text-light);margin-bottom:10px;}
+.sig-saved-frame{background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:8px;margin-bottom:10px;}
+.sig-saved-frame svg{width:100%;height:auto;display:block;}
+.resign-btn{background:none;border:none;color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:5px 10px;border-radius:6px;}
+.resign-btn:hover{background:var(--primary-soft);}
+
+/* Survey */
+.sv-hdr{background:#0f172a;border-radius:var(--r) var(--r) 0 0;padding:16px 18px 18px;position:relative;overflow:hidden;}
+.sv-hdr::after{content:'';position:absolute;right:-20px;top:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(37,99,235,.2) 0%,transparent 65%);pointer-events:none;}
+.sv-hdr-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;position:relative;z-index:1;}
+.sv-hdr-icon{width:28px;height:28px;border-radius:7px;background:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sv-hdr-icon svg{width:15px;height:15px;fill:#fff;}
+.sv-hdr-title{font-size:14px;font-weight:700;color:#fff;margin:0;}
+.sv-hdr-sub{font-size:11px;color:rgba(255,255,255,.4);margin:2px 0 0 38px;position:relative;z-index:1;}
+.sv-prog{margin-top:12px;position:relative;z-index:1;}
+.sv-prog-meta{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.35);margin-bottom:4px;}
+.sv-prog-track{background:rgba(255,255,255,.1);border-radius:4px;height:4px;}
+.sv-prog-fill{background:var(--primary);height:4px;border-radius:4px;transition:width .4s ease;width:0%;}
+.sv-form{background:var(--bg-card);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);padding:16px;}
+.sv-q{padding:14px 0;border-bottom:1px solid var(--border);}
+.sv-q:first-child{padding-top:0;}
+.sv-q:last-child{border-bottom:none;padding-bottom:0;}
+.sv-q-num{font-size:9px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;margin:0 0 3px;}
+.sv-q-text{font-size:14px;font-weight:600;color:var(--text);margin:0 0 10px;line-height:1.4;}
+.sv-stars{display:flex;gap:7px;}
+.sv-star{width:36px;height:36px;border-radius:var(--rs);background:var(--bg-gray);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:background .15s,border-color .15s;user-select:none;}
+.sv-star.active{background:#fef9c3;border-color:#fde047;}
+.sv-opt{display:flex;align-items:center;gap:10px;background:var(--bg-gray);border:2px solid transparent;border-radius:var(--rs);padding:10px 12px;margin-bottom:7px;cursor:pointer;transition:background .15s,border-color .15s;user-select:none;}
+.sv-opt:last-child{margin-bottom:0;}
+.sv-opt.sel{background:var(--primary-soft);border-color:var(--primary);}
+.sv-opt-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s;}
+.sv-opt.sel .sv-opt-dot{border-color:var(--primary);background:var(--primary);}
+.sv-opt-dot-inner{width:5px;height:5px;border-radius:50%;background:#fff;display:none;}
+.sv-opt.sel .sv-opt-dot-inner{display:block;}
+.sv-opt-lbl{font-size:13px;color:var(--text);}
+.sv-textarea{width:100%;min-height:85px;background:var(--bg-gray);border:2px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:13px;color:var(--text);font-family:inherit;resize:vertical;line-height:1.5;transition:border-color .15s;}
+.sv-textarea:focus{outline:none;border-color:var(--primary);background:var(--bg-card);}
+.sv-textarea::placeholder{color:var(--text-light);}
+.sv-submit{display:block;width:100%;padding:12px;background:var(--primary);color:#fff;font-size:14px;font-weight:600;font-family:inherit;border:none;border-radius:var(--rs);cursor:pointer;margin-top:16px;transition:filter .15s;text-align:center;}
+.sv-submit:hover{filter:brightness(1.1);}
+.sv-note{font-size:11px;color:var(--text-light);text-align:center;margin:8px 0 0;line-height:1.5;}
+.sv-success{display:none;background:var(--bg-card);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);padding:28px 16px;text-align:center;}
+.sv-success-icon{width:48px;height:48px;background:var(--success-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;}
+.sv-success-icon svg{width:24px;height:24px;stroke:var(--success);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+.sv-success-title{font-size:17px;font-weight:700;color:var(--text);margin:0 0 5px;}
+.sv-success-sub{font-size:13px;color:var(--text-light);line-height:1.6;margin:0 0 14px;}
+.sv-success-meta{background:var(--bg-gray);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;text-align:left;}
+.sv-success-meta-lbl{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.07em;margin:0 0 3px;}
+.sv-success-meta-val{font-size:12px;font-weight:600;color:var(--text);}
+
+/* Timestamp */
+.ts-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:16px;}
+.ts-lbl{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;}
+.ts-val{font-size:12px;font-weight:600;color:var(--text);}
+.ts-badge{background:var(--bg-gray);border-radius:6px;padding:5px 10px;font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div class="cw">
+
+<!-- HEADER -->
+<div class="cw-hdr">
+  <div class="cw-hdr-bar">
+    <div class="cw-brand">
+      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTMiIHZpZXdCb3g9IjAgMCA1MCA1MyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkuNjQ5MTIgOS45ODU1MUgwQzAgMTAuMjkyOCAwLjIzOTIzNCAxMC41MjMyIDAuNDc4NDY5IDEwLjc1MzZDMy4xODk3OSAxMy4zNjUyIDYuOTM3OCAxNi45NzU0IDkuNjQ5MTIgMTkuNTg3QzkuODA4NjEgMTkuNzQwNiAxMC4wNDc4IDE5LjU4NyAxMC4wNDc4IDE5LjQzMzNWMTAuMzY5NkMxMC4wNDc4IDEwLjEzOTEgOS44ODgzNiA5Ljk4NTUxIDkuNjQ5MTIgOS45ODU1MVpNMzEuNzM4NCAwSDMxLjAyMDdWOC45ODY5NkMzMS4wMjA3IDkuNTI0NjQgMzAuNTQyMyA5Ljk4NTUxIDI5Ljk4NCA5Ljk4NTUxSDIxLjI5MTlDMjEuMDUyNiA5Ljk4NTUxIDIwLjg5MzEgMTAuMTM5MSAyMC44OTMxIDEwLjM2OTZWNDMuMzIxN0MyMC44OTMxIDQzLjg1OTQgMjAuNDE0NyA0NC4zMjAzIDE5Ljg1NjUgNDQuMzIwM0gxMS4yNDRDMTEuMDA0OCA0NC4zMjAzIDEwLjg0NTMgNDQuNjI3NSAxMS4wMDQ4IDQ0Ljc4MTJDMTIuOTE4NyA0Ni42MjQ2IDE2LjY2NjcgNTAuMjM0OCAxOC41ODA1IDUyLjA3ODNDMTkuMDU5IDUyLjUzOTEgMTkuNzc2NyA1MyAyMC42NTM5IDUzSDI4Ljk0NzRDMjkuNzQ0OCA1MyAzMC4zODI4IDUyLjM4NTUgMzAuMzgyOCA1MS42MTc0VjMzLjAyOUMzMC4zODI4IDMyLjc5ODYgMzAuNTQyMyAzMi42NDQ5IDMwLjc4MTUgMzIuNjQ0OUgzMS42NTg3QzQwLjk4ODggMzIuNjQ0OSA1MCAyNy4xOTEzIDUwIDE2LjI4NDFDNTAgNS4zNzY4MSA0My4xNDE5IDAgMzEuNzM4NCAwWiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cg==" width="20" height="21" alt="TP">
+      <span class="cw-brand-name">TP <span style="background:var(--primary);color:#fff;font-size:9px;font-weight:800;padding:2px 5px;border-radius:4px;margin-left:4px;vertical-align:middle;">EMPLEADOS</span></span>
+    </div>
+    <div class="cw-folio-pill" id="hdr-folio"></div>
+  </div>
+  <p class="cw-hdr-eyebrow" id="hdr-eyebrow"></p>
+  <h1 class="cw-hdr-h1" id="hdr-h1"></h1>
+  <p class="cw-hdr-sub" id="hdr-sub"></p>
+  <div class="cw-hdr-line"></div>
+</div>
+
+<div class="cw-body">
+
+  <!-- Employee -->
+  <p class="cw-sec" id="sec-emp"></p>
+  <div class="cw-card">
+    <div class="emp-strip">
+      <div class="emp-av" id="emp-av">AG</div>
+      <div style="flex:1;">
+        <div class="emp-name" id="emp-name">Ana González</div>
+        <div class="emp-role" id="emp-role">Agente de Call Center</div>
+        <div class="emp-tags"><span class="emp-tag" id="emp-tag1">BU Ventas</span><span class="emp-tag" id="emp-tag2">Site Monterrey 3</span></div>
+      </div>
+      <div><div class="emp-dt-lbl" id="emp-dt-lbl"></div><div class="emp-dt-val" id="emp-dt-val"></div></div>
+    </div>
+  </div>
+
+  <!-- Rights -->
+  <p class="cw-sec" id="sec-rights"></p>
+  <div class="cw-card">
+    <div class="chdr"><div class="chdr-icon" style="background:#fef3ff;">💼</div><div><div class="chdr-title" id="rights-title"></div><div class="chdr-sub" id="rights-sub"></div></div></div>
+    <div class="cw-cp">
+      <div class="info-row"><div class="info-dot"></div><span id="r1"></span></div>
+      <div class="info-row"><div class="info-dot"></div><span id="r2"></span></div>
+      <div class="info-row"><div class="info-dot"></div><span id="r3"></span></div>
+      <div class="info-row"><div class="info-dot"></div><span id="r4"></span></div>
+      <p style="font-size:11px;color:var(--text-light);margin:6px 0 0;line-height:1.5;" id="rights-contact"></p>
+    </div>
+  </div>
+
+  <!-- Checklist -->
+  <p class="cw-sec" id="sec-chk"></p>
+  <div class="warn-box"><div class="warn-title" id="warn-title"></div><span id="warn-body"></span></div>
+  <div class="cw-card" style="padding:6px 14px 12px;">
+    <div class="prog-row"><span id="chk-prog-txt"></span></div>
+    <div class="prog-track"><div class="prog-fill" id="chk-fill"></div></div>
+    <div id="chk-list"></div>
+    <div class="all-done" id="chk-all-done"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span id="chk-all-done-txt"></span></div>
+    <div class="reset-row"><button class="reset-link" id="chk-reset" onclick="chkReset()"></button></div>
+  </div>
+
+  <!-- Legal -->
+  <p class="cw-sec" id="sec-legal"></p>
+  <div class="legal-box">
+    <div class="legal-title" id="legal-title"></div>
+    <div class="legal-row"><span class="legal-lbl" id="ll1"></span><span class="legal-val" id="lv1"></span></div>
+    <div class="legal-row"><span class="legal-lbl" id="ll2"></span><span class="legal-val" id="lv2"></span></div>
+    <div class="legal-row"><span class="legal-lbl" id="ll3"></span><span class="legal-val">192.168.1.104 (Site MNY3)</span></div>
+    <div class="legal-row"><span class="legal-lbl" id="ll4"></span><span class="legal-val" id="lv4"></span></div>
+    <div class="legal-row"><span class="legal-lbl" id="ll5"></span><span class="legal-val" id="lv5"></span></div>
+  </div>
+
+  <!-- Signature -->
+  <p class="cw-sec" id="sec-sig"></p>
+  <div class="cw-card cw-cp">
+    <div id="sig-signing">
+      <div style="background:var(--bg-gray);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:12px;">
+        <div style="font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--warning);"></span><span id="sig-doc-status"></span></div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;" id="sig-doc-name"></div>
+        <div style="font-size:12px;color:var(--text-light);line-height:1.45;" id="sig-doc-desc"></div>
+      </div>
+      <div style="font-size:13px;font-weight:600;margin:0 0 8px;" id="sig-label"></div>
+      <div class="sig-container">
+        <svg id="sig-pad" viewBox="0 0 400 175" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="sig-ph" id="sig-ph"></div>
+      </div>
+      <div class="sig-btns">
+        <button class="cw-btn cw-btn-s" id="sig-clear-btn"></button>
+        <button class="cw-btn cw-btn-p" id="sig-save-btn"></button>
+      </div>
+      <div class="sig-note" id="sig-legal-note"></div>
+    </div>
+    <div id="sig-saved" class="sig-saved" style="display:none;">
+      <div class="sig-saved-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+      <div class="sig-saved-title" id="sig-saved-heading"></div>
+      <div class="sig-saved-sub" id="sig-saved-sub"></div>
+      <div class="sig-saved-frame" id="sig-saved-frame"></div>
+      <button class="resign-btn" id="sig-resign-btn"></button>
+    </div>
+  </div>
+
+  <!-- Survey -->
+  <p class="cw-sec" id="sec-survey"></p>
+  <div class="sv-hdr">
+    <div class="sv-hdr-top">
+      <div class="sv-hdr-icon"><svg viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h5l5 5v11a2 2 0 01-2 2z"/></svg></div>
+      <h2 class="sv-hdr-title" id="sv-title"></h2>
+    </div>
+    <p class="sv-hdr-sub" id="sv-sub"></p>
+    <div class="sv-prog"><div class="sv-prog-meta"><span id="sv-prog-lbl"></span><span id="sv-prog-pct">0%</span></div><div class="sv-prog-track"><div class="sv-prog-fill" id="sv-prog-fill"></div></div></div>
+  </div>
+  <form class="sv-form" id="sv-form" onsubmit="svSubmit(event)" novalidate>
+    <div class="sv-q">
+      <p class="sv-q-num" id="sv-q1-num"></p><p class="sv-q-text" id="sv-q1-txt"></p>
+      <div class="sv-stars" id="sv-stars">
+        <div class="sv-star" data-val="1" tabindex="0">⭐</div><div class="sv-star" data-val="2" tabindex="0">⭐</div><div class="sv-star" data-val="3" tabindex="0">⭐</div><div class="sv-star" data-val="4" tabindex="0">⭐</div><div class="sv-star" data-val="5" tabindex="0">⭐</div>
+      </div>
+    </div>
+    <div class="sv-q"><p class="sv-q-num" id="sv-q2-num"></p><p class="sv-q-text" id="sv-q2-txt"></p><div id="sv-q2-opts"></div></div>
+    <div class="sv-q"><p class="sv-q-num" id="sv-q3-num"></p><p class="sv-q-text" id="sv-q3-txt"></p><div id="sv-q3-opts"></div></div>
+    <div class="sv-q"><p class="sv-q-num" id="sv-q4-num"></p><p class="sv-q-text" id="sv-q4-txt"></p><div id="sv-q4-opts"></div></div>
+    <div class="sv-q"><p class="sv-q-num" id="sv-q5-num"></p><p class="sv-q-text" id="sv-q5-txt"></p><textarea class="sv-textarea" id="sv-q5" rows="3"></textarea></div>
+    <button type="submit" class="sv-submit" id="sv-submit-btn"></button>
+    <p class="sv-note" id="sv-note"></p>
+  </form>
+  <div class="sv-success" id="sv-success">
+    <div class="sv-success-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <h3 class="sv-success-title" id="sv-success-title"></h3>
+    <p class="sv-success-sub" id="sv-success-sub"></p>
+    <div class="sv-success-meta"><p class="sv-success-meta-lbl" id="sv-folio-lbl"></p><p class="sv-success-meta-val" id="sv-folio-val"></p></div>
+  </div>
+
+  <!-- Timestamp -->
+  <div class="ts-card"><div><div class="ts-lbl" id="ts-lbl"></div><div class="ts-val" id="ts-val"></div></div><div class="ts-badge" id="ts-badge"></div></div>
+
+</div>
+</div>
+
+<script>
+(function(){
+
+const LANG=(()=>{const l=navigator.language||'';if(l.startsWith('de'))return'de';if(l.startsWith('fr'))return'fr';if(l.startsWith('es'))return'es';if(l.startsWith('ja'))return'ja';if(l.startsWith('en-GB'))return'en-GB';return'en-US';})();
+document.documentElement.lang=LANG;
+const LOCALE={de:'de-DE',fr:'fr-FR',es:'es-ES',ja:'ja-JP','en-GB':'en-GB','en-US':'en-US'}[LANG];
+
+const T={
+es:{
+  folio:'Folio',hdrEyebrow:'Proceso de separación',hdrH1:'Tu proceso de salida',
+  hdrSub:'Completa los pasos a continuación para cerrar tu relación laboral de forma ordenada.',
+  secEmp:'Colaborador',empDtLbl:'Fecha de salida',
+  secRights:'Lo que necesitas saber',rightsTitle:'Tu liquidación y derechos',rightsSub:'Información sobre lo que te corresponde',
+  r1:'Tu <strong>liquidación o finiquito</strong> será calculado por nómina con base en tu fecha de ingreso y motivo de separación.',
+  r2:'Recibirás tu <strong>último pago de nómina</strong> en la quincena correspondiente a tu fecha de salida.',
+  r3:'Tienes derecho a tu <strong>constancia de empleo</strong>, carta de recomendación y comprobante de semanas cotizadas ante el IMSS.',
+  r4:'Tu <strong>cuenta AFORE</strong> permanece activa. Puedes solicitar información sobre tus ahorros directamente con tu AFORE.',
+  rightsContact:'¿Dudas sobre tu liquidación? Contacta a HR: <strong>rh.empresa@corporativo.com</strong>',
+  secChk:'Checklist de entrega',warnTitle:'⚠️ Importante antes de salir',
+  warnBody:'Asegúrate de completar todos los puntos marcados como <strong>Requerido</strong>. La firma del documento confirma que entregaste todo en orden.',
+  required:'Requerido',ti:'TI',hr:'HR',
+  chkProg:'{done} de {total} completadas',
+  i1:'Credencial de acceso entregada',i2:'Equipo de cómputo o headset entregado a TI',
+  i3:'Accesos a sistemas revocados (confirmar con TI)',i4:'Entrevista de salida completada con HR',
+  i5:'Documentos personales recogidos (contratos, recibos)',i6:'Firma del documento de separación laboral',
+  i7:'CLABE para depósito de liquidación confirmada con nómina',
+  btnTicket:'Crear ticket',btnRevoke:'Solicitar baja',btnSchedule:'Agendar',btnSign:'Firmar',btnConfirm:'Confirmar',
+  ticketCreated:'Ticket {id} creado',scheduledFor:'Agendada para el {date}',signed:'Firmado',confirmed:'Confirmado con nómina',
+  allDone:'¡Todo listo! Has completado tu entrega.',resetBtn:'Reiniciar',
+  secLegal:'Registro legal',legalTitle:'🔒 Evidencia generada automáticamente',
+  ll1:'Folio de proceso',ll2:'Fecha y hora de apertura',ll3:'IP del dispositivo',ll4:'Notificado a',ll5:'Estado',
+  lv4:'HR Ops · Coordinador · Nómina',lv5:'En curso',
+  secSig:'Firma de documento de separación',
+  sigDocStatus:'Pendiente',sigDocName:'Confirmación de baja voluntaria',
+  sigDocDesc:'Al firmar, confirma su baja voluntaria, la devolución de los bienes de la empresa y que ha completado su proceso de salida.',
+  sigLabel:'Firme aquí:',sigPh:'Firme aquí con el ratón o el dedo',sigClear:'Borrar',sigSave:'Guardar firma',
+  sigNote:'Al guardar, confirma que la información anterior es correcta y que ha completado su offboarding.',
+  sigSavedHeading:'Salida confirmada',sigSavedSub:'Firmado el {date}',sigResign:'Firmar de nuevo',sigAlert:'Por favor, firme primero.',
+  secSurvey:'Encuesta de salida',svTitle:'Encuesta de Salida',svSub:'5 preguntas · Anónima · Menos de 3 minutos',
+  svQLabel:'Pregunta {n} de 5',
+  svQ1:'¿Cómo calificarías tu experiencia general trabajando aquí?',
+  svQ2:'¿Cuál es el motivo principal de tu salida?',
+  svQ3:'¿Recomendarías esta empresa como lugar de trabajo a un amigo o familiar?',
+  svQ4:'¿Sentiste que tuviste acceso a la información y herramientas para hacer tu trabajo?',
+  svQ5:'¿Hay algo que la empresa podría haber hecho diferente para mejorar tu experiencia?',
+  svQ2opts:['Oferta de trabajo en otra empresa','Razones personales o familiares','Ambiente de trabajo o relación con el equipo','Compensación o beneficios','Oportunidades de crecimiento'],
+  svQ3opts:['Definitivamente sí','Probablemente sí','No lo sé','Probablemente no'],
+  svQ4opts:['Siempre','La mayoría de las veces','A veces','Casi nunca'],
+  svQ5ph:'Escribe aquí tus comentarios. Tu respuesta es confidencial...',
+  svSubmit:'Enviar respuestas →',svNote:'Tu respuesta es anónima y confidencial.',
+  svSuccessTitle:'¡Gracias!',svSuccessSub:'Tu respuesta fue registrada. Nos ayuda a mejorar la experiencia de todos en el equipo.',
+  svFolioLbl:'Folio de registro',tsLbl:'Proceso iniciado',tsBadge:'En curso',
+},
+'en-US':{
+  folio:'Folio',hdrEyebrow:'Separation process',hdrH1:'Your offboarding',
+  hdrSub:'Complete the steps below to close your employment in an orderly manner.',
+  secEmp:'Employee',empDtLbl:'Exit date',
+  secRights:'What you need to know',rightsTitle:'Your settlement and rights',rightsSub:'Information about what you are entitled to',
+  r1:'Your <strong>final settlement</strong> will be calculated by payroll based on your start date and reason for leaving.',
+  r2:'You will receive your <strong>final paycheck</strong> in the pay period corresponding to your exit date.',
+  r3:'You are entitled to an <strong>employment certificate</strong>, reference letter, and social security record.',
+  r4:'Your <strong>retirement account</strong> remains active. Contact your provider for information about your savings.',
+  rightsContact:'Questions about your settlement? Contact HR: <strong>hr@company.com</strong>',
+  secChk:'Handover checklist',warnTitle:'⚠️ Important before you leave',
+  warnBody:'Make sure to complete every item marked <strong>Required</strong>. Signing the exit document confirms you handed everything over.',
+  required:'Required',ti:'IT',hr:'HR',
+  chkProg:'{done} of {total} completed',
+  i1:'Access badge returned',i2:'Computer or headset returned to IT',
+  i3:'System access revoked (confirm with IT)',i4:'Exit interview completed with HR',
+  i5:'Personal documents collected (contracts, receipts)',i6:'Separation document signed',
+  i7:'Bank details for final pay confirmed with payroll',
+  btnTicket:'Create ticket',btnRevoke:'Request removal',btnSchedule:'Schedule',btnSign:'Sign',btnConfirm:'Confirm',
+  ticketCreated:'Ticket {id} created',scheduledFor:'Scheduled for {date}',signed:'Signed',confirmed:'Confirmed with payroll',
+  allDone:"All set! You've completed your handover.",resetBtn:'Reset',
+  secLegal:'Legal record',legalTitle:'🔒 Automatically generated evidence',
+  ll1:'Process folio',ll2:'Date and time opened',ll3:'Device IP',ll4:'Notified',ll5:'Status',
+  lv4:'HR Ops · Coordinator · Payroll',lv5:'In progress',
+  secSig:'Separation document signature',
+  sigDocStatus:'Pending',sigDocName:'Offboarding acknowledgment',
+  sigDocDesc:'By signing, you acknowledge your voluntary separation, confirm the return of all company property, and that you have completed your offboarding.',
+  sigLabel:'Sign below:',sigPh:'Sign here with your mouse or finger',sigClear:'Clear',sigSave:'Save signature',
+  sigNote:'By saving, you confirm the details above are correct and your offboarding is complete.',
+  sigSavedHeading:'Offboarding confirmed',sigSavedSub:'Signed on {date}',sigResign:'Sign again',sigAlert:'Please provide a signature first.',
+  secSurvey:'Exit survey',svTitle:'Exit Survey',svSub:'5 questions · Anonymous · Under 3 min',
+  svQLabel:'Question {n} of 5',
+  svQ1:'How would you rate your overall experience working here?',
+  svQ2:'What is the main reason for leaving?',
+  svQ3:'Would you recommend this company as a workplace to a friend or family member?',
+  svQ4:'Did you feel you had the information and tools you needed to do your job?',
+  svQ5:'Is there anything the company could have done differently to improve your experience?',
+  svQ2opts:['Job offer at another company','Personal or family reasons','Work environment or team relationship','Compensation or benefits','Growth opportunities'],
+  svQ3opts:['Definitely yes','Probably yes',"I'm not sure",'Probably not'],
+  svQ4opts:['Always','Most of the time','Sometimes','Rarely'],
+  svQ5ph:'Write your comments here. Your response is confidential...',
+  svSubmit:'Submit →',svNote:'Your answers are anonymous and confidential.',
+  svSuccessTitle:'Thank you!',svSuccessSub:'Your feedback was recorded. It helps us improve for everyone.',
+  svFolioLbl:'Reference',tsLbl:'Process started',tsBadge:'In progress',
+},
+};
+
+const t=T[LANG]??T['en-US'];
+function tr(s,v){if(!s)return'';if(v)Object.keys(v).forEach(k=>{s=s.replaceAll('{'+k+'}',v[k]);});return s;}
+
+function applySBBrand(){
+  const sb=getComputedStyle(document.documentElement).getPropertyValue('--sb-brand').trim();
+  if(sb){document.documentElement.style.setProperty('--primary',sb);return;}
+  try{const sb2=window.parent.getComputedStyle(window.parent.document.documentElement).getPropertyValue('--sb-brand').trim();if(sb2)document.documentElement.style.setProperty('--primary',sb2);}catch(e){}
+}
+
+const now=new Date();
+const LOCALE_OBJ={year:'numeric',month:'long',day:'numeric'};
+const dtFmt=d=>new Intl.DateTimeFormat(LOCALE,{...LOCALE_OBJ,hour:'2-digit',minute:'2-digit'}).format(d);
+const shortFmt=d=>new Intl.DateTimeFormat(LOCALE,LOCALE_OBJ).format(d);
+function daysFromNow(n){const d=new Date(now);d.setDate(d.getDate()+n);return d;}
+function rndTicket(){return'INC-'+Math.floor(1000000+Math.random()*9000000);}
+function rndFolio(pfx){const d=new Date();return pfx+'-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+'-'+String(Math.floor(Math.random()*90000)+10000);}
+
+function el(id){return document.getElementById(id);}
+function setText(id,txt){const e=el(id);if(e)e.textContent=txt;}
+function setHtml(id,html){const e=el(id);if(e)e.innerHTML=html;}
+
+function applyText(){
+  setHtml('hdr-folio',`${t.folio} TP-MX-OFF-2025-07-00391`);
+  setText('hdr-eyebrow',t.hdrEyebrow);setText('hdr-h1',t.hdrH1);setText('hdr-sub',t.hdrSub);
+  setText('sec-emp',t.secEmp);setText('emp-dt-lbl',t.empDtLbl);setText('emp-dt-val',shortFmt(now));
+  setText('sec-rights',t.secRights);setText('rights-title',t.rightsTitle);setText('rights-sub',t.rightsSub);
+  setHtml('r1',t.r1);setHtml('r2',t.r2);setHtml('r3',t.r3);setHtml('r4',t.r4);setHtml('rights-contact',t.rightsContact);
+  setText('sec-chk',t.secChk);setText('warn-title',t.warnTitle);setHtml('warn-body',t.warnBody);
+  setText('chk-all-done-txt',t.allDone);setText('chk-reset',t.resetBtn);
+  setText('sec-legal',t.secLegal);setText('legal-title',t.legalTitle);
+  setText('ll1',t.ll1);setText('ll2',t.ll2);setText('ll3',t.ll3);setText('ll4',t.ll4);setText('ll5',t.ll5);
+  setText('lv1','TP-MX-OFF-2025-07-00391');setText('lv2',dtFmt(now));setText('lv4',t.lv4);setText('lv5',t.lv5);
+  setText('sec-sig',t.secSig);
+  setText('sig-doc-status',t.sigDocStatus);setText('sig-doc-name',t.sigDocName);setText('sig-doc-desc',t.sigDocDesc);
+  setText('sig-label',t.sigLabel);setText('sig-ph',t.sigPh);
+  setText('sig-clear-btn',t.sigClear);setText('sig-save-btn',t.sigSave);
+  setText('sig-legal-note',t.sigNote);setText('sig-saved-heading',t.sigSavedHeading);setText('sig-resign-btn',t.sigResign);
+  setText('sec-survey',t.secSurvey);setText('sv-title',t.svTitle);setText('sv-sub',t.svSub);
+  setText('sv-prog-lbl',tr(t.svQLabel,{n:1}));
+  [1,2,3,4,5].forEach(n=>{setText('sv-q'+n+'-num',tr(t.svQLabel,{n}));setText('sv-q'+n+'-txt',t['svQ'+n]);});
+  el('sv-q5').placeholder=t.svQ5ph;
+  setText('sv-submit-btn',t.svSubmit);setText('sv-note',t.svNote);
+  setText('sv-success-title',t.svSuccessTitle);setText('sv-success-sub',t.svSuccessSub);setText('sv-folio-lbl',t.svFolioLbl);
+  setText('ts-lbl',t.tsLbl);setText('ts-val',dtFmt(now));setText('ts-badge',t.tsBadge);
+}
+
+// ── CHECKLIST ─────────────────────────────────────────────────────────────
+const CHK_KEY='ob-complete/chk';
+let chkState=(()=>{try{return JSON.parse(localStorage.getItem(CHK_KEY))||{};}catch(e){return{};}} )();
+function chkSave(){try{localStorage.setItem(CHK_KEY,JSON.stringify(chkState));}catch(e){}}
+window.chkReset=function(){chkState={};chkSave();chkRender();};
+const ITEMS=[
+  {id:'i1',badge:'req',action:null},{id:'i2',badge:'ti',action:'ticket',btn:'btnTicket'},
+  {id:'i3',badge:'ti',action:'ticket',btn:'btnRevoke'},{id:'i4',badge:'hr',action:'schedule',btn:'btnSchedule'},
+  {id:'i5',badge:'req',action:null},{id:'i6',badge:'req',action:'sign',btn:'btnSign'},
+  {id:'i7',badge:'hr',action:'confirm',btn:'btnConfirm'},
+];
+const badgeTxt=b=>b==='req'?t.required:b==='ti'?t.ti:t.hr;
+const CHK_SVG='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+
+function chkAction(item){
+  if(chkState[item.id]&&chkState[item.id].done)return;
+  let meta='';
+  switch(item.action){
+    case'ticket':meta=tr(t.ticketCreated,{id:rndTicket()});break;
+    case'schedule':meta=tr(t.scheduledFor,{date:shortFmt(daysFromNow(3))});break;
+    case'sign':meta=t.signed;break;
+    case'confirm':meta=t.confirmed;break;
+  }
+  chkState[item.id]={done:true,meta};chkSave();chkRender();
+}
+
+function chkToggle(id){const cur=chkState[id]&&chkState[id].done;chkState[id]={done:!cur,meta:''};chkSave();chkRender();}
+
+function chkRender(){
+  const list=el('chk-list');list.innerHTML='';
+  let done=0;
+  ITEMS.forEach(item=>{
+    const st=chkState[item.id]||{done:false,meta:''};
+    if(st.done)done++;
+    const hasAct=!!item.action;
+    const row=document.createElement('div');row.className='chk-item'+(st.done?' is-done':'');
+    const box=document.createElement('div');box.className='chk-box'+(st.done?' done':'');box.innerHTML=st.done?CHK_SVG:'';
+    if(!hasAct){box.style.cursor='pointer';box.onclick=()=>chkToggle(item.id);}
+    const body=document.createElement('div');body.className='chk-body';
+    const head=document.createElement('div');head.className='chk-head';
+    const lbl=document.createElement('div');lbl.className='chk-lbl';lbl.textContent=t[item.id];
+    const badge=document.createElement('span');badge.className='cw-badge '+item.badge;badge.textContent=badgeTxt(item.badge);
+    head.appendChild(lbl);head.appendChild(badge);body.appendChild(head);
+    if(hasAct){
+      if(st.done&&st.meta){const m=document.createElement('div');m.className='chk-meta';m.innerHTML=CHK_SVG+'<span></span>';m.querySelector('span').textContent=st.meta;body.appendChild(m);}
+      else if(!st.done){const w=document.createElement('div');w.className='chk-action';const b=document.createElement('button');b.className='chk-btn';b.textContent=t[item.btn];b.onclick=e=>{e.stopPropagation();chkAction(item);};w.appendChild(b);body.appendChild(w);}
+    }else{row.style.cursor='pointer';row.tabIndex=0;row.setAttribute('role','checkbox');row.setAttribute('aria-checked',st.done?'true':'false');row.onclick=()=>chkToggle(item.id);row.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();chkToggle(item.id);}};}
+    row.appendChild(box);row.appendChild(body);list.appendChild(row);
+  });
+  const total=ITEMS.length,pct=Math.round((done/total)*100);
+  el('chk-fill').style.width=pct+'%';
+  setText('chk-prog-txt',tr(t.chkProg,{done,total}));
+  el('chk-all-done').classList.toggle('show',done===total);
+}
+
+// ── SIGNATURE ─────────────────────────────────────────────────────────────
+const SIG_KEY='ob-complete/sig';
+const sigSvg=el('sig-pad');
+const sigPh=el('sig-ph');
+const SVG_NS='http://www.w3.org/2000/svg';
+let drawing=false,sigPts=[];
+
+function sigPos(e){const r=sigSvg.getBoundingClientRect();const sx=400/r.width,sy=175/r.height;const cx=(e.touches&&e.touches[0])?e.touches[0].clientX:e.clientX;const cy=(e.touches&&e.touches[0])?e.touches[0].clientY:e.clientY;return{x:(cx-r.left)*sx,y:(cy-r.top)*sy};}
+function sigDist(a,b){return Math.hypot(b.x-a.x,b.y-a.y);}
+function sigMid(a,b){return{x:(a.x+b.x)/2,y:(a.y+b.y)/2};}
+function sigColor(){return matchMedia('(prefers-color-scheme:dark)').matches?'#0f172a':'#000';}
+function sigPath(d,w){const p=document.createElementNS(SVG_NS,'path');p.setAttribute('d',d);p.setAttribute('stroke',sigColor());p.setAttribute('stroke-width',w.toFixed(2));p.setAttribute('stroke-linecap','round');p.setAttribute('fill','none');sigSvg.appendChild(p);}
+function sigStart(e){e.preventDefault();drawing=true;const{x,y}=sigPos(e);sigPts=[{x,y,width:.5}];sigPh.classList.add('hidden');}
+function sigDraw(e){if(!drawing)return;e.preventDefault();const{x,y}=sigPos(e);const last=sigPts[sigPts.length-1];if(sigDist(last,{x,y})<2)return;const w=Math.min(2.5,Math.max(.5,2.5-sigDist(last,{x,y})/14));sigPts.push({x,y,width:w});const n=sigPts.length;if(n===2){const m=sigMid(sigPts[0],sigPts[1]);sigPath(`M ${sigPts[0].x.toFixed(2)} ${sigPts[0].y.toFixed(2)} L ${m.x.toFixed(2)} ${m.y.toFixed(2)}`,(sigPts[0].width+sigPts[1].width)/2);}else if(n>2){const p0=sigPts[n-3],p1=sigPts[n-2],p2=sigPts[n-1];const m1=sigMid(p0,p1),m2=sigMid(p1,p2);sigPath(`M ${m1.x.toFixed(2)} ${m1.y.toFixed(2)} Q ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}, ${m2.x.toFixed(2)} ${m2.y.toFixed(2)}`,(p1.width+p2.width)/2);}}
+function sigStop(){if(!drawing)return;drawing=false;if(sigPts.length===1){const p=sigPts[0];const c=document.createElementNS(SVG_NS,'circle');c.setAttribute('cx',p.x.toFixed(2));c.setAttribute('cy',p.y.toFixed(2));c.setAttribute('r','1.25');c.setAttribute('fill',sigColor());sigSvg.appendChild(c);}else if(sigPts.length>1){const last=sigPts[sigPts.length-1],sec=sigPts[sigPts.length-2];const m=sigMid(sec,last);sigPath(`M ${m.x.toFixed(2)} ${m.y.toFixed(2)} L ${last.x.toFixed(2)} ${last.y.toFixed(2)}`,(sec.width+last.width)/2);}sigPts=[];}
+function sigClear(){sigSvg.innerHTML='';sigPh.classList.remove('hidden');}
+function sigStr(){return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 175">${sigSvg.innerHTML}</svg>`;}
+
+sigSvg.addEventListener('mousedown',sigStart);sigSvg.addEventListener('mousemove',sigDraw);
+sigSvg.addEventListener('touchstart',sigStart,{passive:false});sigSvg.addEventListener('touchmove',sigDraw,{passive:false});
+window.addEventListener('mouseup',sigStop);window.addEventListener('touchend',sigStop);
+
+function sigLoad(){try{const r=localStorage.getItem(SIG_KEY);return r?JSON.parse(r):null;}catch(e){return null;}}
+function sigPersist(s){const rec={svg:s,ts:new Date().toISOString()};try{localStorage.setItem(SIG_KEY,JSON.stringify(rec));}catch(e){}return rec;}
+function sigClearSaved(){try{localStorage.removeItem(SIG_KEY);}catch(e){}}
+
+function sigShowSaved(svgStr,dateStr){
+  el('sig-signing').style.display='none';el('sig-saved').style.display='block';
+  el('sig-saved-frame').innerHTML=svgStr;
+  setText('sig-saved-sub',tr(t.sigSavedSub,{date:dateStr}));
+}
+function sigShowSigning(){el('sig-saved').style.display='none';el('sig-signing').style.display='block';sigClear();}
+
+el('sig-clear-btn').addEventListener('click',sigClear);
+el('sig-save-btn').addEventListener('click',()=>{
+  if(!sigSvg.children.length){alert(t.sigAlert);return;}
+  const s=sigStr();el('sig-save-btn').disabled=true;el('sig-clear-btn').disabled=true;
+  setTimeout(()=>{const rec=sigPersist(s);sigShowSaved(rec.svg,dtFmt(new Date(rec.ts)));el('sig-save-btn').disabled=false;el('sig-clear-btn').disabled=false;},350);
+});
+el('sig-resign-btn').addEventListener('click',()=>{sigClearSaved();sigShowSigning();});
+
+// ── SURVEY ────────────────────────────────────────────────────────────────
+let svStars=0;
+function svBuildOpts(cid,group,opts){
+  const c=el(cid);
+  opts.forEach((lbl,i)=>{const d=document.createElement('div');d.className='sv-opt';d.dataset.val=String(i);d.dataset.group=group;d.innerHTML=`<div class="sv-opt-dot"><div class="sv-opt-dot-inner"></div></div><span class="sv-opt-lbl">${lbl}</span>`;d.addEventListener('click',()=>svSelOpt(group,i));d.setAttribute('tabindex','0');c.appendChild(d);});
+}
+function svSelOpt(group,val){document.querySelectorAll(`.sv-opt[data-group="${group}"]`).forEach(e=>{const s=String(e.dataset.val)===String(val);e.classList.toggle('sel',s);e.setAttribute('aria-checked',s?'true':'false');});svUpdateProg();}
+
+document.querySelectorAll('.sv-star').forEach(star=>{
+  star.addEventListener('click',()=>{svStars=parseInt(star.dataset.val);document.querySelectorAll('.sv-star').forEach(s=>s.classList.toggle('active',parseInt(s.dataset.val)<=svStars));svUpdateProg();});
+});
+
+function svUpdateProg(){
+  let ans=svStars>0?1:0;
+  ['sv-q2-opts','sv-q3-opts','sv-q4-opts'].forEach(g=>{if(document.querySelector('#'+g+' .sv-opt.sel'))ans++;});
+  if(el('sv-q5').value.trim().length>0)ans++;
+  const pct=Math.round((ans/5)*100);
+  el('sv-prog-fill').style.width=pct+'%';
+  el('sv-prog-pct').textContent=pct+'%';
+  el('sv-prog-lbl').textContent=tr(t.svQLabel,{n:Math.min(ans+1,5)});
+}
+el('sv-q5').addEventListener('input',svUpdateProg);
+
+window.svSubmit=function(e){
+  e.preventDefault();
+  el('sv-prog-fill').style.width='100%';el('sv-prog-pct').textContent='100%';
+  setText('sv-folio-val',rndFolio('EX'));
+  setTimeout(()=>{el('sv-form').style.display='none';el('sv-success').style.display='block';},250);
+};
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  applySBBrand();applyText();chkRender();
+  svBuildOpts('sv-q2-opts','svq2',t.svQ2opts);
+  svBuildOpts('sv-q3-opts','svq3',t.svQ3opts);
+  svBuildOpts('sv-q4-opts','svq4',t.svQ4opts);
+  const sig=sigLoad();if(sig&&sig.svg)sigShowSaved(sig.svg,dtFmt(new Date(sig.ts)));
+});
+
+})();
+</script>
+
+<!-- Widget usage counter — see CLAUDE.md -->
+<script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})()</script>
+
+</body>
+</html>
