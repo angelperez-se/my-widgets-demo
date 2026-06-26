@@ -1,0 +1,192 @@
+# Staffbase Custom Widgets Collection
+
+A curated collection of self-contained HTML widgets used by Staffbase Solutions Engineers for demos. Designed to be embedded in Staffbase via the Embedded Content widget.
+
+<p align="center">
+  <img src="screenshot.png" alt="Custom Widgets Collection Screenshot" width="700">
+</p>
+
+## Browse Widgets
+
+Visit the **[Widget Gallery](https://staffbase.github.io/solutions-monorepo/)** to browse all available widgets with live previews.
+
+## Usage
+
+### Embedding in Staffbase
+
+1. In Staffbase, add the [**Embedded Content widget**](https://mitarbeiterapp.atlassian.net/wiki/spaces/~712020777983b12cd94c21a21d7c6227c61607/pages/6216450054/Universal+Embedder+Widget).
+2. Enter the URL of the desired widget (e.g., `https://staffbase.github.io/solutions-monorepo/desk-booking.html`)
+
+### Local Preview
+
+Open any `.html` file directly in a browser. All widgets are self-contained — no build step or external dependencies.
+
+## Adding New Widgets
+
+### First time? 5 minutes to your first widget
+
+You don't need to know git, the terminal, or how to write code. The whole flow is three slash-commands inside Claude Code, and Claude does everything else for you.
+
+**Setup (once per Mac):**
+
+1. **Install Claude Code.** Download from <https://claude.com/code> and run the installer like any other Mac app. The first launch asks you to sign in with your Anthropic account — use your Staffbase work email. Then it asks to connect GitHub (so it can clone repos and open pull requests on your behalf) — say yes.
+2. **Open this repo.** In Claude Code, choose *Open from GitHub…* and paste `Staffbase/solutions-monorepo`. Claude Code clones it locally for you. This is the only time anyone touches git, and it's a button click.
+3. You're ready. Switch to the chat panel.
+
+**The three commands you need to know** (just type them in the chat):
+
+| Command | When to use it |
+| --- | --- |
+| `/new-widget` | You're starting from scratch. Claude asks for a name, description, and tags, scaffolds the file, and shows a live preview on the right. You then describe what you want the widget to do, in plain English ("show three cafeteria menus in a tab bar, today's lunch first"), and Claude writes the code. |
+| `/add-widget <https URL>` | You already have a working widget on your own GitHub Pages (or anywhere else) and want to import it 1-to-1. Claude fetches the URL, strips any customer branding, adds the standard styling and translations, and saves it as a new file. |
+| `/ship` | You're happy with the widget. Claude validates it, pushes the change to GitHub, and opens a pull request — no git commands required. |
+
+**The full workflow looks like:**
+
+1. `/new-widget` *or* `/add-widget https://your.example/widget/`
+2. Look at the live preview that opens in the right pane.
+3. Type changes in plain English: *"make the header smaller"*, *"the German translation of 'Course' should be 'Kurs'"*, *"add a 'Mark complete' button"*. Claude edits the file. Repeat until you're happy.
+4. `/ship`
+
+That's it.
+
+**If something goes wrong:**
+
+- **No preview on the right?** Click `widgets/<your-slug>.html` in the file explorer. The preview pane should appear.
+- **Something looks off / a translation reads weird?** Just describe it in chat. Claude will fix it.
+- **`/ship` reports a validation error?** The error text tells you what's wrong (e.g. *"this tag isn't in the canonical taxonomy"*). Paste it back into chat — Claude will fix it and re-run `/ship`.
+- **Stuck on anything else?** Ask your team lead, or use Claude itself — *"what does this error mean?"* works fine.
+
+---
+
+### Reference — the three commands in detail
+
+Open the repo in Claude Code (or VS Code with Claude) and use one of these commands:
+
+```
+/new-widget parking-calendar
+```
+Claude asks for a display name, description, and proposes tags. It then scaffolds `widgets/parking-calendar.html` from the template at [`.claude/templates/widget.html`](../.claude/templates/widget.html) — already includes the standard color scheme, dark mode, i18n skeleton for all 6 locales, `applySBBrand()`, and the usage-counter snippet. You then build out the UI.
+
+```
+/add-widget https://your.github.io/some-widget/
+```
+Use this when you already have a working HTML widget hosted somewhere (e.g. an SE's personal GitHub Pages repo) and want to import it 1-to-1. Claude fetches the URL, audits it for customer-brand traces, lists the gaps vs. the rules below, proposes tags, and rewrites the file as `widgets/<slug>.html` with the standard color scheme, dark mode, all 6 locales, `applySBBrand()`, the usage-counter snippet, and the `cw-` class prefix applied. Refuses widgets with external `<script src>` / `<link rel=stylesheet>` dependencies unless you confirm.
+
+```
+/ship
+```
+Claude validates the widget against the rules below, creates a feature branch, commits, pushes, and opens a PR with auto-merge enabled. No git commands required.
+
+#### Handover
+
+Every widget produced or modified through `/new-widget` or `/add-widget` is
+automatically paired with a `handover/<slug>/` folder containing a structured
+`manifest.yaml` (APIs, dependencies, security flags, decision log) and a prose
+`README.md` for Sales → Tech Services handoff. `/ship` strictly gates on this
+folder: missing fields, unconfirmed decisions, or `security_flags.status: block`
+will stop the push. Override (rare) with `/ship --skip-handover` — this adds a
+`Handover-Skipped: true` commit trailer and a 🚧 banner on the PR. Existing
+widgets were retroactively backfilled by `/backfill-handover --all`. See
+[`../handover/README.md`](../handover/README.md) for the full layout and
+[`.claude/handover/schema.md`](../.claude/handover/schema.md) for the manifest
+schema.
+
+The full step-by-step rules (which Claude follows, and which you should follow if scaffolding manually):
+
+1. Create a new `.html` file in the root directory.
+2. Include meta tags so the gallery can discover, tag, and display the widget:
+   ```html
+   <meta name="widget-name" content="...">
+   <meta name="widget-description" content="...">
+   <meta name="widget-tags" content="Scheduling, HR Data">
+   ```
+   Gallery discovery is automatic via the generated `widgets.json` — no need to edit `index.html`.
+3. **Tags**: pick 1–3 functional tags (e.g. `Operations`, `File Management`, `Learning`, `HR Data`, `Reports & Dashboards`, `Communications`, `Scheduling`, `Logistics`, `Safety`, `Finance`, `Travel`, `Media`, `Recognition`, `Misc`) plus any applicable system-integration tag (`Workday`, `SAP Concur`, `ServiceNow`, `Personio`, `Cornerstone`). The gallery uses these for the top-of-page filter bar. When an AI assistant creates a new widget, it must propose tags and confirm them with you before committing.
+4. Keep all CSS/JS inline — no external dependencies.
+5. Use only names from [`Custom Widget Names.txt`](Custom%20Widget%20Names.txt) for any person names.
+6. Paste the usage-counter snippet verbatim just before `</body>` so the gallery can rank the widget by use:
+
+   ```html
+   <!-- Widget usage counter — see CLAUDE.md -->
+   <script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})();</script>
+   ```
+
+   The snippet bumps a shared global counter via a Cloudflare Worker (`widget-counter.klauejohann.workers.dev`), except when the URL carries `?preview=1` (used by the gallery's preview iframes). It also writes to `localStorage` as an instant-render cache; the gallery uses the cache for a flash-free initial paint and then fetches `GET /counts` for the canonical global numbers.
+
+## Git Workflow
+
+New widgets and changes are **never** pushed directly to `main`. Use a feature-branch flow:
+
+1. Create a new branch with a short, descriptive, kebab-case name (e.g. `add-cafeteria-menu-widget`). Branch names must not reference any prospect or customer.
+2. Stage and commit your changes with a generic commit message that describes the change itself.
+3. On the first push, set the upstream branch:
+   ```sh
+   git push --set-upstream origin <branch-name>
+   ```
+4. Open a pull request into `main` for review.
+
+## Confidentiality
+
+Commit messages, branch names, and documentation must **not** contain customer-, prospect-, or deal-specific content (company names, logos, account identifiers, opportunity references, etc.). Keep demo personalization inside widget mock data only, using names from [`Custom Widget Names.txt`](Custom%20Widget%20Names.txt).
+
+## Language
+
+Widgets support **German** (`de`), **British English** (`en-GB`), **American English** (`en-US`), **French** (`fr`), **Spanish** (`es`), and **Japanese** (`ja`). Language switches automatically based on the browser locale. American English (`en-US`) is the default and fallback.
+
+See [`MULTILANGUAGE.md`](MULTILANGUAGE.md) for the full i18n implementation guide (detection, translation objects, `data-i18n`, `loc()` helper, `Intl` formatting).
+
+## Design Guidelines
+
+- **Self-contained**: Each widget is a single HTML file with inline CSS and vanilla JS
+- **Colors**: CSS variables — primary blue, success green, warning amber, danger red. All widgets must use this standard scheme:
+
+```css
+:root {
+    --primary: var(--sb-brand, #2563eb);
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --text: #1f2937;
+    --text-light: #6b7280;
+    --bg: #ffffff;
+    --bg-gray: #f9fafb;
+    --border: #e5e7eb;
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: var(--sb-brand, #3b9eff);
+        --success: #34d399;
+        --warning: #fbbf24;
+        --danger: #f87171;
+        --text: #f3f4f6;
+        --text-light: #9ca3af;
+        --bg: #1f2937;
+        --bg-gray: #111827;
+        --border: #374151;
+    }
+}
+```
+
+- **Staffbase Branding**: `--primary` uses `var(--sb-brand, <fallback>)` so widgets automatically adopt the Staffbase instance's brand color. Since CSS custom properties don't cascade into iframes, widgets also include an `applySBBrand()` JS function (called at the start of `init()`) that reads `--sb-brand` from the iframe's own `:root` or from the parent frame (same-origin only) and sets `--primary` accordingly.
+
+- **Typography**: System font stack (`-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`)
+- **Layout**: Card-based UI with CSS Grid/Flexbox, mobile-first
+- **Dark mode**: `@media (prefers-color-scheme: dark)` with CSS variable overrides
+- **CSS prefixing**: Generic class names use a `cw-` prefix (e.g. `.cw-btn`, `.cw-badge`, `.cw-tab`) to avoid collisions with the Staffbase host app. Widget-specific compound names (e.g. `.delivery-card`) don't need the prefix.
+
+- **Recency of dates/times**: Mock data must always feel current. Never hardcode absolute date strings — anchor every date, month, or time to `new Date()` at runtime so the widget looks fresh whenever it loads.
+  - **Single-view data** (today's schedule, current shift, today's menu): use today's date.
+  - **Historical lists / activity feeds**: spread across the **past 7 days**.
+  - **Forward-looking views** (bookings, upcoming shifts, planned deliveries): spread across the **next 7 days**.
+  - Use small helpers like `daysAgo(n)` / `daysFromNow(n)` built on `new Date()`, and format with `Intl.DateTimeFormat(LANG, …)`.
+
+  ```js
+  const now = new Date();
+  const daysAgo = n => { const d = new Date(now); d.setDate(d.getDate() - n); return d; };
+  const daysFromNow = n => { const d = new Date(now); d.setDate(d.getDate() + n); return d; };
+  ```
+
+## License
+
+Internal use only — Staffbase Solutions Engineering
