@@ -73,7 +73,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .chk-item{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--border);}
 .chk-item:last-child{border-bottom:none;padding-bottom:0;}
 .chk-item:first-child{padding-top:0;}
-.chk-box{width:23px;height:23px;flex-shrink:0;border:2px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;margin-top:1px;transition:background .15s,border-color .15s;}
+.chk-item.tappable{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;}
+.chk-item.tappable:active .chk-box{transform:scale(.92);}
+.chk-box{width:23px;height:23px;flex-shrink:0;border:2px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;margin-top:1px;transition:background .15s,border-color .15s,transform .1s;}
 .chk-box.done{background:var(--success);border-color:var(--success);}
 .chk-body{flex:1;min-width:0;}
 .chk-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
@@ -482,9 +484,9 @@ function chkRender(){
     const st=chkState[item.id]||{done:false,meta:''};
     if(st.done)done++;
     const hasAct=!!item.action;
-    const row=document.createElement('div');row.className='chk-item'+(st.done?' is-done':'');
+    const row=document.createElement('div');
+    row.className='chk-item'+(st.done?' is-done':'')+(hasAct?'':' tappable');
     const box=document.createElement('div');box.className='chk-box'+(st.done?' done':'');box.innerHTML=st.done?CHK_SVG:'';
-    if(!hasAct){box.style.cursor='pointer';box.onclick=()=>chkToggle(item.id);}
     const body=document.createElement('div');body.className='chk-body';
     const head=document.createElement('div');head.className='chk-head';
     const lbl=document.createElement('div');lbl.className='chk-lbl';lbl.textContent=t[item.id];
@@ -493,7 +495,15 @@ function chkRender(){
     if(hasAct){
       if(st.done&&st.meta){const m=document.createElement('div');m.className='chk-meta';m.innerHTML=CHK_SVG+'<span></span>';m.querySelector('span').textContent=st.meta;body.appendChild(m);}
       else if(!st.done){const w=document.createElement('div');w.className='chk-action';const b=document.createElement('button');b.className='chk-btn';b.textContent=t[item.btn];b.onclick=e=>{e.stopPropagation();chkAction(item);};w.appendChild(b);body.appendChild(w);}
-    }else{row.style.cursor='pointer';row.tabIndex=0;row.setAttribute('role','checkbox');row.setAttribute('aria-checked',st.done?'true':'false');row.onclick=()=>chkToggle(item.id);row.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();chkToggle(item.id);}};}
+    }else{
+      // Full row is tappable — attach to both row and box for max hit area
+      const handler=()=>chkToggle(item.id);
+      row.addEventListener('click',handler);
+      row.setAttribute('role','checkbox');
+      row.setAttribute('aria-checked',st.done?'true':'false');
+      row.setAttribute('tabindex','0');
+      row.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();handler();}});
+    }
     row.appendChild(box);row.appendChild(body);list.appendChild(row);
   });
   const total=ITEMS.length,pct=Math.round((done/total)*100);
@@ -575,7 +585,12 @@ window.svSubmit=function(e){
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
-  applySBBrand();applyText();chkRender();
+  applySBBrand();applyText();
+  // Pre-mark IT items as synced from system (i2 = equipo, i3 = accesos)
+  if(!chkState['i2']){chkState['i2']={done:true,meta:tr(t.ticketCreated,{id:rndTicket()})};}
+  if(!chkState['i3']){chkState['i3']={done:true,meta:tr(t.ticketCreated,{id:rndTicket()})};}
+  chkSave();
+  chkRender();
   svBuildOpts('sv-q2-opts','svq2',t.svQ2opts);
   svBuildOpts('sv-q3-opts','svq3',t.svQ3opts);
   svBuildOpts('sv-q4-opts','svq4',t.svQ4opts);
