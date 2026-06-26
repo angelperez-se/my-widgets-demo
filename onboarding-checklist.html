@@ -379,15 +379,16 @@ function render() {
 }
 
 // ── In-app navigation via Staffbase Plugins Client SDK ────────────────────
-// openLink() navigates inside the app; falls back to window.open on desktop/preview
+// Tries SDK openLink first, then location.href (intercepted by app WebView),
+// then window.open as last resort
 window.sbOpenLink = function(url) {
   var sdk = window['plugins-client-sdk'];
   if (sdk && sdk.openLink) {
-    sdk.openLink(url).catch(function() {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    });
+    sdk.openLink(url).catch(function() { location.href = url; });
   } else {
-    window.open(url, '_blank', 'noopener,noreferrer');
+    // location.href is intercepted by the app's WebView and opens in-app
+    // window.open would spawn an external browser
+    location.href = url;
   }
 };
 function applyText() {
