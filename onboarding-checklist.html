@@ -378,17 +378,17 @@ function render() {
   });
 }
 
-// ── In-app navigation via Staffbase Plugins Client SDK ────────────────────
-// Tries SDK openLink first, then location.href (intercepted by app WebView),
-// then window.open as last resort
+// ── In-app navigation ─────────────────────────────────────────────────────
+// window.top.location.href navigates the full app window (not just the iframe)
+// so Staffbase shows its native back button correctly
 window.sbOpenLink = function(url) {
   var sdk = window['plugins-client-sdk'];
   if (sdk && sdk.openLink) {
-    sdk.openLink(url).catch(function() { location.href = url; });
+    sdk.openLink(url).catch(function() {
+      try { window.top.location.href = url; } catch(e) { location.href = url; }
+    });
   } else {
-    // location.href is intercepted by the app's WebView and opens in-app
-    // window.open would spawn an external browser
-    location.href = url;
+    try { window.top.location.href = url; } catch(e) { location.href = url; }
   }
 };
 function applyText() {
