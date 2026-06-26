@@ -175,6 +175,15 @@ const LANG = (() => {
 document.documentElement.lang = LANG;
 
 // ── Translations ──────────────────────────────────────────────────────────
+const UTM = '?utm_source=in-app&utm_medium=widget&utm_content=%2Fjourney-navigator%2F69b9ec91ae7fa04b2ad8e903%2Fsteps%2F69b9ec91d3f16f684a4168b9';
+const URLS = {
+  t1: 'https://angelperez-se.github.io/cornerstone-plugin/',
+  t2: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' + UTM,
+  t3: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' + UTM,
+  t4: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' + UTM,
+  t5: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' + UTM,
+};
+
 const T = {
   'en-US': {
     title: 'Onboarding Checklist',
@@ -185,11 +194,11 @@ const T = {
     required: 'Required', optional: 'Optional', career: 'Career',
     openTask: 'Open',
     tasks: [
-      { id: 't1', label: 'Start Day-1 Training', desc: 'Begin your mandatory first-day training program.', badge: 'required', url: 'https://angelperez-se.github.io/cornerstone-plugin/' },
-      { id: 't2', label: 'HR Information', desc: 'Review key HR policies, benefits and contacts.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' },
-      { id: 't3', label: 'Time Management & Scheduling', desc: 'Learn how to clock in/out, manage breaks and view your schedule.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' },
-      { id: 't4', label: 'Shift Changes', desc: 'Understand how to request or report a shift change.', badge: 'optional', url: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' },
-      { id: 't5', label: 'Professional Career Path', desc: 'Explore growth opportunities and your career trajectory.', badge: 'career', url: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' },
+      { id: 't1', label: 'Start Day-1 Training', desc: 'Begin your mandatory first-day training program.', badge: 'required', url: URLS.t1 },
+      { id: 't2', label: 'HR Information', desc: 'Review key HR policies, benefits and contacts.', badge: 'required', url: URLS.t2 },
+      { id: 't3', label: 'Time Management & Scheduling', desc: 'Learn how to clock in/out, manage breaks and view your schedule.', badge: 'required', url: URLS.t3 },
+      { id: 't4', label: 'Shift Changes', desc: 'Understand how to request or report a shift change.', badge: 'optional', url: URLS.t4 },
+      { id: 't5', label: 'Professional Career Path', desc: 'Explore growth opportunities and your career trajectory.', badge: 'career', url: URLS.t5 },
     ],
   },
   'en-GB': {
@@ -201,11 +210,11 @@ const T = {
     required: 'Required', optional: 'Optional', career: 'Career',
     openTask: 'Open',
     tasks: [
-      { id: 't1', label: 'Start Day-1 Training', desc: 'Begin your mandatory first-day training programme.', badge: 'required', url: 'https://angelperez-se.github.io/cornerstone-plugin/' },
-      { id: 't2', label: 'HR Information', desc: 'Review key HR policies, benefits and contacts.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' },
-      { id: 't3', label: 'Time Management & Scheduling', desc: 'Learn how to clock in/out, manage breaks and view your rota.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' },
-      { id: 't4', label: 'Shift Changes', desc: 'Understand how to request or report a shift change.', badge: 'optional', url: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' },
-      { id: 't5', label: 'Professional Career Path', desc: 'Explore growth opportunities and your career trajectory.', badge: 'career', url: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' },
+      { id: 't1', label: 'Start Day-1 Training', desc: 'Begin your mandatory first-day training programme.', badge: 'required', url: URLS.t1 },
+      { id: 't2', label: 'HR Information', desc: 'Review key HR policies, benefits and contacts.', badge: 'required', url: URLS.t2 },
+      { id: 't3', label: 'Time Management & Scheduling', desc: 'Learn how to clock in/out, manage breaks and view your rota.', badge: 'required', url: URLS.t3 },
+      { id: 't4', label: 'Shift Changes', desc: 'Understand how to request or report a shift change.', badge: 'optional', url: URLS.t4 },
+      { id: 't5', label: 'Professional Career Path', desc: 'Explore growth opportunities and your career trajectory.', badge: 'career', url: URLS.t5 },
     ],
   },
   'es': {
@@ -217,11 +226,11 @@ const T = {
     required: 'Requerido', optional: 'Opcional', career: 'Carrera',
     openTask: 'Abrir',
     tasks: [
-      { id: 't1', label: 'Comenzar Capacitación del Primer Día', desc: 'Inicia tu programa de capacitación obligatoria del primer día.', badge: 'required', url: 'https://angelperez-se.github.io/cornerstone-plugin/' },
-      { id: 't2', label: 'Información de Recursos Humanos', desc: 'Revisa las políticas clave de RRHH, beneficios y contactos importantes.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' },
-      { id: 't3', label: 'Gestión de Tiempos: fichaje, pausas y horarios', desc: 'Aprende a fichar entrada y salida, gestionar pausas y consultar tu horario.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' },
-      { id: 't4', label: 'Aprender sobre Cambio de Turno', desc: 'Conoce cómo solicitar o reportar un cambio de turno.', badge: 'optional', url: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' },
-      { id: 't5', label: 'Trayectoria Profesional', desc: 'Explora las oportunidades de crecimiento y tu trayectoria dentro de la empresa.', badge: 'career', url: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' },
+      { id: 't1', label: 'Comenzar Capacitación del Primer Día', desc: 'Inicia tu programa de capacitación obligatoria del primer día.', badge: 'required', url: URLS.t1 },
+      { id: 't2', label: 'Información de Recursos Humanos', desc: 'Revisa las políticas clave de RRHH, beneficios y contactos importantes.', badge: 'required', url: URLS.t2 },
+      { id: 't3', label: 'Gestión de Tiempos: fichaje, pausas y horarios', desc: 'Aprende a fichar entrada y salida, gestionar pausas y consultar tu horario.', badge: 'required', url: URLS.t3 },
+      { id: 't4', label: 'Aprender sobre Cambio de Turno', desc: 'Conoce cómo solicitar o reportar un cambio de turno.', badge: 'optional', url: URLS.t4 },
+      { id: 't5', label: 'Trayectoria Profesional', desc: 'Explora las oportunidades de crecimiento y tu trayectoria dentro de la empresa.', badge: 'career', url: URLS.t5 },
     ],
   },
   'de': {
@@ -233,11 +242,11 @@ const T = {
     required: 'Pflicht', optional: 'Optional', career: 'Karriere',
     openTask: 'Öffnen',
     tasks: [
-      { id: 't1', label: 'Erste-Tag-Training starten', desc: 'Beginne dein verpflichtendes Training für den ersten Tag.', badge: 'required', url: 'https://angelperez-se.github.io/cornerstone-plugin/' },
-      { id: 't2', label: 'HR-Informationen', desc: 'Lies die wichtigsten HR-Richtlinien, Benefits und Kontakte.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' },
-      { id: 't3', label: 'Zeiterfassung & Schichtplanung', desc: 'Lerne Ein- und Ausstempeln, Pausen verwalten und deinen Dienstplan einsehen.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' },
-      { id: 't4', label: 'Schichtwechsel beantragen', desc: 'Erfahre, wie du einen Schichttausch beantragen oder melden kannst.', badge: 'optional', url: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' },
-      { id: 't5', label: 'Berufsweg & Karrierepfad', desc: 'Entdecke Wachstumsmöglichkeiten und deine Karrierechancen.', badge: 'career', url: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' },
+      { id: 't1', label: 'Erste-Tag-Training starten', desc: 'Beginne dein verpflichtendes Training für den ersten Tag.', badge: 'required', url: URLS.t1 },
+      { id: 't2', label: 'HR-Informationen', desc: 'Lies die wichtigsten HR-Richtlinien, Benefits und Kontakte.', badge: 'required', url: URLS.t2 },
+      { id: 't3', label: 'Zeiterfassung & Schichtplanung', desc: 'Lerne Ein- und Ausstempeln, Pausen verwalten und deinen Dienstplan einsehen.', badge: 'required', url: URLS.t3 },
+      { id: 't4', label: 'Schichtwechsel beantragen', desc: 'Erfahre, wie du einen Schichttausch beantragen oder melden kannst.', badge: 'optional', url: URLS.t4 },
+      { id: 't5', label: 'Berufsweg & Karrierepfad', desc: 'Entdecke Wachstumsmöglichkeiten und deine Karrierechancen.', badge: 'career', url: URLS.t5 },
     ],
   },
   'fr': {
@@ -249,11 +258,11 @@ const T = {
     required: 'Obligatoire', optional: 'Optionnel', career: 'Carrière',
     openTask: 'Ouvrir',
     tasks: [
-      { id: 't1', label: 'Commencer la formation du premier jour', desc: 'Lance ton programme de formation obligatoire du premier jour.', badge: 'required', url: 'https://angelperez-se.github.io/cornerstone-plugin/' },
-      { id: 't2', label: 'Informations RH', desc: 'Consulte les politiques RH clés, les avantages et les contacts importants.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' },
-      { id: 't3', label: 'Gestion du temps et des horaires', desc: 'Apprends à pointer, gérer les pauses et consulter ton planning.', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' },
-      { id: 't4', label: 'Changements de poste', desc: 'Comprends comment demander ou signaler un changement de poste.', badge: 'optional', url: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' },
-      { id: 't5', label: 'Parcours professionnel', desc: "Explore les opportunités de croissance et ta trajectoire au sein de l'entreprise.", badge: 'career', url: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' },
+      { id: 't1', label: 'Commencer la formation du premier jour', desc: 'Lance ton programme de formation obligatoire du premier jour.', badge: 'required', url: URLS.t1 },
+      { id: 't2', label: 'Informations RH', desc: 'Consulte les politiques RH clés, les avantages et les contacts importants.', badge: 'required', url: URLS.t2 },
+      { id: 't3', label: 'Gestion du temps et des horaires', desc: 'Apprends à pointer, gérer les pauses et consulter ton planning.', badge: 'required', url: URLS.t3 },
+      { id: 't4', label: 'Changements de poste', desc: 'Comprends comment demander ou signaler un changement de poste.', badge: 'optional', url: URLS.t4 },
+      { id: 't5', label: 'Parcours professionnel', desc: "Explore les opportunités de croissance et ta trajectoire au sein de l'entreprise.", badge: 'career', url: URLS.t5 },
     ],
   },
   'ja': {
@@ -265,11 +274,11 @@ const T = {
     required: '必須', optional: '任意', career: 'キャリア',
     openTask: '開く',
     tasks: [
-      { id: 't1', label: '初日研修を開始する', desc: '必須の初日研修プログラムを開始してください。', badge: 'required', url: 'https://angelperez-se.github.io/cornerstone-plugin/' },
-      { id: 't2', label: '人事情報を確認する', desc: '主要な人事ポリシー、福利厚生、連絡先を確認してください。', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69b9c530d3f16f684a407338' },
-      { id: 't3', label: '勤怠管理・シフト確認', desc: '打刻方法、休憩の管理、シフトの確認方法を学びましょう。', badge: 'required', url: 'https://tpdemo.staffbase.rocks/content/page/69c484584c7f7400d17529a1' },
-      { id: 't4', label: 'シフト変更について学ぶ', badge: 'optional', desc: 'シフト変更の申請・報告方法を理解しましょう。', url: 'https://tpdemo.staffbase.rocks/content/page/69c4821b4ccb20458e0389e2' },
-      { id: 't5', label: 'キャリアパス', desc: '社内での成長機会とキャリアの軌跡を探ってみましょう。', badge: 'career', url: 'https://tpdemo.staffbase.rocks/content/page/69c55a11acc0795386f66d4d' },
+      { id: 't1', label: '初日研修を開始する', desc: '必須の初日研修プログラムを開始してください。', badge: 'required', url: URLS.t1 },
+      { id: 't2', label: '人事情報を確認する', desc: '主要な人事ポリシー、福利厚生、連絡先を確認してください。', badge: 'required', url: URLS.t2 },
+      { id: 't3', label: '勤怠管理・シフト確認', desc: '打刻方法、休憩の管理、シフトの確認方法を学びましょう。', badge: 'required', url: URLS.t3 },
+      { id: 't4', label: 'シフト変更について学ぶ', badge: 'optional', desc: 'シフト変更の申請・報告方法を理解しましょう。', url: URLS.t4 },
+      { id: 't5', label: 'キャリアパス', desc: '社内での成長機会とキャリアの軌跡を探ってみましょう。', badge: 'career', url: URLS.t5 },
     ],
   },
 };
