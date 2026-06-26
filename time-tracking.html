@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Time Tracking">
+<meta name="widget-description" content="Time tracking dashboard with clock-in/out, weekly and monthly views, compliance checks, and shift exception shortcut.">
+<meta name="widget-tags" content="HR Workforce">
+<title>Time Tracking</title>
+
+<style>
+  :root {
+    --primary:       var(--sb-brand, #2563eb);
+    --primary-soft:  rgba(37, 99, 235, 0.10);
+    --primary-dark:  #1d4ed8;
+    --success:       #10b981;
+    --success-soft:  #ecfdf5;
+    --warning:       #f59e0b;
+    --warning-soft:  #fffbeb;
+    --danger:        #ef4444;
+    --danger-soft:   #fef2f2;
+    --text:          #1f2937;
+    --text-light:    #6b7280;
+    --bg:            transparent;
+    --bg-card:       #ffffff;
+    --bg-gray:       #f9fafb;
+    --border:        #e5e7eb;
+    --radius:        14px;
+    --radius-sm:     8px;
+    --shadow:        0 1px 4px rgba(0,0,0,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --primary:      var(--sb-brand, #3b9eff);
+      --primary-soft: rgba(59,158,255,0.15);
+      --primary-dark: #2563eb;
+      --success:      #34d399;
+      --success-soft: #0b1f19;
+      --warning:      #fbbf24;
+      --warning-soft: #1c1307;
+      --danger:       #f87171;
+      --danger-soft:  #1f0a0a;
+      --text:         #f3f4f6;
+      --text-light:   #9ca3af;
+      --bg-card:      #1f2937;
+      --bg-gray:      #111827;
+      --border:       #374151;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 16px;
+    max-width: 480px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .cw-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 4px;
+  }
+  .cw-header-icon {
+    width: 32px; height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cw-header-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .cw-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+  .cw-subtitle { font-size: 13px; color: var(--text-light); margin: 0 0 14px 42px; }
+
+  /* ── Cards ── */
+  .cw-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+  }
+
+  /* ── Clock card ── */
+  .clock-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .clock-status {
+    display: flex; align-items: center; gap: 7px;
+  }
+  .clock-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--text-light);
+    transition: background 0.3s;
+  }
+  .clock-dot.active {
+    background: var(--success);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+  .clock-status-text {
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-light);
+  }
+  .clock-status-text.active { color: var(--success); }
+  .clock-date-label { font-size: 12px; color: var(--text-light); }
+
+  .clock-timer {
+    font-size: 42px; font-weight: 700;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 4px;
+    line-height: 1;
+  }
+  .clock-detail {
+    text-align: center;
+    font-size: 12px; color: var(--text-light);
+    margin-bottom: 14px;
+  }
+
+  .clock-btn-row { display: flex; gap: 8px; }
+  .cw-btn {
+    flex: 1; padding: 11px;
+    border-radius: var(--radius-sm);
+    border: none; cursor: pointer;
+    font-size: 14px; font-weight: 600;
+    font-family: inherit;
+    transition: filter 0.15s, transform 0.1s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .cw-btn:active { transform: scale(0.97); }
+  .cw-btn-primary { background: var(--primary); color: #fff; }
+  .cw-btn-primary:hover { filter: brightness(1.1); }
+  .cw-btn-ghost {
+    background: var(--bg-gray);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .cw-btn-ghost:hover { filter: brightness(0.96); }
+  .cw-btn-danger { background: var(--danger); color: #fff; }
+
+  /* ── Exception shortcut ── */
+  .exception-strip {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--warning-soft);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+  .exception-strip:hover { filter: brightness(0.97); }
+  .exception-strip:active { transform: scale(0.99); }
+  .exception-icon {
+    width: 32px; height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--warning);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .exception-info { flex: 1; }
+  .exception-label { font-size: 13px; font-weight: 600; color: var(--text); }
+  .exception-sub { font-size: 11px; color: var(--text-light); margin-top: 1px; }
+  .exception-arrow { color: var(--text-light); font-size: 18px; }
+
+  /* ── Tabs ── */
+  .cw-tabs {
+    display: flex; gap: 4px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+  }
+  .cw-tab {
+    flex: 1; padding: 8px;
+    border-radius: 10px; border: none;
+    font-size: 13px; font-weight: 600;
+    color: var(--text-light);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.18s;
+    font-family: inherit;
+  }
+  .cw-tab.active {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  /* ── Stat cards ── */
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 10px;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card.accent {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+  .stat-label {
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-light); margin-bottom: 4px;
+  }
+  .stat-card.accent .stat-label { color: rgba(255,255,255,0.7); }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-card.accent .stat-value { color: #fff; }
+  .stat-sub { font-size: 11px; color: var(--text-light); margin-top: 3px; }
+  .stat-card.accent .stat-sub { color: rgba(255,255,255,0.65); }
+  .stat-value.positive { color: var(--primary); }
+
+  /* ── Section title ── */
+  .cw-section {
+    font-size: 13px; font-weight: 700;
+    color: var(--text); margin: 14px 0 8px;
+  }
+
+  /* ── Daily rows ── */
+  .daily-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+  .daily-row {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: var(--shadow);
+  }
+  .daily-row.today { border-color: var(--primary); }
+  .daily-day { width: 36px; text-align: center; flex-shrink: 0; }
+  .daily-day .dn { font-size: 9px; text-transform: uppercase; color: var(--text-light); font-weight: 600; }
+  .daily-day .dd { font-size: 16px; font-weight: 700; color: var(--text); }
+  .daily-bar-wrap { flex: 1; }
+  .daily-bar-bg {
+    height: 22px; background: var(--bg-gray);
+    border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .daily-bar {
+    height: 100%; border-radius: 6px;
+    display: flex; align-items: center; padding-left: 8px;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+    transition: width 0.5s ease;
+  }
+  .daily-bar.normal   { background: var(--primary); color: #fff; }
+  .daily-bar.overtime { background: linear-gradient(90deg, var(--primary) 75%, var(--danger) 100%); color: #fff; }
+  .daily-bar.short    { background: var(--primary-soft); color: var(--primary); }
+  .daily-bar.planned  { background: var(--bg-gray); color: var(--text-light); border: 1.5px dashed var(--border); }
+  .daily-bar.off      { background: var(--bg-gray); color: var(--text-light); }
+  .daily-hours {
+    width: 44px; text-align: right;
+    font-size: 13px; font-weight: 700; color: var(--text); flex-shrink: 0;
+  }
+  .daily-hours .target { font-size: 10px; color: var(--text-light); font-weight: 400; }
+  .today-badge {
+    font-size: 9px; font-weight: 700;
+    background: var(--primary); color: #fff;
+    padding: 1px 5px; border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  /* ── Compliance ── */
+  .cw-compliance-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .cw-compliance-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .cw-compliance-item:first-child { padding-top: 0; }
+  .comp-left { display: flex; align-items: center; gap: 8px; }
+  .comp-dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0;
+  }
+  .comp-dot.ok   { background: var(--success-soft); color: var(--success); }
+  .comp-dot.warn { background: var(--warning-soft); color: var(--warning); }
+  .comp-val { font-size: 12px; font-weight: 700; }
+  .comp-val.ok   { color: var(--success); }
+  .comp-val.warn { color: var(--warning); }
+
+  /* ── Monthly ── */
+  .overtime-bar-bg {
+    height: 7px; background: var(--bg-gray);
+    border-radius: 4px; overflow: hidden;
+    margin: 10px 0 6px;
+  }
+  .overtime-bar-fill {
+    height: 100%; background: var(--primary);
+    border-radius: 4px; transition: width 0.5s;
+  }
+  .overtime-details {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--text-light);
+  }
+  .month-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 0; font-size: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+  .month-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .month-row:first-child { padding-top: 0; }
+  .month-row .ml { color: var(--text-light); }
+  .month-row .mv { font-weight: 700; }
+  .month-row .mv.pos { color: var(--primary); }
+  .month-row .mv.neg { color: var(--danger); }
+
+  .view { display: none; }
+  .view.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="cw-header">
+  <div class="cw-header-icon">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+  </div>
+  <span class="cw-title" id="widget-title">Time Tracking</span>
+</div>
+<p class="cw-subtitle" id="widget-sub">February 2026</p>
+
+<!-- Clock card -->
+<div class="cw-card" style="padding-bottom:12px;">
+  <div class="clock-top">
+    <div class="clock-status">
+      <div class="clock-dot" id="clockDot"></div>
+      <span class="clock-status-text" id="clockStatusText">NOT CLOCKED IN</span>
+    </div>
+    <span class="clock-date-label" id="clockDateLabel"></span>
+  </div>
+
+  <div class="clock-timer" id="clockTimer">00:00:00</div>
+  <div class="clock-detail" id="clockDetail">Not started today</div>
+
+  <div class="clock-btn-row">
+    <button class="cw-btn cw-btn-primary" id="clockBtn" onclick="toggleClock()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <span id="clockBtnText">Clock In</span>
+    </button>
+  </div>
+
+  <!-- Exception shortcut — always visible, no scroll needed -->
+  <div class="exception-strip" id="exceptionStrip" onclick="openException()">
+    <div class="exception-icon">⚡</div>
+    <div class="exception-info">
+      <div class="exception-label" id="exc-label">Report shift exception</div>
+      <div class="exception-sub" id="exc-sub">Shift change · Absence · Overtime</div>
+    </div>
+    <span class="exception-arrow">›</span>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="cw-tabs">
+  <button class="cw-tab active" id="tab-weekly" onclick="showTab('weekly')">This Week</button>
+  <button class="cw-tab" id="tab-monthly" onclick="showTab('monthly')">Monthly</button>
+</div>
+
+<!-- WEEKLY VIEW -->
+<div class="view active" id="weeklyView">
+  <div class="stats-grid">
+    <div class="stat-card accent">
+      <div class="stat-label" id="lbl-worked">Worked this week</div>
+      <div class="stat-value">8.5h</div>
+      <div class="stat-sub" id="lbl-worked-sub">of 38.5h target</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" id="lbl-remaining">Remaining</div>
+      <div class="stat-value">30h</div>
+      <div class="stat-sub" id="lbl-remaining-sub">Tue – Fri planned</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" id="lbl-overtime">Overtime balance</div>
+      <div class="stat-value positive">+12.5h</div>
+      <div class="stat-sub" id="overtimeAsOf">As of today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" id="lbl-avg">Average / day</div>
+      <div class="stat-value">8.1h</div>
+      <div class="stat-sub" id="lbl-avg-sub">Last 30 days</div>
+    </div>
+  </div>
+
+  <div class="cw-section" id="lbl-daily-section">Daily overview – CW 7</div>
+
+  <div class="daily-list" id="dailyList"></div>
+
+  <div class="cw-section" id="lbl-compliance-section">Working time rules</div>
+
+  <div class="cw-card" style="padding:12px 16px;">
+    <div class="cw-compliance-item">
+      <div class="comp-left"><div class="comp-dot ok">✓</div><span id="chk1">Max. 10h/day observed</span></div>
+      <span class="comp-val ok">OK</span>
+    </div>
+    <div class="cw-compliance-item">
+      <div class="comp-left"><div class="comp-dot ok">✓</div><span id="chk2">Break policy observed</span></div>
+      <span class="comp-val ok">OK</span>
+    </div>
+    <div class="cw-compliance-item">
+      <div class="comp-left"><div class="comp-dot ok">✓</div><span id="chk3">Min. 11h rest period</span></div>
+      <span class="comp-val ok">OK</span>
+    </div>
+    <div class="cw-compliance-item">
+      <div class="comp-left"><div class="comp-dot ok">✓</div><span id="chk4">Max. 48h/week (avg. 6 mo.)</span></div>
+      <span class="comp-val ok">38.2h</span>
+    </div>
+  </div>
+</div>
+
+<!-- MONTHLY VIEW -->
+<div class="view" id="monthlyView">
+  <div class="stats-grid">
+    <div class="stat-card accent">
+      <div class="stat-label" id="lbl-worked-month">Worked (Feb)</div>
+      <div class="stat-value">42.5h</div>
+      <div class="stat-sub" id="lbl-worked-month-sub">of 160h target</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" id="lbl-workdays">Work days</div>
+      <div class="stat-value">5 / 20</div>
+      <div class="stat-sub" id="lbl-workdays-sub">15 remaining</div>
+    </div>
+  </div>
+
+  <div class="cw-card" style="padding:14px 16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:14px;font-weight:700;" id="lbl-ot-account">Overtime account</span>
+      <span style="font-size:13px;font-weight:700;color:var(--primary);">+12.5h</span>
+    </div>
+    <div class="overtime-bar-bg"><div class="overtime-bar-fill" style="width:65%"></div></div>
+    <div class="overtime-details">
+      <span>0h</span><span id="lbl-ot-limit">Limit: 40h</span>
+    </div>
+  </div>
+
+  <div class="cw-section" id="lbl-month-section">Monthly summary</div>
+  <div class="cw-card" style="padding:12px 16px;">
+    <div class="month-row"><span class="ml" id="mr1">Target hours</span><span class="mv">160h</span></div>
+    <div class="month-row"><span class="ml" id="mr2">Actual hours (so far)</span><span class="mv">42.5h</span></div>
+    <div class="month-row"><span class="ml" id="mr3">Thereof overtime</span><span class="mv pos">+2.5h</span></div>
+    <div class="month-row"><span class="ml" id="mr4">Total overtime balance</span><span class="mv pos">+12.5h</span></div>
+    <div class="month-row"><span class="ml" id="mr5">Sick days</span><span class="mv">0</span></div>
+    <div class="month-row"><span class="ml" id="mr6">Vacation days taken</span><span class="mv">0</span></div>
+  </div>
+
+  <div class="cw-section" id="lbl-recent-section">Recent months</div>
+  <div class="cw-card" style="padding:12px 16px;">
+    <div class="month-row"><span class="ml" id="lm1"></span><span class="mv pos" id="lm1v">+4.5h overtime</span></div>
+    <div class="month-row"><span class="ml" id="lm2"></span><span class="mv pos" id="lm2v">+3.0h overtime</span></div>
+    <div class="month-row"><span class="ml" id="lm3"></span><span class="mv neg" id="lm3v">−1.5h undertime</span></div>
+    <div class="month-row"><span class="ml" id="lm4"></span><span class="mv pos" id="lm4v">+2.0h overtime</span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+
+  // ── Language ──────────────────────────────────────────────────────────────
+  const LANG = (() => {
+    const l = navigator.language || '';
+    if (l.startsWith('de'))    return 'de';
+    if (l.startsWith('fr'))    return 'fr';
+    if (l.startsWith('es'))    return 'es';
+    if (l.startsWith('ja'))    return 'ja';
+    if (l.startsWith('en-GB')) return 'en-GB';
+    return 'en-US';
+  })();
+  document.documentElement.lang = LANG;
+  const LOCALE = { de:'de-DE', fr:'fr-FR', es:'es-ES', ja:'ja-JP', 'en-GB':'en-GB', 'en-US':'en-US' }[LANG];
+
+  // ── Exception URL ─────────────────────────────────────────────────────────
+  // Points to the shift-exception widget in the same repo
+  const EXCEPTION_URL = 'https://angelperez-se.github.io/my-widgets-demo/shift-exception.html';
+
+  // ── Translations ──────────────────────────────────────────────────────────
+  const T = {
+    'en-US': {
+      title:'Time Tracking', sub:'',
+      clockOff:'NOT CLOCKED IN', clockOn:'CLOCKED IN', clockDone:'CLOCKED OUT',
+      clockDetailOff:'Not started today',
+      clockStarted:'Started at {time}',
+      clockSession:'Last session: {h}h {m}min',
+      btnIn:'Clock In', btnOut:'Clock Out',
+      excLabel:'Report shift exception',
+      excSub:'Shift change · Absence · Overtime',
+      tabWeekly:'This Week', tabMonthly:'Monthly',
+      lblWorked:'Worked this week', lblWorkedSub:'of 38.5h target',
+      lblRemaining:'Remaining', lblRemainingSub:'Tue – Fri planned',
+      lblOvertime:'Overtime balance', lblAvg:'Average / day', lblAvgSub:'Last 30 days',
+      sectionDaily:'Daily overview',
+      sectionCompliance:'Working time rules',
+      chk1:'Max. 10h/day observed', chk2:'Break policy observed',
+      chk3:'Min. 11h rest period', chk4:'Max. 48h/week (avg. 6 mo.)',
+      lblWorkedMonth:'Worked', lblWorkedMonthSub:'of 160h target',
+      lblWorkdays:'Work days', lblWorkdaysSub:'15 remaining',
+      lblOtAccount:'Overtime account', lblOtLimit:'Limit: 40h',
+      sectionMonth:'Monthly summary', sectionRecent:'Recent months',
+      mr1:'Target hours', mr2:'Actual hours (so far)', mr3:'Thereof overtime',
+      mr4:'Total overtime balance', mr5:'Sick days', mr6:'Vacation days taken',
+      dayNames:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+      booked:'{n}h booked', planned:'{n}h planned', off:'Off',
+      otSuffix:'h overtime', utSuffix:'h undertime',
+    },
+    'en-GB': {
+      title:'Time Tracking', sub:'',
+      clockOff:'NOT CLOCKED IN', clockOn:'CLOCKED IN', clockDone:'CLOCKED OUT',
+      clockDetailOff:'Not started today',
+      clockStarted:'Started at {time}', clockSession:'Last session: {h}h {m}min',
+      btnIn:'Clock In', btnOut:'Clock Out',
+      excLabel:'Report shift exception', excSub:'Shift change · Absence · Overtime',
+      tabWeekly:'This Week', tabMonthly:'Monthly',
+      lblWorked:'Worked this week', lblWorkedSub:'of 38.5h target',
+      lblRemaining:'Remaining', lblRemainingSub:'Tue – Fri planned',
+      lblOvertime:'Overtime balance', lblAvg:'Average / day', lblAvgSub:'Last 30 days',
+      sectionDaily:'Daily overview', sectionCompliance:'Working time rules',
+      chk1:'Max. 10h/day observed', chk2:'Break rules observed',
+      chk3:'Min. 11h rest', chk4:'Max. 48h/week (avg. 6 months)',
+      lblWorkedMonth:'Worked', lblWorkedMonthSub:'of 160h target',
+      lblWorkdays:'Work days', lblWorkdaysSub:'15 remaining',
+      lblOtAccount:'Overtime account', lblOtLimit:'Limit: 40h',
+      sectionMonth:'Monthly summary', sectionRecent:'Recent months',
+      mr1:'Target hours', mr2:'Actual hours (so far)', mr3:'Thereof overtime',
+      mr4:'Total overtime balance', mr5:'Sick days', mr6:'Annual leave taken',
+      dayNames:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+      booked:'{n}h booked', planned:'{n}h planned', off:'Off',
+      otSuffix:'h overtime', utSuffix:'h undertime',
+    },
+    'es': {
+      title:'Control de tiempo', sub:'',
+      clockOff:'SIN FICHAR', clockOn:'FICHADO ENTRADA', clockDone:'FICHADO SALIDA',
+      clockDetailOff:'No iniciado hoy',
+      clockStarted:'Iniciado a las {time}', clockSession:'Última sesión: {h}h {m}min',
+      btnIn:'Fichar entrada', btnOut:'Fichar salida',
+      excLabel:'Registrar excepción de turno', excSub:'Cambio de turno · Ausencia · Tiempo extra',
+      tabWeekly:'Esta semana', tabMonthly:'Mensual',
+      lblWorked:'Horas esta semana', lblWorkedSub:'de 38,5h previstas',
+      lblRemaining:'Restante', lblRemainingSub:'Mar – Vie previsto',
+      lblOvertime:'Horas extra', lblAvg:'Media / día', lblAvgSub:'Últimos 30 días',
+      sectionDaily:'Vista diaria', sectionCompliance:'Normas de jornada',
+      chk1:'Máx. 10h/día cumplido', chk2:'Norma de pausas cumplida',
+      chk3:'Mín. 11h de descanso', chk4:'Máx. 48h/sem. (prom. 6 meses)',
+      lblWorkedMonth:'Trabajado', lblWorkedMonthSub:'de 160h previstas',
+      lblWorkdays:'Días laborables', lblWorkdaysSub:'15 restantes',
+      lblOtAccount:'Cuenta horas extra', lblOtLimit:'Límite: 40h',
+      sectionMonth:'Resumen mensual', sectionRecent:'Meses anteriores',
+      mr1:'Tiempo previsto', mr2:'Tiempo real (hasta ahora)', mr3:'De los cuales extra',
+      mr4:'Total horas extra', mr5:'Días de baja', mr6:'Vacaciones tomadas',
+      dayNames:['Do','Lu','Ma','Mi','Ju','Vi','Sá'],
+      booked:'{n}h trabajado', planned:'{n}h previsto', off:'Libre',
+      otSuffix:'h extra', utSuffix:'h déficit',
+    },
+    'de': {
+      title:'Zeiterfassung', sub:'',
+      clockOff:'NICHT EINGESTEMPELT', clockOn:'EINGESTEMPELT', clockDone:'AUSGESTEMPELT',
+      clockDetailOff:'Heute noch nicht gestartet',
+      clockStarted:'Gestartet um {time} Uhr', clockSession:'Letzte Sitzung: {h}h {m}min',
+      btnIn:'Einstempeln', btnOut:'Ausstempeln',
+      excLabel:'Schichtausnahme melden', excSub:'Schichtänderung · Abwesenheit · Überstunden',
+      tabWeekly:'Diese Woche', tabMonthly:'Monatsansicht',
+      lblWorked:'Geleistet diese Woche', lblWorkedSub:'von 38,5h Soll',
+      lblRemaining:'Verbleibend', lblRemainingSub:'Di – Fr geplant',
+      lblOvertime:'Überstundenkonto', lblAvg:'Durchschnitt / Tag', lblAvgSub:'Letzte 30 Tage',
+      sectionDaily:'Tagesübersicht', sectionCompliance:'Arbeitszeitregeln',
+      chk1:'Max. 10h/Tag eingehalten', chk2:'Pausenregelung eingehalten',
+      chk3:'Min. 11h Ruhezeit', chk4:'Max. 48h/Woche (Ø 6 Monate)',
+      lblWorkedMonth:'Gearbeitet', lblWorkedMonthSub:'von 160h Soll',
+      lblWorkdays:'Arbeitstage', lblWorkdaysSub:'15 verbleibend',
+      lblOtAccount:'Überstundenkonto', lblOtLimit:'Obergrenze: 40h',
+      sectionMonth:'Monatsübersicht', sectionRecent:'Letzte Monate',
+      mr1:'Soll-Arbeitszeit', mr2:'Ist-Arbeitszeit (bisher)', mr3:'Davon Überstunden',
+      mr4:'Überstundenkonto gesamt', mr5:'Krankheitstage', mr6:'Urlaubstage genommen',
+      dayNames:['So','Mo','Di','Mi','Do','Fr','Sa'],
+      booked:'{n}h gebucht', planned:'{n}h geplant', off:'Frei',
+      otSuffix:'h Überstunden', utSuffix:'h Minusstunden',
+    },
+    'fr': {
+      title:'Suivi du temps', sub:'',
+      clockOff:'NON POINTÉ', clockOn:'POINTAGE ENTRÉE', clockDone:'POINTAGE SORTIE',
+      clockDetailOff:"Pas encore démarré aujourd'hui",
+      clockStarted:'Démarré à {time}', clockSession:'Dernière session: {h}h {m}min',
+      btnIn:'Pointer entrée', btnOut:'Pointer sortie',
+      excLabel:'Signaler une exception de poste', excSub:'Changement · Absence · Heures sup.',
+      tabWeekly:'Cette semaine', tabMonthly:'Mensuel',
+      lblWorked:'Heures cette semaine', lblWorkedSub:'sur 38,5h prévues',
+      lblRemaining:'Restant', lblRemainingSub:'Mar – Ven prévu',
+      lblOvertime:'Heures supplémentaires', lblAvg:'Moyenne / jour', lblAvgSub:'30 derniers jours',
+      sectionDaily:'Vue quotidienne', sectionCompliance:'Règles de temps de travail',
+      chk1:'Max. 10h/jour respecté', chk2:'Règle de pause respectée',
+      chk3:'Min. 11h de repos', chk4:'Max. 48h/sem. (moy. 6 mois)',
+      lblWorkedMonth:'Travaillé', lblWorkedMonthSub:'sur 160h prévues',
+      lblWorkdays:'Jours travaillés', lblWorkdaysSub:'15 restants',
+      lblOtAccount:'Compte heures sup.', lblOtLimit:'Plafond: 40h',
+      sectionMonth:'Résumé mensuel', sectionRecent:'Mois précédents',
+      mr1:'Temps prévu', mr2:'Temps réel (à ce jour)', mr3:'Dont heures sup.',
+      mr4:'Total heures sup.', mr5:'Jours de maladie', mr6:'Congés pris',
+      dayNames:['Di','Lu','Ma','Me','Je','Ve','Sa'],
+      booked:'{n}h effectué', planned:'{n}h prévu', off:'Repos',
+      otSuffix:'h supplémentaires', utSuffix:'h déficit',
+    },
+    'ja': {
+      title:'勤怠管理', sub:'',
+      clockOff:'未打刻', clockOn:'出勤中', clockDone:'退勤済',
+      clockDetailOff:'本日未開始',
+      clockStarted:'{time}に開始', clockSession:'前回: {h}h {m}分',
+      btnIn:'出勤打刻', btnOut:'退勤打刻',
+      excLabel:'シフト例外を申請', excSub:'シフト変更・欠勤・残業',
+      tabWeekly:'今週', tabMonthly:'月次',
+      lblWorked:'今週の実績', lblWorkedSub:'所定38.5hのうち',
+      lblRemaining:'残り', lblRemainingSub:'火〜金の予定',
+      lblOvertime:'残業時間口座', lblAvg:'1日平均', lblAvgSub:'過去30日',
+      sectionDaily:'日次サマリー', sectionCompliance:'労働時間ルール',
+      chk1:'1日最大10h遵守', chk2:'休憩規定遵守',
+      chk3:'最低11h休息', chk4:'週最大48h（6ヶ月平均）',
+      lblWorkedMonth:'実働', lblWorkedMonthSub:'所定160hのうち',
+      lblWorkdays:'勤務日数', lblWorkdaysSub:'残り15日',
+      lblOtAccount:'残業時間口座', lblOtLimit:'上限: 40h',
+      sectionMonth:'月次概要', sectionRecent:'過去の月',
+      mr1:'所定労働時間', mr2:'実績（現時点）', mr3:'うち残業時間',
+      mr4:'残業時間合計', mr5:'病欠日数', mr6:'取得済み有給',
+      dayNames:['日','月','火','水','木','金','土'],
+      booked:'{n}h実績', planned:'{n}h予定', off:'休み',
+      otSuffix:'h残業', utSuffix:'hマイナス',
+    },
+  };
+
+  const t = T[LANG] ?? T['en-US'];
+
+  // ── applySBBrand ──────────────────────────────────────────────────────────
+  function applySBBrand() {
+    const sb = getComputedStyle(document.documentElement).getPropertyValue('--sb-brand').trim();
+    if (sb) { document.documentElement.style.setProperty('--primary', sb); return; }
+    try {
+      const fallbacks = ['#e91e8c','#6d28d9','#0ea5e9','#10b981','#f59e0b'];
+      const h = location.hostname; let n = 0;
+      for (let i = 0; i < h.length; i++) n = (n * 31 + h.charCodeAt(i)) & 0xffffffff;
+      document.documentElement.style.setProperty('--primary', fallbacks[Math.abs(n) % fallbacks.length]);
+    } catch (e) {}
+  }
+
+  // ── Date helpers ──────────────────────────────────────────────────────────
+  const now = new Date();
+  const todayDow = now.getDay(); // 0=Sun
+
+  function isoWeek(d) {
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const day = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - day);
+    const y = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    return Math.ceil(((t - y) / 86400000 + 1) / 7);
+  }
+
+  const wk = isoWeek(now);
+  const wkLabel = { de:'KW', fr:'Sem.', es:'Sem.', ja:'第', 'en-GB':'Wk', 'en-US':'CW' }[LANG] || 'CW';
+  const wkStr = LANG === 'ja' ? `第${wk}週` : `${wkLabel} ${wk}`;
+
+  const monthFmt = new Intl.DateTimeFormat(LOCALE, { month: 'long', year: 'numeric' });
+  const dateFmt  = new Intl.DateTimeFormat(LOCALE, { day:'numeric', month:'short', year:'numeric' });
+
+  function monthsBack(n) {
+    const d = new Date(now); d.setDate(1); d.setMonth(d.getMonth() - n); return d;
+  }
+
+  // ── Build daily rows ──────────────────────────────────────────────────────
+  // Mon of current ISO week
+  function getMondayOfWeek(d) {
+    const day = d.getDay() || 7; // Mon=1 … Sun=7
+    const mon = new Date(d);
+    mon.setDate(d.getDate() - day + 1);
+    mon.setHours(0,0,0,0);
+    return mon;
+  }
+
+  const monday = getMondayOfWeek(now);
+  const dayData = [
+    { pct:100, h:'8.5', type:'normal',  future:false },
+    { pct:100, h:'8.5', type:'planned', future:false },
+    { pct:94,  h:'8',   type:'planned', future:false },
+    { pct:100, h:'8.5', type:'planned', future:true  },
+    { pct:59,  h:'5',   type:'planned', future:true  },
+    { pct:0,   h:'—',   type:'off',     future:true  },
+    { pct:0,   h:'—',   type:'off',     future:true  },
+  ];
+
+  function buildDailyList() {
+    const container = document.getElementById('dailyList');
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday); d.setDate(monday.getDate() + i);
+      const isToday = d.toDateString() === now.toDateString();
+      const dd = dayData[i];
+      const dayName = t.dayNames[(d.getDay())];
+      const dayNum  = d.getDate();
+
+      let barClass = dd.type;
+      let barText  = '';
+      if (dd.type === 'normal')  barText = t.booked.replace('{n}', dd.h);
+      else if (dd.type === 'planned') barText = t.planned.replace('{n}', dd.h);
+      else barText = t.off;
+
+      const target = ['Sa','Sat','So','Di','Do','Sa','So','日','月','土','日'].includes(dayName)
+        ? '' : '<div class="target">/ 8h</div>';
+
+      const row = document.createElement('div');
+      row.className = 'daily-row' + (isToday ? ' today' : '');
+      row.innerHTML = `
+        <div class="daily-day">
+          <div class="dn">${dayName}</div>
+          <div class="dd">${dayNum}</div>
+        </div>
+        <div class="daily-bar-wrap">
+          <div class="daily-bar-bg">
+            <div class="daily-bar ${barClass}" style="width:${dd.pct}%">${barText}</div>
+          </div>
+        </div>
+        <div class="daily-hours">
+          <span style="${dd.type==='off'?'color:var(--text-light)':''}">${dd.h}</span>
+          ${dd.type !== 'off' ? '<div class="target">/ 8h</div>' : ''}
+        </div>
+        ${isToday ? '<span class="today-badge">NOW</span>' : ''}
+      `;
+      container.appendChild(row);
+    }
+  }
+
+  // ── Clock ─────────────────────────────────────────────────────────────────
+  let clockedIn = false, clockStart = null, clockInterval = null;
+
+  window.toggleClock = function () {
+    const dot    = document.getElementById('clockDot');
+    const status = document.getElementById('clockStatusText');
+    const detail = document.getElementById('clockDetail');
+    const btnTxt = document.getElementById('clockBtnText');
+    const btn    = document.getElementById('clockBtn');
+
+    if (!clockedIn) {
+      clockedIn = true; clockStart = new Date();
+      dot.classList.add('active');
+      status.textContent = t.clockOn; status.classList.add('active');
+      const hh = String(clockStart.getHours()).padStart(2,'0');
+      const mm = String(clockStart.getMinutes()).padStart(2,'0');
+      detail.textContent = t.clockStarted.replace('{time}', `${hh}:${mm}`);
+      btnTxt.textContent = t.btnOut;
+      btn.className = 'cw-btn cw-btn-danger';
+      btn.querySelector('svg polygon').setAttribute('points','6 6 18 6 18 18 6 18');
+      clockInterval = setInterval(updateTimer, 1000); updateTimer();
+    } else {
+      clearInterval(clockInterval); clockedIn = false;
+      const elapsed = Math.floor((new Date() - clockStart) / 1000);
+      const h = Math.floor(elapsed / 3600), m = Math.floor((elapsed % 3600) / 60);
+      dot.classList.remove('active');
+      status.textContent = t.clockDone; status.classList.remove('active');
+      detail.textContent = t.clockSession.replace('{h}', h).replace('{m}', m);
+      document.getElementById('clockTimer').textContent = '00:00:00';
+      btnTxt.textContent = t.btnIn;
+      btn.className = 'cw-btn cw-btn-primary';
+      btn.querySelector('svg polygon').setAttribute('points','5 3 19 12 5 21 5 3');
+      clockStart = null;
+    }
+  };
+
+  function updateTimer() {
+    if (!clockStart) return;
+    const e = Math.floor((new Date() - clockStart) / 1000);
+    const h = String(Math.floor(e/3600)).padStart(2,'0');
+    const m = String(Math.floor((e%3600)/60)).padStart(2,'0');
+    const s = String(e%60).padStart(2,'0');
+    document.getElementById('clockTimer').textContent = `${h}:${m}:${s}`;
+  }
+
+  // ── Exception shortcut ────────────────────────────────────────────────────
+  window.openException = function () {
+    window.open(EXCEPTION_URL, '_blank', 'noopener,noreferrer');
+  };
+
+  // ── Tabs ──────────────────────────────────────────────────────────────────
+  window.showTab = function (view) {
+    document.getElementById('weeklyView').classList.toggle('active', view === 'weekly');
+    document.getElementById('monthlyView').classList.toggle('active', view === 'monthly');
+    document.getElementById('tab-weekly').classList.toggle('active', view === 'weekly');
+    document.getElementById('tab-monthly').classList.toggle('active', view === 'monthly');
+  };
+
+  // ── Apply translations ────────────────────────────────────────────────────
+  function applyTranslations() {
+    document.getElementById('widget-title').textContent = t.title;
+    document.getElementById('widget-sub').textContent   = monthFmt.format(now);
+    document.getElementById('clockStatusText').textContent = t.clockOff;
+    document.getElementById('clockDetail').textContent     = t.clockDetailOff;
+    document.getElementById('clockDateLabel').textContent  = dateFmt.format(now);
+    document.getElementById('clockBtnText').textContent    = t.btnIn;
+    document.getElementById('exc-label').textContent  = t.excLabel;
+    document.getElementById('exc-sub').textContent    = t.excSub;
+    document.getElementById('tab-weekly').textContent  = t.tabWeekly;
+    document.getElementById('tab-monthly').textContent = t.tabMonthly;
+    document.getElementById('lbl-worked').textContent       = t.lblWorked;
+    document.getElementById('lbl-worked-sub').textContent   = t.lblWorkedSub;
+    document.getElementById('lbl-remaining').textContent    = t.lblRemaining;
+    document.getElementById('lbl-remaining-sub').textContent = t.lblRemainingSub;
+    document.getElementById('lbl-overtime').textContent     = t.lblOvertime;
+    document.getElementById('lbl-avg').textContent          = t.lblAvg;
+    document.getElementById('lbl-avg-sub').textContent      = t.lblAvgSub;
+    document.getElementById('lbl-daily-section').textContent     = `${t.sectionDaily} – ${wkStr}`;
+    document.getElementById('lbl-compliance-section').textContent = t.sectionCompliance;
+    document.getElementById('chk1').textContent = t.chk1;
+    document.getElementById('chk2').textContent = t.chk2;
+    document.getElementById('chk3').textContent = t.chk3;
+    document.getElementById('chk4').textContent = t.chk4;
+    document.getElementById('lbl-worked-month').textContent      = t.lblWorkedMonth;
+    document.getElementById('lbl-worked-month-sub').textContent  = t.lblWorkedMonthSub;
+    document.getElementById('lbl-workdays').textContent     = t.lblWorkdays;
+    document.getElementById('lbl-workdays-sub').textContent  = t.lblWorkdaysSub;
+    document.getElementById('lbl-ot-account').textContent   = t.lblOtAccount;
+    document.getElementById('lbl-ot-limit').textContent     = t.lblOtLimit;
+    document.getElementById('lbl-month-section').textContent  = t.sectionMonth;
+    document.getElementById('lbl-recent-section').textContent = t.sectionRecent;
+    document.getElementById('mr1').textContent = t.mr1; document.getElementById('mr2').textContent = t.mr2;
+    document.getElementById('mr3').textContent = t.mr3; document.getElementById('mr4').textContent = t.mr4;
+    document.getElementById('mr5').textContent = t.mr5; document.getElementById('mr6').textContent = t.mr6;
+
+    // Overtime "as of" label
+    const pfx = { de:'Stand', fr:'Au', es:'A fecha', ja:'', 'en-GB':'As of', 'en-US':'As of' }[LANG] || 'As of';
+    document.getElementById('overtimeAsOf').textContent =
+      LANG === 'ja' ? dateFmt.format(now) + ' 現在' : `${pfx}: ${dateFmt.format(now)}`;
+
+    // Recent months
+    document.getElementById('lm1').textContent = monthFmt.format(monthsBack(1));
+    document.getElementById('lm2').textContent = monthFmt.format(monthsBack(2));
+    document.getElementById('lm3').textContent = monthFmt.format(monthsBack(3));
+    document.getElementById('lm4').textContent = monthFmt.format(monthsBack(4));
+    document.getElementById('lm1v').textContent = '+4.5' + t.otSuffix;
+    document.getElementById('lm2v').textContent = '+3.0' + t.otSuffix;
+    document.getElementById('lm3v').textContent = '−1.5' + t.utSuffix;
+    document.getElementById('lm4v').textContent = '+2.0' + t.otSuffix;
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    applySBBrand();
+    applyTranslations();
+    buildDailyList();
+  });
+
+})();
+</script>
+
+<!-- Widget usage counter — see CLAUDE.md -->
+<script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})();</script>
+
+</body>
+</html>
