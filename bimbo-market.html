@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Bimbo Market">
+<meta name="widget-description" content="Marketplace de descuentos y beneficios para colaboradores (mockup de demo)">
+<title>Bimbo Market</title>
+<style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    /* Native clickable coupons — no JS needed */
+    summary { list-style: none; cursor: pointer; outline: none; }
+    summary::-webkit-details-marker { display: none; }
+    summary::marker { content: ""; }
+    details[open] > .reveal { animation: bimboReveal .35s ease; }
+    @keyframes bimboReveal { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    .chev, .plus { transition: transform .3s ease; display: inline-block; }
+    details[open] .chev { transform: rotate(180deg); }
+    details[open] .plus { transform: rotate(45deg); }
+</style>
+</head>
+<body>
+
+<div style="width: 100%; max-width: 430px; margin: 0 auto; background: #F2F2F2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+
+  <!-- HEADER -->
+  <div style="background: #263576; padding: 16px 22px 24px; position: relative; overflow: hidden;">
+    <div style="position: absolute; right: -40px; top: -40px; width: 180px; height: 180px; background: radial-gradient(circle,rgba(237,28,36,0.28) 0%,transparent 70%); pointer-events: none;"></div>
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; position: relative; z-index: 1;">
+      <!-- Para usar el logo real: reemplaza el <span> de abajo por <img src="URL_DE_TU_LOGO_BIMBO" style="height:24px;"> subido a Staffbase -->
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="color: #ffffff; font-size: 20px; font-weight: 800; letter-spacing: -0.5px;">Bimbo</span>
+        <span style="background: #ED1C24; color: #ffffff; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 4px; letter-spacing: 0.06em;">MARKET</span>
+      </div>
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; position: relative;"><span style="position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: #FF3340; border-radius: 50%; border: 1.5px solid #263576;"></span></div>
+    </div>
+    <div style="position: relative; z-index: 1;">
+      <p style="font-size: 12px; color: rgba(255,255,255,0.55); margin: 0 0 3px 0;">Bienvenida de vuelta</p>
+      <p style="font-size: 22px; font-weight: bold; color: #ffffff; letter-spacing: -0.5px; margin: 0 0 18px 0;">Ana González 👋</p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 12px 16px; position: relative; z-index: 1;">
+      <div style="width: 36px; height: 36px; background: linear-gradient(135deg,#ED1C24 0%,#FF3340 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">⭐</div>
+      <div style="flex: 1;">
+        <p style="font-size: 10px; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 2px 0;">Puntos disponibles</p>
+        <p style="font-size: 17px; font-weight: bold; color: #ffffff; letter-spacing: -0.3px; margin: 0;">1,250 pts</p>
+      </div>
+      <button style="background: #ED1C24; color: #ffffff; font-size: 12px; font-weight: bold; border: none; border-radius: 20px; padding: 7px 14px; cursor: pointer; font-family: inherit;">Canjear</button>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div style="padding: 20px 16px 48px;">
+
+    <!-- chips -->
+    <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;">
+      <div style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; background: #263576; color: #ffffff;">Todos</div>
+      <div style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; background: #FFFFFF; color: #1a1a1a; border: 1.5px solid #E0E0E0;">Telecom</div>
+      <div style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; background: #FFFFFF; color: #1a1a1a; border: 1.5px solid #E0E0E0;">Cine</div>
+      <div style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; background: #FFFFFF; color: #1a1a1a; border: 1.5px solid #E0E0E0;">Moda</div>
+      <div style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; background: #FFFFFF; color: #1a1a1a; border: 1.5px solid #E0E0E0;">Restaurantes</div>
+      <div style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; background: #FFFFFF; color: #1a1a1a; border: 1.5px solid #E0E0E0;">Salud</div>
+    </div>
+
+    <!-- FEATURED -->
+    <p style="font-size: 11px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 22px 0 12px 0;">Oferta destacada</p>
+    <details style="background: #263576; border-radius: 20px; overflow: hidden; margin-bottom: 4px; position: relative;">
+      <div style="position: absolute; right: -30px; bottom: -30px; width: 160px; height: 160px; background: radial-gradient(circle,rgba(237,28,36,0.40) 0%,transparent 65%); border-radius: 50%; pointer-events: none;"></div>
+      <div style="position: absolute; right: 24px; top: 46px; font-size: 52px; opacity: 0.85; pointer-events: none;">📱</div>
+      <summary style="padding: 20px 22px; position: relative; z-index: 1;">
+        <span style="display: inline-block; background: #ED1C24; color: #ffffff; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px;">Exclusivo Bimbo</span>
+        <p style="color: #ffffff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.15; margin: 0 0 6px 0;">20% de descuento<br>en Telcel</p>
+        <p style="color: rgba(255,255,255,0.6); font-size: 13px; margin: 0 0 16px 0; line-height: 1.5;">Recargas y planes de datos. Solo para colaboradores.</p>
+        <span style="display: inline-flex; align-items: center; gap: 8px; background: #ED1C24; border-radius: 20px; padding: 10px 20px;"><span style="color: #ffffff; font-size: 13px; font-weight: bold;">Ver cupón</span> <span class="chev" style="color: #ffffff; font-size: 13px;">▼</span></span>
+      </summary>
+      <div class="reveal" style="position: relative; z-index: 1;">
+        <div style="padding: 0 22px 22px;">
+          <div style="border: 2px dashed rgba(237,28,36,0.6); border-radius: 12px; padding: 16px; text-align: center; background: rgba(237,28,36,0.12); position: relative;">
+            <div style="position: absolute; width: 16px; height: 16px; background: #263576; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid rgba(237,28,36,0.5);"></div>
+            <div style="position: absolute; width: 16px; height: 16px; background: #263576; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid rgba(237,28,36,0.5);"></div>
+            <p style="font-size: 9px; font-weight: bold; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+            <p style="font-size: 26px; font-weight: 900; color: #FF3340; letter-spacing: 4px; margin: 0 0 6px 0;">BIMBO20TEL</p>
+            <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin: 0;">Muestra en tienda o ingresa en telcel.com</p>
+          </div>
+          <p style="font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; margin: 10px 0 0 0;">⏱ Válido hasta el 30 de septiembre de 2026</p>
+        </div>
+      </div>
+    </details>
+
+    <!-- GRID -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin: 22px 0 12px 0;">
+      <p style="font-size: 11px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0;">Descuentos para ti</p>
+      <span style="font-size: 12px; color: #ED1C24; font-weight: 600;">Ver todos</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+
+      <!-- Cinépolis -->
+      <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden;">
+        <summary>
+          <div style="height: 76px; background: #FFF8DC; display: flex; align-items: center; justify-content: center; font-size: 34px; position: relative;">🎬 <span style="position: absolute; top: 8px; right: 8px; background: #263576; color: #ffffff; font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 20px;">2×1</span></div>
+          <div style="padding: 10px 12px 12px;">
+            <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 3px 0;">Cinépolis</p>
+            <p style="font-size: 12px; font-weight: 600; color: #1a1a1a; line-height: 1.3; margin: 0 0 4px 0;">2×1 boletos miércoles</p>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <p style="font-size: 15px; font-weight: 800; color: #ED1C24; margin: 0;">2×1</p>
+              <span class="plus" style="font-size: 14px; color: #767676;">＋</span>
+            </div>
+            <p style="font-size: 9px; color: #767676; margin: 3px 0 0 0;">Vence 30 sep</p>
+          </div>
+        </summary>
+        <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+          <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+            <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+            <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+            <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+            <p style="font-size: 22px; font-weight: 900; color: #ED1C24; letter-spacing: 3px; margin: 0 0 6px 0;">BIMBOCINE2X1</p>
+            <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Presenta en taquilla o en cinepolis.com</p>
+          </div>
+          <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Válido hasta el 30 de septiembre de 2026</p>
+        </div>
+      </details>
+
+      <!-- Liverpool -->
+      <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden;">
+        <summary>
+          <div style="height: 76px; background: #EEF3FF; display: flex; align-items: center; justify-content: center; font-size: 34px; position: relative;">🛍️ <span style="position: absolute; top: 8px; right: 8px; background: #263576; color: #ffffff; font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 20px;">15%</span></div>
+          <div style="padding: 10px 12px 12px;">
+            <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 3px 0;">Liverpool</p>
+            <p style="font-size: 12px; font-weight: 600; color: #1a1a1a; line-height: 1.3; margin: 0 0 4px 0;">15% ropa y accesorios</p>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <p style="font-size: 15px; font-weight: 800; color: #ED1C24; margin: 0;">15% off</p>
+              <span class="plus" style="font-size: 14px; color: #767676;">＋</span>
+            </div>
+            <p style="font-size: 9px; color: #767676; margin: 3px 0 0 0;">Vence 15 sep</p>
+          </div>
+        </summary>
+        <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+          <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+            <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+            <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+            <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+            <p style="font-size: 22px; font-weight: 900; color: #ED1C24; letter-spacing: 3px; margin: 0 0 6px 0;">BIMBOLIV15</p>
+            <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Presenta en caja o al pagar en línea</p>
+          </div>
+          <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Válido hasta el 15 de septiembre de 2026</p>
+        </div>
+      </details>
+
+      <!-- OXXO -->
+      <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden;">
+        <summary>
+          <div style="height: 76px; background: #FFF5E6; display: flex; align-items: center; justify-content: center; font-size: 34px; position: relative;">🏪 <span style="position: absolute; top: 8px; right: 8px; background: #263576; color: #ffffff; font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 20px;">10%</span></div>
+          <div style="padding: 10px 12px 12px;">
+            <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 3px 0;">OXXO</p>
+            <p style="font-size: 12px; font-weight: 600; color: #1a1a1a; line-height: 1.3; margin: 0 0 4px 0;">10% bebidas y snacks</p>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <p style="font-size: 15px; font-weight: 800; color: #ED1C24; margin: 0;">10% off</p>
+              <span class="plus" style="font-size: 14px; color: #767676;">＋</span>
+            </div>
+            <p style="font-size: 9px; color: #767676; margin: 3px 0 0 0;">Vence 30 sep</p>
+          </div>
+        </summary>
+        <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+          <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+            <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+            <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+            <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+            <p style="font-size: 22px; font-weight: 900; color: #ED1C24; letter-spacing: 3px; margin: 0 0 6px 0;">BIMBOOXXO10</p>
+            <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Muestra al cajero antes de pagar</p>
+          </div>
+          <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Válido hasta el 30 de septiembre de 2026</p>
+        </div>
+      </details>
+
+      <!-- Sam's Club -->
+      <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden;">
+        <summary>
+          <div style="height: 76px; background: #E6F7FF; display: flex; align-items: center; justify-content: center; font-size: 34px; position: relative;">🛒 <span style="position: absolute; top: 8px; right: 8px; background: #263576; color: #ffffff; font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 20px;">$200</span></div>
+          <div style="padding: 10px 12px 12px;">
+            <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 3px 0;">Sam's Club</p>
+            <p style="font-size: 12px; font-weight: 600; color: #1a1a1a; line-height: 1.3; margin: 0 0 4px 0;">$200 off membresía</p>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <p style="font-size: 15px; font-weight: 800; color: #ED1C24; margin: 0;">$200 off</p>
+              <span class="plus" style="font-size: 14px; color: #767676;">＋</span>
+            </div>
+            <p style="font-size: 9px; color: #767676; margin: 3px 0 0 0;">Vence 30 sep</p>
+          </div>
+        </summary>
+        <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+          <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+            <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+            <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+            <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+            <p style="font-size: 22px; font-weight: 900; color: #ED1C24; letter-spacing: 3px; margin: 0 0 6px 0;">BIMBOSAMS200</p>
+            <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Presenta en el módulo de membresías</p>
+          </div>
+          <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Válido hasta el 30 de septiembre de 2026</p>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- LIST -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin: 22px 0 12px 0;">
+      <p style="font-size: 11px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0;">Más beneficios</p>
+      <span style="font-size: 12px; color: #ED1C24; font-weight: 600;">Ver todos</span>
+    </div>
+
+    <!-- Spotify -->
+    <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 10px;">
+      <summary style="display: flex; align-items: center; gap: 12px; padding: 12px 14px;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #E8F8EE; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">🎵</div>
+        <div style="flex: 1;">
+          <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0;">Spotify</p>
+          <p style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin: 2px 0 3px 0;">3 meses Premium gratis</p>
+          <p style="font-size: 12px; font-weight: bold; color: #ED1C24; margin: 0;">Gratis 3 meses</p>
+        </div>
+        <span class="plus" style="font-size: 18px; color: #767676;">＋</span>
+      </summary>
+      <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+        <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+          <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+          <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+          <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+          <p style="font-size: 24px; font-weight: 900; color: #ED1C24; letter-spacing: 4px; margin: 0 0 6px 0;">BIMBOSPOT3M</p>
+          <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Ingresa en spotify.com/redeem</p>
+        </div>
+        <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Válido hasta el 30 de septiembre de 2026</p>
+      </div>
+    </details>
+
+    <!-- VIPS -->
+    <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 10px;">
+      <summary style="display: flex; align-items: center; gap: 12px; padding: 12px 14px;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #FFF5E6; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">🍽️</div>
+        <div style="flex: 1;">
+          <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0;">VIPS</p>
+          <p style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin: 2px 0 3px 0;">20% en tu cuenta los lunes</p>
+          <p style="font-size: 12px; font-weight: bold; color: #ED1C24; margin: 0;">20% off lunes</p>
+        </div>
+        <span class="plus" style="font-size: 18px; color: #767676;">＋</span>
+      </summary>
+      <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+        <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+          <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+          <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+          <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+          <p style="font-size: 24px; font-weight: 900; color: #ED1C24; letter-spacing: 4px; margin: 0 0 6px 0;">BIMBOVIPS20L</p>
+          <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Muestra al mesero antes de pedir la cuenta</p>
+        </div>
+        <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Lunes de septiembre y octubre 2026</p>
+      </div>
+    </details>
+
+    <!-- Farmacias del Ahorro -->
+    <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 10px;">
+      <summary style="display: flex; align-items: center; gap: 12px; padding: 12px 14px;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #F3EEFF; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">💊</div>
+        <div style="flex: 1;">
+          <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0;">Farmacias del Ahorro</p>
+          <p style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin: 2px 0 3px 0;">12% en medicamentos</p>
+          <p style="font-size: 12px; font-weight: bold; color: #ED1C24; margin: 0;">12% off</p>
+        </div>
+        <span class="plus" style="font-size: 18px; color: #767676;">＋</span>
+      </summary>
+      <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+        <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+          <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+          <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+          <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+          <p style="font-size: 24px; font-weight: 900; color: #ED1C24; letter-spacing: 4px; margin: 0 0 6px 0;">BIMBOFARMA12</p>
+          <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Menciona al farmacéutico antes de pagar</p>
+        </div>
+        <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Válido hasta el 30 de septiembre de 2026</p>
+      </div>
+    </details>
+
+    <!-- Uber -->
+    <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 10px;">
+      <summary style="display: flex; align-items: center; gap: 12px; padding: 12px 14px;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #F2F2F2; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">🚗</div>
+        <div style="flex: 1;">
+          <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0;">Uber</p>
+          <p style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin: 2px 0 3px 0;">$50 de crédito al mes</p>
+          <p style="font-size: 12px; font-weight: bold; color: #ED1C24; margin: 0;">$50 mensual</p>
+        </div>
+        <span class="plus" style="font-size: 18px; color: #767676;">＋</span>
+      </summary>
+      <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+        <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+          <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+          <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+          <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+          <p style="font-size: 24px; font-weight: 900; color: #ED1C24; letter-spacing: 4px; margin: 0 0 6px 0;">BIMBOUBER50</p>
+          <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Agrega en Uber &gt; Pago &gt; Agregar código</p>
+        </div>
+        <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Se renueva el 1 de cada mes</p>
+      </div>
+    </details>
+
+  </div>
+</div>
+
+</body>
+</html>
