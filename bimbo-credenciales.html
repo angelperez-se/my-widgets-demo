@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Credenciales Bimbo">
+<meta name="widget-description" content="Billetera de identificación: escanea (simulado) y guarda tu credencial. Mockup de demo.">
+<title>Credenciales Bimbo</title>
+<style>
+    :root {
+        --blue: #263576;
+        --blue-soft: rgba(38,53,118,0.08);
+        --red: #ED1C24;
+        --red-bright: #FF3340;
+        --success: #10b981;
+        --text: #1f2937;
+        --text-light: #6b7280;
+        --bg: #ffffff;
+        --bg-gray: #F2F2F2;
+        --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+
+    .wrap {
+        width: 100%; max-width: 430px; margin: 0 auto;
+        background: var(--bg-gray); min-height: 480px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: var(--text);
+    }
+
+    /* Header */
+    .hdr {
+        background: var(--blue); color: #fff;
+        padding: 18px 20px; display: flex; align-items: center; gap: 12px;
+        position: relative; overflow: hidden;
+    }
+    .hdr::after {
+        content: ''; position: absolute; right: -40px; top: -40px;
+        width: 160px; height: 160px;
+        background: radial-gradient(circle, rgba(237,28,36,0.28) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .hdr .ic {
+        width: 40px; height: 40px; border-radius: 11px;
+        background: rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; z-index: 1;
+    }
+    .hdr .ic svg { width: 22px; height: 22px; }
+    .hdr .t { z-index: 1; }
+    .hdr .t .k { font-size: 12px; color: rgba(255,255,255,0.6); margin: 0 0 1px; }
+    .hdr .t .n { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; margin: 0; }
+
+    .body { padding: 20px 16px 28px; }
+    .hidden { display: none !important; }
+
+    /* --- State: empty --- */
+    .empty-card {
+        background: var(--bg); border: 2px dashed var(--border); border-radius: 16px;
+        padding: 28px 20px; text-align: center;
+    }
+    .empty-ic {
+        width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 16px;
+        background: var(--blue-soft); color: var(--blue);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .empty-ic svg { width: 32px; height: 32px; }
+    .empty-title { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+    .empty-sub { font-size: 13px; color: var(--text-light); line-height: 1.5; margin: 0 0 20px; }
+
+    .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        background: var(--red); color: #fff; border: none; border-radius: 12px;
+        font-size: 15px; font-weight: 700; padding: 13px 22px; cursor: pointer;
+        font-family: inherit; width: 100%; transition: filter .15s;
+    }
+    .btn:hover { filter: brightness(0.94); }
+    .btn svg { width: 18px; height: 18px; }
+    .btn-ghost {
+        background: transparent; color: var(--text-light); border: 1px solid var(--border);
+    }
+    .btn.small { width: auto; padding: 9px 16px; font-size: 13px; }
+
+    /* --- State: scanning --- */
+    .scanner {
+        position: relative; width: 100%; aspect-ratio: 3 / 4;
+        background: #0b1020; border-radius: 16px; overflow: hidden;
+    }
+    #cam { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .sim {
+        position: absolute; inset: 0;
+        background: radial-gradient(circle at 50% 40%, #1c2547 0%, #0b1020 80%);
+        display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px;
+        color: rgba(255,255,255,0.35);
+    }
+    .sim svg { width: 46px; height: 46px; }
+    .sim p { font-size: 12px; margin: 0; }
+    /* ID guide frame */
+    .frame {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+        width: 82%; aspect-ratio: 1.586 / 1; border-radius: 14px;
+        box-shadow: 0 0 0 2000px rgba(0,0,0,0.35);
+    }
+    .frame .corner {
+        position: absolute; width: 26px; height: 26px; border: 3px solid #fff;
+    }
+    .frame .c1 { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 12px 0 0 0; }
+    .frame .c2 { top: -2px; right: -2px; border-left: none; border-bottom: none; border-radius: 0 12px 0 0; }
+    .frame .c3 { bottom: -2px; left: -2px; border-right: none; border-top: none; border-radius: 0 0 0 12px; }
+    .frame .c4 { bottom: -2px; right: -2px; border-left: none; border-top: none; border-radius: 0 0 12px 0; }
+    .scanline {
+        position: absolute; left: 6%; right: 6%; height: 3px; border-radius: 3px;
+        background: linear-gradient(90deg, transparent, var(--red-bright), transparent);
+        top: 12%; animation: scan 2.4s ease-in-out infinite;
+    }
+    @keyframes scan { 0%,100% { top: 14%; } 50% { top: 86%; } }
+    .scan-hint {
+        position: absolute; left: 0; right: 0; bottom: 14px; text-align: center;
+        color: #fff; font-size: 12px; font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    }
+    .scan-actions { display: flex; gap: 10px; margin-top: 14px; }
+    .scan-actions .btn { flex: 1; }
+    .scan-actions .btn-ghost { flex: 0 0 auto; }
+
+    /* Flash + processing */
+    .flash {
+        position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none;
+    }
+    .flash.go { animation: flash .5s ease; }
+    @keyframes flash { 0% { opacity: 0; } 20% { opacity: 0.9; } 100% { opacity: 0; } }
+    .processing {
+        position: absolute; inset: 0; background: rgba(11,16,32,0.86);
+        display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+        color: #fff;
+    }
+    .spinner {
+        width: 40px; height: 40px; border-radius: 50%;
+        border: 3px solid rgba(255,255,255,0.2); border-top-color: var(--red-bright);
+        animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .processing p { font-size: 13px; font-weight: 600; margin: 0; }
+
+    /* --- State: ID ready --- */
+    .id-wrap {
+        background: var(--bg); border: 1px solid var(--border); border-radius: 18px;
+        padding: 16px; box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+    }
+    .id-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .id-top .lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); }
+    .verified {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: rgba(16,185,129,0.12); color: var(--success);
+        font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+    }
+    .verified svg { width: 12px; height: 12px; }
+    .id-card {
+        width: 100%; aspect-ratio: 1.586 / 1; border-radius: 14px; overflow: hidden;
+        background: var(--bg-gray); position: relative;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    }
+    .id-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .id-placeholder {
+        position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+        flex-direction: column; gap: 8px; color: var(--text-light); text-align: center; padding: 16px;
+        border: 2px dashed var(--border); border-radius: 14px;
+    }
+    .id-placeholder svg { width: 34px; height: 34px; opacity: 0.6; }
+    .id-placeholder p { font-size: 12px; margin: 0; line-height: 1.4; }
+    .id-caption { font-size: 12px; color: var(--text-light); text-align: center; margin: 12px 0 0; }
+    .rescan {
+        display: block; margin: 14px auto 0; background: none; border: none;
+        color: var(--red); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+        padding: 6px 12px; border-radius: 6px;
+    }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hdr">
+    <div class="ic" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2.2"/><path d="M13 10h5M13 14h4"/></svg>
+    </div>
+    <div class="t">
+      <p class="k">Bimbo</p>
+      <p class="n">Credenciales</p>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- STATE 1: EMPTY -->
+    <div id="state-empty">
+      <div class="empty-card">
+        <div class="empty-ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2.4"/><path d="M13 10h5M13 14h4"/></svg>
+        </div>
+        <p class="empty-title">Aún no tienes tu identificación</p>
+        <p class="empty-sub">Escanea tu credencial una sola vez y tenla siempre a la mano en la app.</p>
+        <button class="btn" id="btn-scan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M3 12h18"/></svg>
+          Escanear ID
+        </button>
+      </div>
+    </div>
+
+    <!-- STATE 2: SCANNING -->
+    <div id="state-scan" class="hidden">
+      <div class="scanner">
+        <video id="cam" autoplay playsinline muted class="hidden"></video>
+        <div class="sim" id="sim">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <p>Vista previa de cámara</p>
+        </div>
+        <div class="frame">
+          <span class="corner c1"></span><span class="corner c2"></span>
+          <span class="corner c3"></span><span class="corner c4"></span>
+        </div>
+        <div class="scanline"></div>
+        <div class="scan-hint">Coloca tu credencial dentro del marco</div>
+        <div class="flash" id="flash"></div>
+        <div class="processing hidden" id="processing">
+          <div class="spinner"></div>
+          <p>Verificando credencial…</p>
+        </div>
+      </div>
+      <div class="scan-actions">
+        <button class="btn" id="btn-capture">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/></svg>
+          Capturar
+        </button>
+        <button class="btn btn-ghost small" id="btn-cancel">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- STATE 3: ID READY -->
+    <div id="state-id" class="hidden">
+      <div class="id-wrap">
+        <div class="id-top">
+          <span class="lbl">Identificación oficial</span>
+          <span class="verified"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>Guardada</span>
+        </div>
+        <div class="id-card" id="id-card">
+          <!-- La imagen se inyecta por JS desde ID_IMAGE_URL -->
+        </div>
+        <p class="id-caption">Presenta esta credencial cuando te la soliciten.</p>
+        <button class="rescan" id="btn-rescan">Volver a escanear</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+    // ====== PEGA AQUÍ LA URL DE TU IMAGEN DE ID (ficticia) ======
+    // Sube tu imagen a Staffbase o a tu repo y pon la URL aquí.
+    // Si la dejas vacía, se muestra un placeholder.
+    const ID_IMAGE_URL = '';
+    // ============================================================
+
+    const KEY = 'bimbo-credencial/v1';
+
+    const sEmpty = document.getElementById('state-empty');
+    const sScan  = document.getElementById('state-scan');
+    const sId    = document.getElementById('state-id');
+    const cam    = document.getElementById('cam');
+    const sim    = document.getElementById('sim');
+    const flash  = document.getElementById('flash');
+    const processing = document.getElementById('processing');
+    const idCard = document.getElementById('id-card');
+
+    let stream = null;
+
+    function show(which) {
+        sEmpty.classList.toggle('hidden', which !== 'empty');
+        sScan.classList.toggle('hidden', which !== 'scan');
+        sId.classList.toggle('hidden', which !== 'id');
+    }
+
+    function renderID() {
+        if (ID_IMAGE_URL) {
+            idCard.innerHTML = '<img src="' + ID_IMAGE_URL + '" alt="Credencial">';
+        } else {
+            idCard.innerHTML =
+                '<div class="id-placeholder">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2.4"/><path d="M13 10h5M13 14h4"/></svg>' +
+                '<p>Aquí irá tu credencial<br>(pega la URL en ID_IMAGE_URL)</p>' +
+                '</div>';
+        }
+    }
+
+    async function openCamera() {
+        show('scan');
+        processing.classList.add('hidden');
+        // Try the real camera; if it fails (permissions / iframe / no HTTPS), use the simulated view.
+        try {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('no api');
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+            cam.srcObject = stream;
+            cam.classList.remove('hidden');
+            sim.classList.add('hidden');
+        } catch (e) {
+            // Simulated fallback — the demo still looks like it's scanning.
+            cam.classList.add('hidden');
+            sim.classList.remove('hidden');
+        }
+    }
+
+    function stopCamera() {
+        if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+        cam.srcObject = null;
+    }
+
+    function capture() {
+        // Fake capture: flash, brief "processing", then reveal the saved ID image.
+        flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go');
+        setTimeout(() => {
+            processing.classList.remove('hidden');
+            setTimeout(() => {
+                stopCamera();
+                try { localStorage.setItem(KEY, JSON.stringify({ saved: true, ts: Date.now() })); } catch (e) {}
+                renderID();
+                show('id');
+            }, 1300);
+        }, 250);
+    }
+
+    document.getElementById('btn-scan').addEventListener('click', openCamera);
+    document.getElementById('btn-capture').addEventListener('click', capture);
+    document.getElementById('btn-cancel').addEventListener('click', () => {
+        stopCamera();
+        let saved = false;
+        try { saved = !!JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+        show(saved ? 'id' : 'empty');
+    });
+    document.getElementById('btn-rescan').addEventListener('click', () => {
+        try { localStorage.removeItem(KEY); } catch (e) {}
+        openCamera();
+    });
+
+    // Init
+    (function init() {
+        let saved = false;
+        try { saved = !!JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+        if (saved) { renderID(); show('id'); } else { show('empty'); }
+    })();
+</script>
+
+</body>
+</html>
