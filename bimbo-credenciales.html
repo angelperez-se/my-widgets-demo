@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -87,18 +88,19 @@
         background: #0b1020; border-radius: 16px; overflow: hidden;
     }
     #cam { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .sim {
-        position: absolute; inset: 0;
-        background: radial-gradient(circle at 50% 40%, #1c2547 0%, #0b1020 80%);
-        display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px;
-        color: rgba(255,255,255,0.35);
+    .sim-img {
+        position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+        animation: liveCam 6s ease-in-out infinite alternate;
     }
-    .sim svg { width: 46px; height: 46px; }
-    .sim p { font-size: 12px; margin: 0; }
+    @keyframes liveCam {
+        0%   { transform: scale(1.05); filter: brightness(1); }
+        50%  { filter: brightness(1.06); }
+        100% { transform: scale(1.12) translate(-2%, 1%); filter: brightness(0.98); }
+    }
     /* ID guide frame */
     .frame {
         position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-        width: 82%; aspect-ratio: 1.586 / 1; border-radius: 14px;
+        width: 60%; aspect-ratio: 0.63 / 1; border-radius: 14px;
         box-shadow: 0 0 0 2000px rgba(0,0,0,0.35);
     }
     .frame .corner {
@@ -155,7 +157,7 @@
     }
     .verified svg { width: 12px; height: 12px; }
     .id-card {
-        width: 100%; aspect-ratio: 1.586 / 1; border-radius: 14px; overflow: hidden;
+        width: 100%; max-width: 250px; margin: 0 auto; aspect-ratio: 0.63 / 1; border-radius: 14px; overflow: hidden;
         background: var(--bg-gray); position: relative;
         box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     }
@@ -210,10 +212,7 @@
     <div id="state-scan" class="hidden">
       <div class="scanner">
         <video id="cam" autoplay playsinline muted class="hidden"></video>
-        <div class="sim" id="sim">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          <p>Vista previa de cámara</p>
-        </div>
+        <img id="sim-img" class="sim-img hidden" alt="" />
         <div class="frame">
           <span class="corner c1"></span><span class="corner c2"></span>
           <span class="corner c3"></span><span class="corner c4"></span>
@@ -258,6 +257,8 @@
     // Sube tu imagen a Staffbase o a tu repo y pon la URL aquí.
     // Si la dejas vacía, se muestra un placeholder.
     const ID_IMAGE_URL = 'https://bimbo.staffbase.rocks/api/media/secure/external/v2/image/upload/8272db0cd7f1845c4aeb63dfd8b03db0.png';
+    // Foto que se muestra como "preview de cámara" cuando Staffbase bloquea la cámara real:
+    const SCAN_IMAGE_URL = 'https://bimbo.staffbase.rocks/api/media/secure/external/v2/image/upload/b6cb3cae4f49867abc3b98dbfb181666.png';
     // ============================================================
 
     const KEY = 'bimbo-credencial/v1';
@@ -266,7 +267,7 @@
     const sScan  = document.getElementById('state-scan');
     const sId    = document.getElementById('state-id');
     const cam    = document.getElementById('cam');
-    const sim    = document.getElementById('sim');
+    const simImg = document.getElementById('sim-img');
     const flash  = document.getElementById('flash');
     const processing = document.getElementById('processing');
     const idCard = document.getElementById('id-card');
@@ -300,11 +301,12 @@
             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
             cam.srcObject = stream;
             cam.classList.remove('hidden');
-            sim.classList.add('hidden');
+            simImg.classList.add('hidden');
         } catch (e) {
-            // Simulated fallback — the demo still looks like it's scanning.
+            // Simulated fallback — shows the credential "under the camera" with subtle live motion.
             cam.classList.add('hidden');
-            sim.classList.remove('hidden');
+            simImg.src = SCAN_IMAGE_URL;
+            simImg.classList.remove('hidden');
         }
     }
 
