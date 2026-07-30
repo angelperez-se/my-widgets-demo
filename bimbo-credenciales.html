@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -91,6 +90,9 @@
     .sim-img {
         position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
         animation: liveCam 6s ease-in-out infinite alternate;
+    }
+    .sim-media {
+        position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
     }
     @keyframes liveCam {
         0%   { transform: scale(1.05); filter: brightness(1); }
@@ -212,7 +214,7 @@
     <div id="state-scan" class="hidden">
       <div class="scanner">
         <video id="cam" autoplay playsinline muted class="hidden"></video>
-        <img id="sim-img" class="sim-img hidden" alt="" />
+        <video id="sim-vid" class="sim-media hidden" autoplay loop muted playsinline></video>
         <div class="frame">
           <span class="corner c1"></span><span class="corner c2"></span>
           <span class="corner c3"></span><span class="corner c4"></span>
@@ -259,6 +261,8 @@
     const ID_IMAGE_URL = 'https://bimbo.staffbase.rocks/api/media/secure/external/v2/image/upload/8272db0cd7f1845c4aeb63dfd8b03db0.png';
     // Foto que se muestra como "preview de cámara" cuando Staffbase bloquea la cámara real:
     const SCAN_IMAGE_URL = 'https://bimbo.staffbase.rocks/api/media/secure/external/v2/image/upload/b6cb3cae4f49867abc3b98dbfb181666.png';
+    // Video de escaneo (se ve moviéndose, más realista). Si carga, se usa en lugar de la imagen:
+    const SCAN_VIDEO_URL = 'https://bimbo.staffbase.rocks/api/media/secure/external/v2/video/upload/t_mp4/78aa14d28ac223b3faab694a3e532e43.mp4';
     // ============================================================
 
     const KEY = 'bimbo-credencial/v1';
@@ -267,7 +271,7 @@
     const sScan  = document.getElementById('state-scan');
     const sId    = document.getElementById('state-id');
     const cam    = document.getElementById('cam');
-    const simImg = document.getElementById('sim-img');
+    const simVid = document.getElementById('sim-vid');
     const flash  = document.getElementById('flash');
     const processing = document.getElementById('processing');
     const idCard = document.getElementById('id-card');
@@ -301,18 +305,22 @@
             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
             cam.srcObject = stream;
             cam.classList.remove('hidden');
-            simImg.classList.add('hidden');
+            simVid.classList.add('hidden');
+            simVid.pause();
         } catch (e) {
-            // Simulated fallback — shows the credential "under the camera" with subtle live motion.
+            // Simulated fallback — plays the scanning video on a loop (looks like a live camera).
             cam.classList.add('hidden');
-            simImg.src = SCAN_IMAGE_URL;
-            simImg.classList.remove('hidden');
+            simVid.poster = SCAN_IMAGE_URL;
+            if (!simVid.src) simVid.src = SCAN_VIDEO_URL;
+            simVid.classList.remove('hidden');
+            simVid.play().catch(function () {});
         }
     }
 
     function stopCamera() {
         if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
         cam.srcObject = null;
+        if (simVid) simVid.pause();
     }
 
     function capture() {
