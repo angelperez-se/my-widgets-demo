@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Bimbo - Encuesta Experiencia del Colaborador (mock Qualtrics)">
+<meta name="widget-description" content="Mockup de encuesta embebida estilo Qualtrics sobre el journey del colaborador. Solo demo: no envia ni persiste respuestas en ningun lado.">
+<title>Encuesta de Experiencia - Bimbo</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: transparent; }
+
+  .qs-outer {
+    max-width: 430px;
+    margin: 0 auto;
+    padding: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .qs-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 2px 20px rgba(20, 30, 70, .12);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .qs-progress-track { height: 6px; background: #EDEEF2; width: 100%; }
+  .qs-progress-fill { height: 100%; background: #263576; width: 0%; transition: width .35s ease; }
+
+  .qs-body { padding: 26px 22px 22px; }
+
+  .qs-brand-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .qs-brand { font-weight: 800; color: #263576; font-size: 15px; letter-spacing: .2px; }
+  .qs-badge {
+    background: #F2F3F8; color: #263576; font-size: 10.5px; font-weight: 700;
+    padding: 4px 9px; border-radius: 20px; white-space: nowrap;
+  }
+
+  .qs-eyebrow { font-size: 11.5px; font-weight: 700; color: #ED1C24; letter-spacing: .3px; text-transform: uppercase; margin: 0 0 8px; }
+  .qs-title { font-size: 19px; font-weight: 700; color: #1a1a1a; margin: 0 0 10px; line-height: 1.35; }
+  .qs-subtitle { font-size: 13.5px; color: #5b5f6b; line-height: 1.55; margin: 0 0 4px; }
+
+  .qs-intro-face { font-size: 40px; margin-bottom: 6px; }
+  .qs-meta-row { display:flex; gap:14px; margin: 18px 0 4px; font-size: 12px; color:#8890a0; }
+  .qs-meta-row span { display:flex; align-items:center; gap:5px; }
+
+  .qs-screen { display: none; }
+  .qs-screen.active { display: block; animation: qsFade .3s ease; }
+  @keyframes qsFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .qs-required { display:inline-block; color:#ED1C24; font-size: 11.5px; font-weight: 700; margin: 2px 0 0; }
+
+  /* Likert (escala 1-5) */
+  .qs-likert-row { display: flex; justify-content: space-between; gap: 6px; margin: 22px 0 6px; }
+  .qs-likert-opt { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; background:none; border:none; padding:0; font-family:inherit; }
+  .qs-likert-circle {
+    width: 38px; height: 38px; border-radius: 50%; border: 2px solid #D7D9E2;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; color: #8890a0; background: #fff;
+    transition: all .15s ease;
+  }
+  .qs-likert-opt.selected .qs-likert-circle { background: #263576; border-color: #263576; color: #fff; transform: scale(1.08); }
+  .qs-likert-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: #8890a0; margin-top: 4px; }
+  .qs-likert-labels span:last-child { text-align: right; }
+
+  /* Escala NPS 0-10 */
+  .qs-nps-grid { display: grid; grid-template-columns: repeat(11, 1fr); gap: 5px; margin: 20px 0 6px; }
+  .qs-nps-btn {
+    aspect-ratio: 1; border-radius: 8px; border: 2px solid #D7D9E2; background: #fff;
+    font-weight: 700; font-size: 12.5px; color: #5b5f6b; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all .15s ease; font-family: inherit;
+  }
+  .qs-nps-btn.selected { color: #fff; border-color: transparent; }
+  .qs-nps-btn.selected.low { background: #ED1C24; }
+  .qs-nps-btn.selected.mid { background: #F5A623; }
+  .qs-nps-btn.selected.high { background: #1FA55C; }
+  .qs-nps-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: #8890a0; margin-top: 6px; }
+
+  /* Texto abierto */
+  .qs-textarea {
+    width: 100%; min-height: 100px; border: 1.5px solid #D7D9E2; border-radius: 10px;
+    padding: 12px; font-size: 13.5px; font-family: inherit; resize: vertical; color: #1a1a1a; margin-top: 18px;
+  }
+  .qs-textarea:focus { outline: none; border-color: #263576; }
+  .qs-optional { font-size: 11px; color: #8890a0; margin-top: 6px; }
+
+  .qs-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 26px; gap: 10px; }
+  .qs-btn { border: none; border-radius: 8px; padding: 12px 20px; font-size: 13.5px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity .15s ease; }
+  .qs-btn-primary { background: #263576; color: #fff; }
+  .qs-btn-primary:disabled { opacity: .35; cursor: not-allowed; }
+  .qs-btn-ghost { background: transparent; color: #5b5f6b; padding: 12px 6px; }
+  .qs-btn-full { width: 100%; }
+
+  /* Pantalla final */
+  .qs-thanks { text-align: center; padding: 8px 0 4px; }
+  .qs-check {
+    width: 56px; height: 56px; border-radius: 50%; background: #E9F8EF; color: #1FA55C;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 26px;
+  }
+
+  .qs-footer {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    padding: 12px 0 2px; color: #C1C4CE; font-size: 11px; text-decoration: none;
+  }
+  .qs-footer strong { color: #9298a6; font-weight: 700; }
+  .qs-footer svg { width: 10px; height: 10px; }
+  .qs-footer:hover { color: #8890a0; }
+  .qs-footer:hover strong { color: #6b7180; }
+</style>
+</head>
+<body>
+
+<div class="qs-outer">
+  <div class="qs-card">
+    <div class="qs-progress-track"><div class="qs-progress-fill" id="qsProgressFill"></div></div>
+
+    <div class="qs-body">
+
+      <div class="qs-brand-row">
+        <div class="qs-brand">Bimbo</div>
+        <div class="qs-badge">🔒 Confidencial</div>
+      </div>
+
+      <!-- INTRO -->
+      <div class="qs-screen active" id="scr-intro">
+        <div class="qs-intro-face">👋</div>
+        <p class="qs-eyebrow">Encuesta de experiencia</p>
+        <h2 class="qs-title">Cuéntanos cómo va tu día a día en Bimbo</h2>
+        <p class="qs-subtitle">Nos importa saber cómo te sientes en tu trabajo, en tu equipo y con las herramientas que usas todos los días. Tus respuestas son completamente anónimas.</p>
+        <div class="qs-meta-row">
+          <span>⏱️ 2 min</span>
+          <span>❓ 5 preguntas</span>
+          <span>🙈 Anónima</span>
+        </div>
+        <div class="qs-actions">
+          <button class="qs-btn qs-btn-primary qs-btn-full" onclick="goTo('q1')">Comenzar</button>
+        </div>
+      </div>
+
+      <!-- Q1 -->
+      <div class="qs-screen" id="scr-q1">
+        <p class="qs-eyebrow">Pregunta 1 de 5</p>
+        <h2 class="qs-title">En general, ¿qué tan satisfecho(a) te sientes trabajando en Bimbo?</h2>
+        <span class="qs-required">* Obligatoria</span>
+        <div class="qs-likert-row" id="likert-q1">
+          <button class="qs-likert-opt" onclick="selectLikert('q1',1,this)"><span class="qs-likert-circle">1</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q1',2,this)"><span class="qs-likert-circle">2</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q1',3,this)"><span class="qs-likert-circle">3</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q1',4,this)"><span class="qs-likert-circle">4</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q1',5,this)"><span class="qs-likert-circle">5</span></button>
+        </div>
+        <div class="qs-likert-labels"><span>Muy insatisfecho(a)</span><span>Muy satisfecho(a)</span></div>
+        <div class="qs-actions">
+          <button class="qs-btn qs-btn-ghost" onclick="goTo('intro')">Atrás</button>
+          <button class="qs-btn qs-btn-primary" id="next-q1" disabled onclick="goTo('q2')">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="qs-screen" id="scr-q2">
+        <p class="qs-eyebrow">Pregunta 2 de 5</p>
+        <h2 class="qs-title">Siento que mi trabajo es valorado por mi líder y mi equipo.</h2>
+        <span class="qs-required">* Obligatoria</span>
+        <div class="qs-likert-row" id="likert-q2">
+          <button class="qs-likert-opt" onclick="selectLikert('q2',1,this)"><span class="qs-likert-circle">1</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q2',2,this)"><span class="qs-likert-circle">2</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q2',3,this)"><span class="qs-likert-circle">3</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q2',4,this)"><span class="qs-likert-circle">4</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q2',5,this)"><span class="qs-likert-circle">5</span></button>
+        </div>
+        <div class="qs-likert-labels"><span>Muy en desacuerdo</span><span>Muy de acuerdo</span></div>
+        <div class="qs-actions">
+          <button class="qs-btn qs-btn-ghost" onclick="goTo('q1')">Atrás</button>
+          <button class="qs-btn qs-btn-primary" id="next-q2" disabled onclick="goTo('q3')">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="qs-screen" id="scr-q3">
+        <p class="qs-eyebrow">Pregunta 3 de 5</p>
+        <h2 class="qs-title">Cuento con las herramientas y el apoyo que necesito para hacer bien mi trabajo día a día.</h2>
+        <span class="qs-required">* Obligatoria</span>
+        <div class="qs-likert-row" id="likert-q3">
+          <button class="qs-likert-opt" onclick="selectLikert('q3',1,this)"><span class="qs-likert-circle">1</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q3',2,this)"><span class="qs-likert-circle">2</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q3',3,this)"><span class="qs-likert-circle">3</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q3',4,this)"><span class="qs-likert-circle">4</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q3',5,this)"><span class="qs-likert-circle">5</span></button>
+        </div>
+        <div class="qs-likert-labels"><span>Muy en desacuerdo</span><span>Muy de acuerdo</span></div>
+        <div class="qs-actions">
+          <button class="qs-btn qs-btn-ghost" onclick="goTo('q2')">Atrás</button>
+          <button class="qs-btn qs-btn-primary" id="next-q3" disabled onclick="goTo('q4')">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Q4 (eNPS) -->
+      <div class="qs-screen" id="scr-q4">
+        <p class="qs-eyebrow">Pregunta 4 de 5</p>
+        <h2 class="qs-title">En una escala de 0 a 10, ¿qué tan probable es que recomiendes a Bimbo como un gran lugar para trabajar?</h2>
+        <span class="qs-required">* Obligatoria</span>
+        <div class="qs-nps-grid" id="nps-grid">
+          <!-- 0-10 generado por JS -->
+        </div>
+        <div class="qs-nps-labels"><span>Nada probable</span><span>Totalmente probable</span></div>
+        <div class="qs-actions">
+          <button class="qs-btn qs-btn-ghost" onclick="goTo('q3')">Atrás</button>
+          <button class="qs-btn qs-btn-primary" id="next-q4" disabled onclick="goTo('q5')">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Q5 (abierta) -->
+      <div class="qs-screen" id="scr-q5">
+        <p class="qs-eyebrow">Pregunta 5 de 5</p>
+        <h2 class="qs-title">¿Qué es lo que más disfrutas de tu día a día en Bimbo? ¿Hay algo que cambiarías?</h2>
+        <textarea class="qs-textarea" id="qsComment" placeholder="Escribe aquí tu respuesta..."></textarea>
+        <div class="qs-optional">Opcional</div>
+        <div class="qs-actions">
+          <button class="qs-btn qs-btn-ghost" onclick="goTo('q4')">Atrás</button>
+          <button class="qs-btn qs-btn-primary" onclick="submitSurvey()">Enviar respuestas</button>
+        </div>
+      </div>
+
+      <!-- GRACIAS -->
+      <div class="qs-screen" id="scr-thanks">
+        <div class="qs-thanks">
+          <div class="qs-check">✓</div>
+          <h2 class="qs-title" style="text-align:center;">¡Gracias por compartir tu experiencia!</h2>
+          <p class="qs-subtitle" style="text-align:center;">Tus respuestas son anónimas y nos ayudan a mejorar tu día a día como colaborador(a) de Bimbo.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <a class="qs-footer" href="https://www.qualtrics.com" target="_blank" rel="noopener">
+      Powered by <strong>Qualtrics</strong>
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</div>
+
+<script>
+  // ── Demo conceptual: todo el estado vive solo en memoria del navegador.
+  // No se hace ningún fetch/POST — nada se envía ni se guarda en ningún lado.
+  const answers = {};
+  const progressMap = { intro: 0, q1: 18, q2: 36, q3: 54, q4: 72, q5: 90, thanks: 100 };
+
+  function goTo(id) {
+    document.querySelectorAll('.qs-screen').forEach(el => el.classList.remove('active'));
+    document.getElementById('scr-' + id).classList.add('active');
+    document.getElementById('qsProgressFill').style.width = (progressMap[id] ?? 0) + '%';
+  }
+
+  function selectLikert(question, value, btnEl) {
+    answers[question] = value;
+    document.getElementById('likert-' + question)
+      .querySelectorAll('.qs-likert-opt')
+      .forEach(o => o.classList.remove('selected'));
+    btnEl.classList.add('selected');
+    document.getElementById('next-' + question).disabled = false;
+  }
+
+  function selectNps(value, btnEl) {
+    answers.nps = value;
+    document.querySelectorAll('.qs-nps-btn').forEach(b => b.classList.remove('selected', 'low', 'mid', 'high'));
+    btnEl.classList.add('selected');
+    btnEl.classList.add(value <= 6 ? 'low' : value <= 8 ? 'mid' : 'high');
+    document.getElementById('next-q4').disabled = false;
+  }
+
+  function submitSurvey() {
+    answers.comment = document.getElementById('qsComment').value;
+    goTo('thanks');
+  }
+
+  // Genera los botones 0-10 de la escala NPS
+  (function buildNpsGrid() {
+    const grid = document.getElementById('nps-grid');
+    for (let i = 0; i <= 10; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'qs-nps-btn';
+      btn.textContent = i;
+      btn.onclick = function () { selectNps(i, btn); };
+      grid.appendChild(btn);
+    }
+  })();
+
+  // Reporta altura al padre (Staffbase) cuando cambia de pantalla — igual que en los otros widgets.
+  // Si en móvil se ve cortado, ajustar "height-mobile" del Embedded Content block en Studio.
+  function reportHeight() {
+    const h = document.body.scrollHeight;
+    window.parent.postMessage({ type: 'resize', height: h }, '*');
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', reportHeight);
+</script>
+
+</body>
+</html>
