@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Bimbo - Encuesta Primer Día: Proceso de Contratación (mock Qualtrics)">
+<meta name="widget-description" content="Encuesta de 3 preguntas en una sola pantalla sobre la experiencia de postulacion/contratacion, para enviar el primer dia del colaborador. Solo demo: no envia ni persiste respuestas en ningun lado.">
+<title>Encuesta Primer Día - Bimbo</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: transparent; }
+
+  .qs-outer {
+    max-width: 430px;
+    margin: 0 auto;
+    padding: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .qs-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 2px 20px rgba(20, 30, 70, .12);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .qs-body { padding: 26px 22px 22px; }
+
+  .qs-brand-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .qs-brand img { height: 20px; display: block; }
+  .qs-badge {
+    background: #F2F3F8; color: #263576; font-size: 10.5px; font-weight: 700;
+    padding: 4px 9px; border-radius: 20px; white-space: nowrap;
+  }
+
+  .qs-eyebrow { font-size: 11.5px; font-weight: 700; color: #ED1C24; letter-spacing: .3px; text-transform: uppercase; margin: 0 0 8px; }
+  .qs-title { font-size: 19px; font-weight: 700; color: #1a1a1a; margin: 0 0 10px; line-height: 1.35; }
+  .qs-subtitle { font-size: 13.5px; color: #5b5f6b; line-height: 1.55; margin: 0 0 4px; }
+
+  .qs-meta-row { display:flex; gap:14px; margin: 16px 0 22px; font-size: 12px; color:#8890a0; flex-wrap: wrap; }
+  .qs-meta-row span { display:flex; align-items:center; gap:5px; }
+
+  /* Bloque de cada pregunta, todas visibles a la vez */
+  .qs-question { margin-bottom: 24px; }
+  .qs-question:last-of-type { margin-bottom: 26px; }
+  .qs-q-label { font-size: 14.5px; font-weight: 700; color: #1a1a1a; line-height: 1.4; margin: 0 0 4px; }
+  .qs-q-num { color: #ED1C24; }
+
+  .qs-required { display:inline-block; color:#ED1C24; font-size: 11px; font-weight: 700; margin: 0 0 2px; }
+
+  /* Likert (escala 1-5) */
+  .qs-likert-row { display: flex; justify-content: space-between; gap: 6px; margin: 14px 0 6px; }
+  .qs-likert-opt { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; background:none; border:none; padding:0; font-family:inherit; }
+  .qs-likert-circle {
+    width: 36px; height: 36px; border-radius: 50%; border: 2px solid #D7D9E2;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13.5px; color: #8890a0; background: #fff;
+    transition: all .15s ease;
+  }
+  .qs-likert-opt.selected .qs-likert-circle { background: #263576; border-color: #263576; color: #fff; transform: scale(1.08); }
+  .qs-likert-labels { display: flex; justify-content: space-between; font-size: 10px; color: #8890a0; margin-top: 2px; }
+  .qs-likert-labels span:last-child { text-align: right; }
+
+  .qs-actions { margin-top: 4px; }
+  .qs-btn { border: none; border-radius: 8px; padding: 13px 20px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity .15s ease; }
+  .qs-btn-primary { background: #263576; color: #fff; }
+  .qs-btn-primary:disabled { opacity: .35; cursor: not-allowed; }
+  .qs-btn-full { width: 100%; }
+
+  /* Pantalla final */
+  .qs-thanks { text-align: center; padding: 8px 0 4px; }
+  .qs-check {
+    width: 56px; height: 56px; border-radius: 50%; background: #E9F8EF; color: #1FA55C;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 26px;
+  }
+
+  .qs-footer {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    padding: 12px 0 2px; color: #C1C4CE; font-size: 11px; text-decoration: none;
+  }
+  .qs-footer strong { color: #9298a6; font-weight: 700; }
+  .qs-footer svg { width: 10px; height: 10px; }
+  .qs-footer:hover { color: #8890a0; }
+  .qs-footer:hover strong { color: #6b7180; }
+</style>
+</head>
+<body>
+
+<div class="qs-outer">
+  <div class="qs-card">
+    <div class="qs-body">
+
+      <div class="qs-brand-row">
+        <div class="qs-brand"><img src="https://www.grupobimbo.com/themes/custom/bimbo/logo-en.svg" alt="Bimbo"/></div>
+        <div class="qs-badge">🔒 Confidencial</div>
+      </div>
+
+      <!-- FORMULARIO: las 3 preguntas en una sola pantalla -->
+      <div id="scr-form">
+        <p class="qs-eyebrow">🎉 Primer día</p>
+        <h2 class="qs-title">¡Bienvenido(a) a Bimbo!</h2>
+        <p class="qs-subtitle">Antes de arrancar, cuéntanos en menos de un minuto cómo viviste tu proceso de postulación y contratación. Nos ayuda a mejorarlo para los siguientes candidatos.</p>
+        <div class="qs-meta-row">
+          <span>⏱️ 1 min</span>
+          <span>❓ 3 preguntas</span>
+          <span>🙈 Anónima</span>
+        </div>
+
+        <!-- Q1 -->
+        <div class="qs-question">
+          <p class="qs-q-label"><span class="qs-q-num">1.</span> ¿Qué tan fácil fue postularte a esta posición?</p>
+          <span class="qs-required">* Obligatoria</span>
+          <div class="qs-likert-row" id="likert-q1">
+            <button class="qs-likert-opt" onclick="selectLikert('q1',1,this)"><span class="qs-likert-circle">1</span></button>
+            <button class="qs-likert-opt" onclick="selectLikert('q1',2,this)"><span class="qs-likert-circle">2</span></button>
+            <button class="qs-likert-opt" onclick="selectLikert('q1',3,this)"><span class="qs-likert-circle">3</span></button>
+            <button class="qs-likert-opt" onclick="selectLikert('q1',4,this)"><span class="qs-likert-circle">4</span></button>
+            <button class="qs-likert-opt" onclick="selectLikert('q1',5,this)"><span class="qs-likert-circle">5</span></button>
+          </div>
+          <div class="qs-likert-labels"><span>Muy difícil</span><span>Muy fácil</span></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="qs-question">
+          <p class="qs-q-label"><span class="qs-q-num">2.</span> ¿Qué tan clara y oportuna fue la comunicación durante tu contratación?</p>
+          <span class="qs-required">* Obligatoria</span>
+          <div class="qs-likert-row" id="likert-q2">
+            <button class="qs-likert-opt" onclick="selectLikert('q2',1,this)"><span class="qs-likert-circle">1</span></button>
+            <button class="qs-likert-opt" onclick="selectLikert('q2',2,this)"><span class="qs-likert-circle">2</span></button>
+            <button class="qs-likert-opt" onclick="selectLikert('q2',3,this)"><span class="qs-likert-circle">3</span></button>
+            <button class="qs-likert-opt" onclick="selectLikert('q2',4,this)"><span class="qs-likert-circle">4</span></button>
+            <button class="qs-likert-opt" onclick="selectLikert('q2',5,this)"><span class="qs-likert-circle">5</span></button>
+          </div>
+          <div class="qs-likert-labels"><span>Nada clara</span><span>Muy clara</span></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="qs-question">
+          <p class="qs-q-label"><span class="qs-q-num">3.</span> En general, ¿qué tan satisfecho(a) quedaste con tu experiencia como candidato(a)?</p>
+          <span class="qs-required">* Obligatoria</span>
+          <div class="qs-likert-row" id="likert-q3">
+            <button class="qs-likert-opt" onclick="selectLikert('q3',1,this)"><span class="qs-likert-circle">1</span></button>
+            <button class="qs-likert-opt" onclick="selectLikert('q3',2,this)"><span class="qs-likert-circle">2</span></button>
+            <button class="qs-likert-opt" onclick="selectLikert('q3',3,this)"><span class="qs-likert-circle">3</span></button>
+            <button class="qs-likert-opt" onclick="selectLikert('q3',4,this)"><span class="qs-likert-circle">4</span></button>
+            <button class="qs-likert-opt" onclick="selectLikert('q3',5,this)"><span class="qs-likert-circle">5</span></button>
+          </div>
+          <div class="qs-likert-labels"><span>Muy insatisfecho(a)</span><span>Muy satisfecho(a)</span></div>
+        </div>
+
+        <div class="qs-actions">
+          <button class="qs-btn qs-btn-primary qs-btn-full" id="submit-btn" disabled onclick="submitSurvey()">Enviar respuestas</button>
+        </div>
+      </div>
+
+      <!-- GRACIAS -->
+      <div id="scr-thanks" style="display:none;">
+        <div class="qs-thanks">
+          <div class="qs-check">✓</div>
+          <h2 class="qs-title" style="text-align:center;">¡Gracias por tu tiempo!</h2>
+          <p class="qs-subtitle" style="text-align:center;">Tus respuestas son anónimas y nos ayudan a mejorar el proceso de contratación para los próximos candidatos. ¡Bienvenido(a) al equipo!</p>
+        </div>
+      </div>
+
+    </div>
+
+    <a class="qs-footer" href="https://www.qualtrics.com" target="_blank" rel="noopener">
+      Powered by <strong>Qualtrics</strong>
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</div>
+
+<script>
+  // ── Demo conceptual: todo el estado vive solo en memoria del navegador.
+  // No se hace ningún fetch/POST — nada se envía ni se guarda en ningún lado.
+  const answers = {};
+
+  function selectLikert(question, value, btnEl) {
+    answers[question] = value;
+    document.getElementById('likert-' + question)
+      .querySelectorAll('.qs-likert-opt')
+      .forEach(o => o.classList.remove('selected'));
+    btnEl.classList.add('selected');
+    checkComplete();
+  }
+
+  function checkComplete() {
+    const done = ['q1', 'q2', 'q3'].every(q => answers[q] !== undefined);
+    document.getElementById('submit-btn').disabled = !done;
+  }
+
+  function submitSurvey() {
+    document.getElementById('scr-form').style.display = 'none';
+    document.getElementById('scr-thanks').style.display = 'block';
+    reportHeight();
+  }
+
+  // Reporta altura al padre (Staffbase) cuando cambia de pantalla.
+  // Si en móvil se ve cortado, ajustar "height-mobile" del Embedded Content block en Studio.
+  function reportHeight() {
+    const h = document.body.scrollHeight;
+    window.parent.postMessage({ type: 'resize', height: h }, '*');
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', reportHeight);
+</script>
+
+</body>
+</html>
