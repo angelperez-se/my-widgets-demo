@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="widget-name" content="Bimbo - Encuesta Experiencia del Colaborador (mock Qualtrics)">
-<meta name="widget-description" content="Mockup de encuesta embebida estilo Qualtrics sobre el journey del colaborador. Solo demo: no envia ni persiste respuestas en ningun lado.">
+<meta name="widget-name" content="Bimbo - Encuesta Experiencia del Colaborador (mock Qualtrics, escala de caritas)">
+<meta name="widget-description" content="Mockup de encuesta embebida estilo Qualtrics sobre el journey del colaborador, con escalas Likert en formato de 5 caritas de estado de animo. Solo demo: no envia ni persiste respuestas en ningun lado.">
 <title>Encuesta de Experiencia - Bimbo</title>
 <style>
   * { box-sizing: border-box; }
@@ -55,20 +55,20 @@
 
   .qs-required { display:inline-block; color:#ED1C24; font-size: 11.5px; font-weight: 700; margin: 2px 0 0; }
 
-  /* Likert (escala 1-5) */
+  /* Likert de 5 caritas */
   .qs-likert-row { display: flex; justify-content: space-between; gap: 6px; margin: 22px 0 6px; }
   .qs-likert-opt { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; background:none; border:none; padding:0; font-family:inherit; }
   .qs-likert-circle {
-    width: 38px; height: 38px; border-radius: 50%; border: 2px solid #D7D9E2;
+    width: 44px; height: 44px; border-radius: 50%; border: 2px solid #D7D9E2;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 14px; color: #8890a0; background: #fff;
+    font-size: 21px; line-height: 1; background: #fff;
     transition: all .15s ease;
   }
-  .qs-likert-opt.selected .qs-likert-circle { background: #263576; border-color: #263576; color: #fff; transform: scale(1.08); }
+  .qs-likert-opt.selected .qs-likert-circle { background: #263576; border-color: #263576; transform: scale(1.1); }
   .qs-likert-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: #8890a0; margin-top: 4px; }
   .qs-likert-labels span:last-child { text-align: right; }
 
-  /* Escala NPS 0-10 */
+  /* Escala NPS 0-10 (se queda numérica) */
   .qs-nps-grid { display: grid; grid-template-columns: repeat(11, 1fr); gap: 5px; margin: 20px 0 6px; }
   .qs-nps-btn {
     aspect-ratio: 1; border-radius: 8px; border: 2px solid #D7D9E2; background: #fff;
@@ -148,11 +148,11 @@
         <h2 class="qs-title">En general, ¿qué tan satisfecho(a) te sientes trabajando en Bimbo?</h2>
         <span class="qs-required">* Obligatoria</span>
         <div class="qs-likert-row" id="likert-q1">
-          <button class="qs-likert-opt" onclick="selectLikert('q1',1,this)"><span class="qs-likert-circle">1</span></button>
-          <button class="qs-likert-opt" onclick="selectLikert('q1',2,this)"><span class="qs-likert-circle">2</span></button>
-          <button class="qs-likert-opt" onclick="selectLikert('q1',3,this)"><span class="qs-likert-circle">3</span></button>
-          <button class="qs-likert-opt" onclick="selectLikert('q1',4,this)"><span class="qs-likert-circle">4</span></button>
-          <button class="qs-likert-opt" onclick="selectLikert('q1',5,this)"><span class="qs-likert-circle">5</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q1',1,this)"><span class="qs-likert-circle">😞</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q1',2,this)"><span class="qs-likert-circle">🙁</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q1',3,this)"><span class="qs-likert-circle">😐</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q1',4,this)"><span class="qs-likert-circle">🙂</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q1',5,this)"><span class="qs-likert-circle">😄</span></button>
         </div>
         <div class="qs-likert-labels"><span>Muy insatisfecho(a)</span><span>Muy satisfecho(a)</span></div>
         <div class="qs-actions">
@@ -167,11 +167,11 @@
         <h2 class="qs-title">Siento que mi trabajo es valorado por mi líder y mi equipo.</h2>
         <span class="qs-required">* Obligatoria</span>
         <div class="qs-likert-row" id="likert-q2">
-          <button class="qs-likert-opt" onclick="selectLikert('q2',1,this)"><span class="qs-likert-circle">1</span></button>
-          <button class="qs-likert-opt" onclick="selectLikert('q2',2,this)"><span class="qs-likert-circle">2</span></button>
-          <button class="qs-likert-opt" onclick="selectLikert('q2',3,this)"><span class="qs-likert-circle">3</span></button>
-          <button class="qs-likert-opt" onclick="selectLikert('q2',4,this)"><span class="qs-likert-circle">4</span></button>
-          <button class="qs-likert-opt" onclick="selectLikert('q2',5,this)"><span class="qs-likert-circle">5</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q2',1,this)"><span class="qs-likert-circle">😞</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q2',2,this)"><span class="qs-likert-circle">🙁</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q2',3,this)"><span class="qs-likert-circle">😐</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q2',4,this)"><span class="qs-likert-circle">🙂</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q2',5,this)"><span class="qs-likert-circle">😄</span></button>
         </div>
         <div class="qs-likert-labels"><span>Muy en desacuerdo</span><span>Muy de acuerdo</span></div>
         <div class="qs-actions">
@@ -186,11 +186,11 @@
         <h2 class="qs-title">Cuento con las herramientas y el apoyo que necesito para hacer bien mi trabajo día a día.</h2>
         <span class="qs-required">* Obligatoria</span>
         <div class="qs-likert-row" id="likert-q3">
-          <button class="qs-likert-opt" onclick="selectLikert('q3',1,this)"><span class="qs-likert-circle">1</span></button>
-          <button class="qs-likert-opt" onclick="selectLikert('q3',2,this)"><span class="qs-likert-circle">2</span></button>
-          <button class="qs-likert-opt" onclick="selectLikert('q3',3,this)"><span class="qs-likert-circle">3</span></button>
-          <button class="qs-likert-opt" onclick="selectLikert('q3',4,this)"><span class="qs-likert-circle">4</span></button>
-          <button class="qs-likert-opt" onclick="selectLikert('q3',5,this)"><span class="qs-likert-circle">5</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q3',1,this)"><span class="qs-likert-circle">😞</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q3',2,this)"><span class="qs-likert-circle">🙁</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q3',3,this)"><span class="qs-likert-circle">😐</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q3',4,this)"><span class="qs-likert-circle">🙂</span></button>
+          <button class="qs-likert-opt" onclick="selectLikert('q3',5,this)"><span class="qs-likert-circle">😄</span></button>
         </div>
         <div class="qs-likert-labels"><span>Muy en desacuerdo</span><span>Muy de acuerdo</span></div>
         <div class="qs-actions">
