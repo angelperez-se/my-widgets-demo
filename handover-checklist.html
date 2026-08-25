@@ -24,23 +24,10 @@
         --bg-gray: #f9fafb;
         --border: #e5e7eb;
     }
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --primary: var(--sb-brand, #3b9eff);
-            --primary-soft: rgba(59, 158, 255, 0.15);
-            --success: #34d399;
-            --success-soft: #0b1f19;
-            --warning: #fbbf24;
-            --warning-soft: rgba(251, 191, 36, 0.12);
-            --danger: #f87171;
-            --danger-soft: rgba(248, 113, 113, 0.15);
-            --text: #f3f4f6;
-            --text-light: #9ca3af;
-            --bg: #1f2937;
-            --bg-gray: #111827;
-            --border: #374151;
-        }
-    }
+    /* Dark-mode auto-switch removido a propósito: la página contenedora
+       (Proceso de salida) siempre es clara, nunca cambia de tema, así que
+       este widget tampoco debe cambiar — si lo hace, el texto se pone
+       blanco sobre fondos claros y queda invisible (ver notice-body). */
 
     * { box-sizing: border-box; }
 
