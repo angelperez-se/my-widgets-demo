@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Súmate y Crece (siempre extendido) - Gamificación de capacitación técnica y desarrollo">
+<meta name="widget-description" content="Version siempre expandida (sin estado colapsado) del widget de gamificacion: ranking por puntos de capacitacion tecnica + desarrollo, segmentado Bimbo/El Globo, con tarjeta de tus puntos y boton de canje hacia el Mercadito Interno. Datos ficticios para demo.">
+<title>Súmate y Crece</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+  .gk-outer { max-width: 440px; margin: 0 auto; padding: 10px; }
+
+  .gk-card { background: #ffffff; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 24px rgba(20,30,70,.12); }
+
+  .gk-header { position: relative; overflow: hidden; background: linear-gradient(135deg, #2b3f8f 0%, #1b285c 100%); padding: 20px 20px 18px; color: #fff; text-align: center; }
+  .gk-decor-a { position: absolute; top: -40px; right: -30px; width: 130px; height: 130px; border-radius: 50%; background: rgba(255,196,0,.20); }
+  .gk-decor-b { position: absolute; bottom: -50px; left: -30px; width: 140px; height: 140px; border-radius: 50%; background: rgba(255,255,255,.06); }
+  .gk-eyebrow { position: relative; z-index: 1; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.7); letter-spacing: .3px; margin: 0 0 6px; text-transform: uppercase; }
+  .gk-title { position: relative; z-index: 1; font-size: 21px; font-weight: 800; margin: 0 0 4px; }
+  .gk-subtitle { position: relative; z-index: 1; font-size: 12.5px; color: rgba(255,255,255,.82); margin: 0; line-height: 1.5; }
+
+  /* Tabs */
+  .gk-tabs { display: flex; gap: 6px; padding: 14px 16px 4px; }
+  .gk-tab { flex: 1; border: none; background: #F2F3F8; color: #5b5f6b; font-size: 12px; font-weight: 700; font-family: inherit; padding: 8px 6px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+  .gk-tab.active { background: #263576; color: #fff; }
+
+  /* Tus puntos */
+  .gk-mypoints { margin: 14px 16px 4px; background: #F7F8FC; border: 1.5px solid #E4E8F5; border-radius: 14px; padding: 14px 16px; }
+  .gk-mypoints-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .gk-mypoints-label { font-size: 11px; font-weight: 700; color: #8890a0; text-transform: uppercase; letter-spacing: .3px; }
+  .gk-mypoints-rank { font-size: 11px; font-weight: 700; color: #263576; }
+  .gk-mypoints-total { font-size: 28px; font-weight: 800; color: #263576; line-height: 1; margin-bottom: 8px; }
+  .gk-mypoints-breakdown { display: flex; gap: 14px; font-size: 11.5px; color: #5b5f6b; margin-bottom: 12px; }
+  .gk-mypoints-breakdown span { display: flex; align-items: center; gap: 4px; }
+  .gk-redeem-btn { width: 100%; border: none; background: #263576; color: #fff; font-size: 13px; font-weight: 700; font-family: inherit; padding: 11px; border-radius: 9px; cursor: pointer; }
+
+  /* Podio */
+  .gk-podium { display: flex; align-items: flex-end; gap: 8px; padding: 20px 18px 6px; }
+  .gk-podium-slot { flex: 1; text-align: center; }
+  .gk-podium-avatar { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #fff; position: relative; }
+  .gk-podium-slot.gold .gk-podium-avatar { width: 64px; height: 64px; font-size: 19px; box-shadow: 0 0 0 3px #FFD54A, 0 4px 14px rgba(255,180,0,.4); }
+  .gk-podium-slot.silver .gk-podium-avatar { box-shadow: 0 0 0 3px #D9DEE6, 0 4px 10px rgba(0,0,0,.12); }
+  .gk-podium-slot.bronze .gk-podium-avatar { box-shadow: 0 0 0 3px #E3B08C, 0 4px 10px rgba(0,0,0,.12); }
+  .gk-podium-slot.is-you .gk-podium-avatar { box-shadow: 0 0 0 3px #263576, 0 0 0 6px #dbe3fb; }
+  .gk-medal { position: absolute; top: -8px; right: -4px; font-size: 18px; }
+  .gk-podium-name { font-size: 12px; font-weight: 700; color: #1a1a1a; line-height: 1.25; margin: 0 0 4px; }
+  .gk-podium-pts { font-size: 15px; font-weight: 800; color: #263576; }
+  .gk-podium-base { height: 10px; border-radius: 6px 6px 0 0; margin-top: 8px; }
+  .gk-podium-slot.gold .gk-podium-base { height: 22px; background: linear-gradient(180deg,#FFD54A,#F5A623); }
+  .gk-podium-slot.silver .gk-podium-base { height: 14px; background: linear-gradient(180deg,#E3E7EE,#C7CCD6); }
+  .gk-podium-slot.bronze .gk-podium-base { height: 10px; background: linear-gradient(180deg,#E9C2A0,#D6A374); }
+
+  /* Lista */
+  .gk-list { padding: 6px 14px 18px; }
+  .gk-row { display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-bottom: 1px solid #F2F3F5; }
+  .gk-row:last-child { border-bottom: none; }
+  .gk-row-you { background: #EFF3FF; border-radius: 10px; margin: 0 -4px; padding: 10px 8px; border-bottom: none !important; }
+  .gk-row-you + .gk-row { border-top: 1px solid #F2F3F5; }
+  .gk-you-badge { font-size: 9px; font-weight: 800; color: #263576; background: #dbe3fb; padding: 1px 6px; border-radius: 8px; flex-shrink: 0; }
+  .gk-rank-wrap { width: 26px; text-align: center; flex-shrink: 0; }
+  .gk-rank { font-size: 13px; font-weight: 800; color: #8890a0; }
+  .gk-delta { font-size: 9.5px; font-weight: 700; display: block; margin-top: 1px; }
+  .gk-delta.up { color: #1FA55C; }
+  .gk-delta.down { color: #ED1C24; }
+  .gk-delta.same { color: #C1C4CE; }
+  .gk-avatar { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #fff; }
+  .gk-row-body { flex: 1; min-width: 0; }
+  .gk-row-name-line { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
+  .gk-row-name { font-size: 13px; font-weight: 700; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gk-team-badge { font-size: 9.5px; font-weight: 700; padding: 1px 7px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
+  .gk-track { height: 7px; background: #EDEEF2; border-radius: 4px; overflow: hidden; }
+  .gk-fill { height: 100%; border-radius: 4px; transition: width .5s ease; }
+  .gk-pts-wrap { flex-shrink: 0; text-align: right; width: 52px; }
+  .gk-pts { font-size: 13px; font-weight: 800; color: #263576; }
+</style>
+</head>
+<body>
+
+<div class="gk-outer">
+
+  <div class="gk-card" id="gk-expanded">
+
+    <div class="gk-header">
+      <div class="gk-decor-a"></div>
+      <div class="gk-decor-b"></div>
+      <p class="gk-eyebrow">🎯 Capacitación técnica + desarrollo</p>
+      <h1 class="gk-title">Súmate y Crece</h1>
+      <p class="gk-subtitle">Suma puntos completando tus capacitaciones técnicas y de desarrollo. Después los puedes canjear en el Mercadito Interno.</p>
+    </div>
+
+    <div class="gk-tabs">
+      <button class="gk-tab active" data-team="all" id="gk-tab-all" onclick="setTeamFilter('all', this)">Todos</button>
+      <button class="gk-tab" data-team="globo" onclick="setTeamFilter('globo', this)">🎈 El Globo</button>
+      <button class="gk-tab" data-team="bimbo" onclick="setTeamFilter('bimbo', this)">🍞 Ruta Bimbo</button>
+    </div>
+
+    <!-- Tus puntos -->
+    <div class="gk-mypoints">
+      <div class="gk-mypoints-top">
+        <span class="gk-mypoints-label">Tus puntos</span>
+        <span class="gk-mypoints-rank" id="gk-my-rank">Lugar — de —</span>
+      </div>
+      <div class="gk-mypoints-total" id="gk-my-total">— pts</div>
+      <div class="gk-mypoints-breakdown">
+        <span>🛠️ <strong id="gk-my-tech">—</strong> técnica</span>
+        <span>📚 <strong id="gk-my-dev">—</strong> desarrollo</span>
+      </div>
+      <a class="gk-redeem-btn" href="https://bimbo.staffbase.rocks/openlink/content/page/6a6ba71b6067b108d89f31e6" target="_top" style="display:block; text-decoration:none; text-align:center;">Canjear tus puntos →</a>
+    </div>
+
+    <div class="gk-podium" id="gk-podium"></div>
+    <div class="gk-list" id="gk-list"></div>
+
+  </div>
+
+</div>
+
+<script>
+  // ── Demo conceptual: datos ficticios en memoria, nada se envía ni se guarda.
+  const TEAMS = {
+    globo: { label: 'El Globo', emoji: '🎈', badgeBg: '#FCEFE4', badgeText: '#B23A3A', avatarGrad: 'linear-gradient(135deg,#D14B4B,#E5786B)' },
+    bimbo: { label: 'Ruta Bimbo', emoji: '🍞', badgeBg: '#EFF1FA', badgeText: '#263576', avatarGrad: 'linear-gradient(135deg,#263576,#3a4f9e)' }
+  };
+
+  // tech = puntos de capacitación técnica, dev = puntos de desarrollo/formación
+  const DATA = [
+    { name: 'Roberto Salazar',      team: 'bimbo', tech: 820, dev: 630, delta: 1  },
+    { name: 'Diana Reyes',          team: 'globo', tech: 750, dev: 630, delta: 2  },
+    { name: 'Marco Antonio Pérez',  team: 'bimbo', tech: 700, dev: 590, delta: -1 },
+    { name: 'Fernanda Islas',       team: 'globo', tech: 640, dev: 540, delta: 1  },
+    { name: 'Jorge Luis Camacho',   team: 'bimbo', tech: 600, dev: 490, delta: 0  },
+    { name: 'Alejandra Núñez',      team: 'globo', tech: 520, dev: 460, delta: -2 },
+    { name: 'Iván Contreras',       team: 'bimbo', tech: 500, dev: 410, delta: 1  },
+    { name: 'Paola Medina',         team: 'globo', tech: 460, dev: 400, delta: -1 },
+    { name: 'Sergio Aguilar',       team: 'bimbo', tech: 430, dev: 360, delta: 3  },
+    { name: 'Alejandra González',   team: 'bimbo', tech: 670, dev: 580, delta: 1,  isYou: true },
+    { name: 'Karla Rentería',       team: 'globo', tech: 350, dev: 300, delta: 0  },
+    { name: 'Héctor Bautista',      team: 'bimbo', tech: 300, dev: 260, delta: -3 },
+    { name: 'Lucía Marín',          team: 'globo', tech: 260, dev: 220, delta: -1 }
+  ].map(p => ({ ...p, total: p.tech + p.dev }));
+
+  let currentFilter = 'all';
+
+  function initials(name) {
+    const parts = name.split(' ').filter(Boolean);
+    return ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase();
+  }
+
+  function deltaHtml(delta) {
+    if (delta > 0) return '<span class="gk-delta up">▲' + delta + '</span>';
+    if (delta < 0) return '<span class="gk-delta down">▼' + Math.abs(delta) + '</span>';
+    return '<span class="gk-delta same">—</span>';
+  }
+
+  function setTeamFilter(team, btnEl) {
+    currentFilter = team;
+    document.querySelectorAll('.gk-tab').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    render();
+  }
+
+  function updateMyPointsCard() {
+    const me = DATA.find(p => p.isYou);
+    if (!me) return;
+    const sortedAll = DATA.slice().sort((a, b) => b.total - a.total);
+    const rank = sortedAll.findIndex(p => p.isYou) + 1;
+
+    document.getElementById('gk-my-total').textContent = me.total.toLocaleString('es-MX') + ' pts';
+    document.getElementById('gk-my-tech').textContent = me.tech.toLocaleString('es-MX');
+    document.getElementById('gk-my-dev').textContent = me.dev.toLocaleString('es-MX');
+    document.getElementById('gk-my-rank').textContent = 'Lugar ' + rank + ' de ' + DATA.length;
+  }
+
+  function render() {
+    const filtered = DATA
+      .filter(p => currentFilter === 'all' || p.team === currentFilter)
+      .slice()
+      .sort((a, b) => b.total - a.total);
+
+    const maxPts = filtered.length ? filtered[0].total : 1;
+
+    const podiumEl = document.getElementById('gk-podium');
+    const listEl = document.getElementById('gk-list');
+    podiumEl.innerHTML = '';
+    listEl.innerHTML = '';
+
+    const top3 = filtered.slice(0, 3);
+    const rest = filtered.slice(3);
+
+    const order = [top3[1], top3[0], top3[2]];
+    const classes = ['silver', 'gold', 'bronze'];
+    const medals = ['🥈', '🥇', '🥉'];
+
+    order.forEach((p, i) => {
+      if (!p) return;
+      const t = TEAMS[p.team];
+      const slot = document.createElement('div');
+      slot.className = 'gk-podium-slot ' + classes[i] + (p.isYou ? ' is-you' : '');
+      if (p.isYou) slot.id = 'gk-you-row';
+      slot.innerHTML =
+        '<div class="gk-podium-avatar" style="background:' + t.avatarGrad + '">' +
+          initials(p.name) +
+          '<span class="gk-medal">' + medals[i] + '</span>' +
+        '</div>' +
+        '<p class="gk-podium-name">' + p.name.split(' ').slice(0, 2).join(' ') + (p.isYou ? ' 📍' : '') + '</p>' +
+        '<div class="gk-podium-pts">' + p.total.toLocaleString('es-MX') + ' pts</div>' +
+        '<div class="gk-podium-base"></div>';
+      podiumEl.appendChild(slot);
+    });
+
+    rest.forEach((p, idx) => {
+      const t = TEAMS[p.team];
+      const rank = idx + 4;
+      const pctOfMax = Math.round((p.total / maxPts) * 100);
+      const row = document.createElement('div');
+      row.className = 'gk-row' + (p.isYou ? ' gk-row-you' : '');
+      if (p.isYou) row.id = 'gk-you-row';
+      row.innerHTML =
+        '<div class="gk-rank-wrap"><span class="gk-rank">' + rank + '</span>' + deltaHtml(p.delta) + '</div>' +
+        '<div class="gk-avatar" style="background:' + t.avatarGrad + '">' + initials(p.name) + '</div>' +
+        '<div class="gk-row-body">' +
+          '<div class="gk-row-name-line">' +
+            '<span class="gk-row-name">' + p.name + '</span>' +
+            (p.isYou ? '<span class="gk-you-badge">Tú</span>' : '') +
+            '<span class="gk-team-badge" style="background:' + t.badgeBg + ';color:' + t.badgeText + '">' + t.emoji + '</span>' +
+          '</div>' +
+          '<div class="gk-track"><div class="gk-fill" style="width:' + pctOfMax + '%;background:' + t.badgeText + '"></div></div>' +
+        '</div>' +
+        '<div class="gk-pts-wrap"><div class="gk-pts">' + p.total.toLocaleString('es-MX') + '</div></div>';
+      listEl.appendChild(row);
+    });
+
+    reportHeight();
+  }
+
+  function reportHeight() {
+    window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', () => { updateMyPointsCard(); render(); reportHeight(); });
+</script>
+
+</body>
+</html>
