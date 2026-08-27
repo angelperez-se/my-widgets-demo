@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Cumpleaños y Aniversarios del mes">
+<meta name="widget-description" content="Widget colapsable de cumpleanos y aniversarios laborales del mes, con dos tabs. Cumpleanos en orden cronologico, Aniversarios ranqueados por anos de antiguedad con distintivo en anos milestone. Datos ficticios para demo.">
+<title>Cumpleaños y Aniversarios</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+  .ca-outer { max-width: 440px; margin: 0 auto; padding: 10px; }
+
+  /* ============ COLAPSADO ============ */
+  .ca-collapsed {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; cursor: pointer; user-select: none;
+    background: linear-gradient(135deg, #2b3f8f 0%, #1b285c 100%);
+    border-radius: 14px; padding: 14px 16px;
+    box-shadow: 0 4px 18px rgba(20,30,70,.16);
+  }
+  .ca-collapsed:active { transform: scale(.98); }
+  .ca-collapsed-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .ca-collapsed-icon { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .ca-collapsed-title { font-size: 13.5px; font-weight: 800; color: #fff; margin: 0 0 2px; }
+  .ca-collapsed-sub { font-size: 11.5px; color: rgba(255,255,255,.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ca-chevron { font-size: 20px; color: rgba(255,255,255,.6); flex-shrink: 0; }
+
+  /* ============ EXPANDIDO ============ */
+  .ca-card { background: #ffffff; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 24px rgba(20,30,70,.12); }
+
+  .ca-header { position: relative; overflow: hidden; background: linear-gradient(135deg, #2b3f8f 0%, #1b285c 100%); padding: 20px 20px 18px; color: #fff; text-align: center; }
+  .ca-decor-a { position: absolute; top: -40px; right: -30px; width: 130px; height: 130px; border-radius: 50%; background: rgba(255,196,0,.20); }
+  .ca-decor-b { position: absolute; bottom: -50px; left: -30px; width: 140px; height: 140px; border-radius: 50%; background: rgba(255,255,255,.06); }
+  .ca-eyebrow { position: relative; z-index: 1; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.7); letter-spacing: .3px; margin: 0 0 6px; text-transform: uppercase; }
+  .ca-title { position: relative; z-index: 1; font-size: 21px; font-weight: 800; margin: 0 0 4px; }
+  .ca-subtitle { position: relative; z-index: 1; font-size: 12.5px; color: rgba(255,255,255,.82); margin: 0; line-height: 1.5; }
+
+  /* Tabs */
+  .ca-tabs { display: flex; gap: 6px; padding: 14px 16px 4px; }
+  .ca-tab { flex: 1; border: none; background: #F2F3F8; color: #5b5f6b; font-size: 12px; font-weight: 700; font-family: inherit; padding: 9px 6px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+  .ca-tab.active { background: #263576; color: #fff; }
+
+  /* Lista */
+  .ca-list { padding: 8px 14px 18px; }
+  .ca-row { display: flex; align-items: center; gap: 12px; padding: 11px 4px; border-bottom: 1px solid #F2F3F5; }
+  .ca-row:last-child { border-bottom: none; }
+  .ca-rank { width: 20px; text-align: center; font-size: 12px; font-weight: 800; color: #C1C4CE; flex-shrink: 0; }
+  .ca-avatar { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 800; color: #fff; }
+  .ca-row-body { flex: 1; min-width: 0; }
+  .ca-row-name-line { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
+  .ca-row-name { font-size: 13.5px; font-weight: 700; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ca-team-badge { font-size: 9.5px; font-weight: 700; padding: 1px 7px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
+  .ca-row-meta { font-size: 12px; color: #8890a0; }
+  .ca-right { flex-shrink: 0; text-align: right; }
+  .ca-years { font-size: 15px; font-weight: 800; color: #263576; }
+  .ca-years-label { font-size: 9.5px; color: #8890a0; font-weight: 600; }
+  .ca-milestone { display: inline-block; margin-top: 3px; font-size: 9.5px; font-weight: 800; color: #B8860B; background: #FFF6DE; padding: 2px 7px; border-radius: 8px; }
+
+  .ca-row-you { background: #EFF3FF; border-radius: 10px; margin: 0 -4px; padding: 11px 8px; border-bottom: none !important; }
+  .ca-row-you + .ca-row { border-top: 1px solid #F2F3F5; }
+  .ca-you-badge { font-size: 9px; font-weight: 800; color: #263576; background: #dbe3fb; padding: 1px 6px; border-radius: 8px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="ca-outer">
+
+  <!-- ============ COLAPSADO ============ -->
+  <div class="ca-collapsed" id="ca-collapsed" onclick="toggleExpand(true)">
+    <div class="ca-collapsed-left">
+      <div class="ca-collapsed-icon">🎉</div>
+      <div>
+        <p class="ca-collapsed-title">Cumpleaños y Aniversarios</p>
+        <p class="ca-collapsed-sub" id="ca-collapsed-sub">Cargando…</p>
+      </div>
+    </div>
+    <div class="ca-chevron">›</div>
+  </div>
+
+  <!-- ============ EXPANDIDO ============ -->
+  <div class="ca-card" id="ca-expanded" style="display:none;">
+
+    <div class="ca-header">
+      <div class="ca-decor-a"></div>
+      <div class="ca-decor-b"></div>
+      <p class="ca-eyebrow" id="ca-month-label">📅 —</p>
+      <h1 class="ca-title">Así celebramos este mes</h1>
+      <p class="ca-subtitle">Cumpleaños y aniversarios laborales de nuestro equipo</p>
+    </div>
+
+    <div class="ca-tabs">
+      <button class="ca-tab active" data-tab="bday" id="ca-tab-bday" onclick="setTab('bday', this)">🎂 Cumpleaños</button>
+      <button class="ca-tab" data-tab="anniv" id="ca-tab-anniv" onclick="setTab('anniv', this)">🏅 Aniversarios</button>
+    </div>
+
+    <div class="ca-list" id="ca-list"></div>
+
+  </div>
+
+</div>
+
+<script>
+  // ── Demo conceptual: datos ficticios en memoria, nada se envía ni se guarda.
+  const AVATAR_GRAD = 'linear-gradient(135deg,#263576,#3a4f9e)';
+
+  // Cumpleaños: day = día del mes (se muestra junto al mes actual real)
+  const BIRTHDAYS = [
+    { name: 'Renata Salcido',      day: 3  },
+    { name: 'Emilio Torres',       day: 6  },
+    { name: 'Ximena Delgado',      day: 9  },
+    { name: 'Uriel Castañeda',     day: 12 },
+    { name: 'Daniela Ochoa',       day: 15 },
+    { name: 'Rodrigo Villaseñor',  day: 19 },
+    { name: 'Alejandra González',  day: 23, isYou: true },
+    { name: 'Mariana Cabrera',     day: 24 },
+    { name: 'Andrés Figueroa',     day: 28 }
+  ].sort((a, b) => a.day - b.day);
+
+  // Aniversarios: years = años de antigüedad. Milestone: múltiplos de 5, o el primer año.
+  const ANNIVERSARIES = [
+    { name: 'Guillermo Peña',        years: 15 },
+    { name: 'Leticia Armendáriz',    years: 12 },
+    { name: 'Salvador Nieto',        years: 10 },
+    { name: 'Itzel Cordero',         years: 8  },
+    { name: 'Adrián Zamudio',        years: 5  },
+    { name: 'Brenda Solórzano',      years: 3  },
+    { name: 'Tomás Herrera',         years: 2  },
+    { name: 'Valeria Junco',         years: 1  }
+  ].sort((a, b) => b.years - a.years);
+
+  function isMilestone(years) { return years === 1 || years % 5 === 0; }
+
+  let currentTab = 'bday';
+
+  function initials(name) {
+    const parts = name.split(' ').filter(Boolean);
+    return ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase();
+  }
+
+  function toggleExpand(open) {
+    document.getElementById('ca-collapsed').style.display = open ? 'none' : 'flex';
+    document.getElementById('ca-expanded').style.display = open ? 'block' : 'none';
+    reportHeight();
+  }
+
+  function setTab(tab, btnEl) {
+    currentTab = tab;
+    document.querySelectorAll('.ca-tab').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    render();
+  }
+
+  function render() {
+    const listEl = document.getElementById('ca-list');
+    listEl.innerHTML = '';
+
+    if (currentTab === 'bday') {
+      BIRTHDAYS.forEach((p, idx) => {
+        const monthName = new Intl.DateTimeFormat('es-MX', { month: 'long' }).format(new Date());
+        const row = document.createElement('div');
+        row.className = 'ca-row' + (p.isYou ? ' ca-row-you' : '');
+        row.innerHTML =
+          '<div class="ca-rank">' + (idx + 1) + '</div>' +
+          '<div class="ca-avatar" style="background:' + AVATAR_GRAD + '">' + initials(p.name) + '</div>' +
+          '<div class="ca-row-body">' +
+            '<div class="ca-row-name-line">' +
+              '<span class="ca-row-name">' + p.name + '</span>' +
+              (p.isYou ? '<span class="ca-you-badge">Tú</span>' : '') +
+            '</div>' +
+            '<div class="ca-row-meta">🎂 ' + p.day + ' de ' + monthName + '</div>' +
+          '</div>';
+        listEl.appendChild(row);
+      });
+    } else {
+      ANNIVERSARIES.forEach((p, idx) => {
+        const row = document.createElement('div');
+        row.className = 'ca-row' + (p.isYou ? ' ca-row-you' : '');
+        row.innerHTML =
+          '<div class="ca-rank">' + (idx + 1) + '</div>' +
+          '<div class="ca-avatar" style="background:' + AVATAR_GRAD + '">' + initials(p.name) + '</div>' +
+          '<div class="ca-row-body">' +
+            '<div class="ca-row-name-line">' +
+              '<span class="ca-row-name">' + p.name + '</span>' +
+              (p.isYou ? '<span class="ca-you-badge">Tú</span>' : '') +
+            '</div>' +
+            (isMilestone(p.years) ? '<span class="ca-milestone">🏅 Aniversario especial</span>' : '') +
+          '</div>' +
+          '<div class="ca-right">' +
+            '<div class="ca-years">' + p.years + '</div>' +
+            '<div class="ca-years-label">' + (p.years === 1 ? 'año' : 'años') + '</div>' +
+          '</div>';
+        listEl.appendChild(row);
+      });
+    }
+
+    reportHeight();
+  }
+
+  (function setCollapsedSummary() {
+    const monthName = new Intl.DateTimeFormat('es-MX', { month: 'long' }).format(new Date());
+    document.getElementById('ca-month-label').textContent = '📅 ' + monthName.charAt(0).toUpperCase() + monthName.slice(1);
+    document.getElementById('ca-collapsed-sub').textContent =
+      BIRTHDAYS.length + ' cumpleaños y ' + ANNIVERSARIES.length + ' aniversarios este mes — haz clic para ver 👀';
+  })();
+
+  function reportHeight() {
+    window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', () => { render(); reportHeight(); });
+</script>
+
+</body>
+</html>
