@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Cotemar - Pase de Lista (disponibilidad + forma médica pre-embarque)">
+<meta name="widget-description" content="Widget de check-in para personal en Ciudad del Carmen: captura hora/fecha, geolocalizacion real del dispositivo con mini-mapa, envio de disponibilidad, forma medica pre-embarque, resumen con certificacion, y confirmacion final. Solo demo: no envia ni persiste datos reales en ningun lado.">
+<title>Pase de Lista - Cotemar</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+  .pl-outer { max-width: 440px; margin: 0 auto; padding: 10px; }
+
+  .pl-card { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 22px rgba(10,30,45,.14); }
+
+  .pl-header { position: relative; overflow: hidden; background: linear-gradient(135deg, #0D2C4A 0%, #0B4A5C 100%); padding: 20px 20px 16px; color: #fff; text-align: center; }
+  .pl-decor { position: absolute; top: -40px; right: -30px; width: 130px; height: 130px; border-radius: 50%; background: rgba(0,168,168,.20); }
+  .pl-eyebrow { position: relative; z-index: 1; font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,.7); letter-spacing: .4px; text-transform: uppercase; margin: 0 0 6px; }
+  .pl-brand { position: relative; z-index: 1; font-size: 13px; font-weight: 800; color: #fff; margin: 0; }
+
+  .pl-body { padding: 22px 20px 20px; }
+
+  .pl-screen { display: none; }
+  .pl-screen.active { display: block; animation: plFade .3s ease; }
+  @keyframes plFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .pl-title { font-size: 18.5px; font-weight: 800; color: #1a1a1a; margin: 0 0 8px; line-height: 1.35; text-align: center; }
+  .pl-subtitle { font-size: 13px; color: #5b6572; line-height: 1.55; margin: 0 0 18px; text-align: center; }
+
+  .pl-btn { border: none; border-radius: 9px; padding: 13px 20px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .pl-btn-primary { background: #0D2C4A; color: #fff; }
+  .pl-btn-primary:disabled { opacity: .35; cursor: not-allowed; }
+  .pl-btn-full { width: 100%; display: block; }
+
+  /* Procesando */
+  .pl-step { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid #F0F2F5; font-size: 13.5px; color: #1a1a1a; }
+  .pl-step:last-of-type { border-bottom: none; }
+  .pl-step-icon { font-size: 16px; flex-shrink: 0; width: 20px; text-align: center; }
+  .pl-step.pending .pl-step-icon { animation: plSpin 1s linear infinite; display: inline-block; }
+  @keyframes plSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .pl-step.warn .pl-step-text { color: #B5651D; }
+
+  .pl-map-wrap { margin: 4px 0 6px; border-radius: 10px; overflow: hidden; border: 1px solid #E4E8ED; display: none; }
+  .pl-map-wrap iframe { width: 100%; height: 160px; border: none; display: block; }
+
+  /* Forma médica */
+  .pl-q { margin-bottom: 18px; }
+  .pl-q-text { font-size: 13.5px; font-weight: 600; color: #1a1a1a; line-height: 1.4; margin: 0 0 10px; }
+  .pl-yn-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .pl-yn-btn { flex: 1; border: 1.5px solid #D7DCE3; background: #fff; color: #5b6572; font-size: 13px; font-weight: 700; font-family: inherit; padding: 9px; border-radius: 8px; cursor: pointer; }
+  .pl-yn-btn.selected-si { background: #0D2C4A; border-color: #0D2C4A; color: #fff; }
+  .pl-yn-btn.selected-no { background: #EFF3F6; border-color: #C4CBD3; color: #1a1a1a; }
+  .pl-detail { width: 100%; min-height: 56px; border: 1.5px solid #D7DCE3; border-radius: 8px; padding: 9px 10px; font-size: 13px; font-family: inherit; resize: vertical; color: #1a1a1a; display: none; }
+  .pl-detail.show { display: block; }
+
+  /* Resumen */
+  .pl-summary-item { padding: 10px 0; border-bottom: 1px solid #F0F2F5; }
+  .pl-summary-item:last-child { border-bottom: none; }
+  .pl-summary-q { font-size: 12px; color: #8890a0; margin: 0 0 3px; }
+  .pl-summary-a { font-size: 13.5px; font-weight: 700; color: #1a1a1a; }
+  .pl-summary-detail { font-size: 12.5px; color: #5b6572; margin-top: 2px; }
+
+  .pl-certify-row { display: flex; align-items: flex-start; gap: 10px; margin: 18px 0 20px; padding: 12px; background: #F7F9FA; border-radius: 10px; border: 1px solid #E4E8ED; }
+  .pl-certify-row input { margin-top: 3px; flex-shrink: 0; width: 17px; height: 17px; }
+  .pl-certify-text { font-size: 12.5px; color: #1a1a1a; line-height: 1.5; }
+
+  /* Gracias */
+  .pl-thanks { text-align: center; padding: 6px 0; }
+  .pl-check-circle { width: 56px; height: 56px; border-radius: 50%; background: #E4F7EF; color: #1FA55C; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 26px; }
+</style>
+</head>
+<body>
+
+<div class="pl-outer">
+  <div class="pl-card">
+
+    <div class="pl-header">
+      <div class="pl-decor"></div>
+      <p class="pl-eyebrow" style="position:relative;z-index:1;">Pase de Lista</p>
+      <p class="pl-brand">🚢 Cotemar · Ciudad del Carmen</p>
+    </div>
+
+    <div class="pl-body">
+
+      <!-- 1. SALUDO -->
+      <div class="pl-screen active" id="scr-greeting">
+        <h2 class="pl-title">👋 Hola, Alejandra</h2>
+        <p class="pl-subtitle">¿Estás lista para pasar lista? Confirma tu llegada a Ciudad del Carmen para que sepamos que ya estás disponible para embarque.</p>
+        <button class="pl-btn pl-btn-primary pl-btn-full" onclick="startCheckin()">Sí, registra mi disponibilidad</button>
+      </div>
+
+      <!-- 2. PROCESANDO -->
+      <div class="pl-screen" id="scr-processing">
+        <div class="pl-step pending" id="step-time">
+          <span class="pl-step-icon">⏳</span>
+          <span class="pl-step-text">Capturando hora y fecha...</span>
+        </div>
+        <div class="pl-step pending" id="step-geo">
+          <span class="pl-step-icon">⏳</span>
+          <span class="pl-step-text">Capturando geolocalización...</span>
+        </div>
+        <div class="pl-map-wrap" id="pl-map-wrap"></div>
+        <div class="pl-step pending" id="step-send">
+          <span class="pl-step-icon">⏳</span>
+          <span class="pl-step-text">Enviando información y disponibilidad...</span>
+        </div>
+        <button class="pl-btn pl-btn-primary pl-btn-full" id="pl-continue-btn" style="display:none; margin-top:16px;" onclick="goTo('medical')">Continuar →</button>
+      </div>
+
+      <!-- 3. FORMA MÉDICA -->
+      <div class="pl-screen" id="scr-medical">
+        <h2 class="pl-title">¡Perfecto! Ya mandaste tu disponibilidad ✅</h2>
+        <p class="pl-subtitle">Ahora, para empezar a preparar tu proceso, por favor llena esta forma médica. Esto agilizará tu proceso de examen médico cuando llegues a las instalaciones de Cotemar.</p>
+        <div id="pl-questions"></div>
+        <button class="pl-btn pl-btn-primary pl-btn-full" id="pl-submit-btn" disabled onclick="goToSummary()">Enviar respuestas</button>
+      </div>
+
+      <!-- 4. RESUMEN + CERTIFICACIÓN -->
+      <div class="pl-screen" id="scr-summary">
+        <h2 class="pl-title">Revisa tu resumen</h2>
+        <p class="pl-subtitle">Antes de enviar, confirma que esta es tu información.</p>
+        <div id="pl-summary-list"></div>
+        <div class="pl-certify-row">
+          <input type="checkbox" id="pl-certify-check" onchange="checkCertify()"/>
+          <label class="pl-certify-text" for="pl-certify-check">Confirmo que, a mi mejor conocimiento, así es como me encuentro en este momento.</label>
+        </div>
+        <button class="pl-btn pl-btn-primary pl-btn-full" id="pl-final-btn" disabled onclick="goTo('thanks')">Listo para enviar</button>
+      </div>
+
+      <!-- 5. GRACIAS -->
+      <div class="pl-screen" id="scr-thanks">
+        <div class="pl-thanks">
+          <div class="pl-check-circle">✓</div>
+          <h2 class="pl-title">¡Todo listo, Alejandra!</h2>
+          <p class="pl-subtitle">Tu disponibilidad y tu forma médica fueron registradas. Nos vemos pronto en las instalaciones de Cotemar. 🚢</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Demo conceptual: nada de esto se envía a ningún servidor ni se guarda —
+  // todo el estado vive en memoria del navegador mientras dura la sesión.
+
+  const QUESTIONS = [
+    { id: 'q1', text: '¿Te encuentras actualmente en buen estado de salud general?', detail: false },
+    { id: 'q2', text: '¿Tienes alguna condición médica preexistente que debamos conocer? (diabetes, hipertensión, cardiopatías, etc.)', detail: true },
+    { id: 'q3', text: '¿Estás tomando algún medicamento actualmente?', detail: true },
+    { id: 'q4', text: '¿Has presentado fiebre, tos u otros síntomas de enfermedad infecciosa en los últimos 7 días?', detail: false },
+    { id: 'q5', text: '¿Tienes alguna alergia relevante (medicamentos, alimentos u otras)?', detail: true },
+    { id: 'q6', text: '¿Te sientes física y mentalmente en condiciones de embarcar?', detail: false }
+  ];
+
+  const answers = {};
+
+  function goTo(id) {
+    document.querySelectorAll('.pl-screen').forEach(el => el.classList.remove('active'));
+    document.getElementById('scr-' + id).classList.add('active');
+    reportHeight();
+  }
+
+  function completeStep(id, text, warn) {
+    const el = document.getElementById(id);
+    el.classList.remove('pending');
+    if (warn) el.classList.add('warn');
+    el.querySelector('.pl-step-icon').textContent = warn ? '⚠️' : '✅';
+    el.querySelector('.pl-step-text').textContent = text;
+    reportHeight();
+  }
+
+  function formatNow() {
+    const now = new Date();
+    const datePart = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }).format(now);
+    const timePart = new Intl.DateTimeFormat('es-MX', { hour: 'numeric', minute: '2-digit' }).format(now);
+    return datePart + ' · ' + timePart;
+  }
+
+  function captureLocation(callback) {
+    if (!navigator.geolocation) { callback(null); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => callback({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => callback(null),
+      { timeout: 6000, maximumAge: 60000 }
+    );
+  }
+
+  function showMap(coords) {
+    const d = 0.01;
+    const bbox = (coords.lng - d) + ',' + (coords.lat - d) + ',' + (coords.lng + d) + ',' + (coords.lat + d);
+    const src = 'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) +
+      '&layer=mapnik&marker=' + coords.lat + ',' + coords.lng;
+    const wrap = document.getElementById('pl-map-wrap');
+    wrap.innerHTML = '<iframe src="' + src + '" loading="lazy" title="Tu ubicación"></iframe>';
+    wrap.style.display = 'block';
+    reportHeight();
+  }
+
+  function startCheckin() {
+    goTo('processing');
+    setTimeout(() => {
+      completeStep('step-time', 'Hora y fecha: ' + formatNow());
+      setTimeout(() => {
+        captureLocation(coords => {
+          if (coords) {
+            completeStep('step-geo', 'Ubicación capturada');
+            showMap(coords);
+          } else {
+            completeStep('step-geo', 'No se pudo obtener tu ubicación exacta', true);
+          }
+          setTimeout(() => {
+            completeStep('step-send', 'Información enviada');
+            document.getElementById('pl-continue-btn').style.display = 'block';
+            reportHeight();
+          }, 900);
+        });
+      }, 700);
+    }, 600);
+  }
+
+  function buildQuestions() {
+    const wrap = document.getElementById('pl-questions');
+    QUESTIONS.forEach(q => {
+      const block = document.createElement('div');
+      block.className = 'pl-q';
+      block.innerHTML =
+        '<p class="pl-q-text">' + q.text + '</p>' +
+        '<div class="pl-yn-row" id="yn-' + q.id + '">' +
+          '<button class="pl-yn-btn" onclick="selectYN(\'' + q.id + '\',\'si\',this)">Sí</button>' +
+          '<button class="pl-yn-btn" onclick="selectYN(\'' + q.id + '\',\'no\',this)">No</button>' +
+        '</div>' +
+        (q.detail ? '<textarea class="pl-detail" id="detail-' + q.id + '" placeholder="Cuéntanos un poco más..."></textarea>' : '');
+      wrap.appendChild(block);
+    });
+  }
+
+  function selectYN(id, value, btnEl) {
+    answers[id] = answers[id] || {};
+    answers[id].value = value;
+    document.getElementById('yn-' + id).querySelectorAll('.pl-yn-btn').forEach(b => {
+      b.classList.remove('selected-si', 'selected-no');
+    });
+    btnEl.classList.add(value === 'si' ? 'selected-si' : 'selected-no');
+
+    const detailEl = document.getElementById('detail-' + id);
+    if (detailEl) detailEl.classList.toggle('show', value === 'si');
+
+    checkAllAnswered();
+  }
+
+  function checkAllAnswered() {
+    const done = QUESTIONS.every(q => answers[q.id] && answers[q.id].value);
+    document.getElementById('pl-submit-btn').disabled = !done;
+  }
+
+  function goToSummary() {
+    QUESTIONS.forEach(q => {
+      const detailEl = document.getElementById('detail-' + q.id);
+      if (detailEl) answers[q.id].detail = detailEl.value.trim();
+    });
+
+    const listEl = document.getElementById('pl-summary-list');
+    listEl.innerHTML = '';
+    QUESTIONS.forEach(q => {
+      const a = answers[q.id];
+      const item = document.createElement('div');
+      item.className = 'pl-summary-item';
+      item.innerHTML =
+        '<p class="pl-summary-q">' + q.text + '</p>' +
+        '<p class="pl-summary-a">' + (a.value === 'si' ? 'Sí' : 'No') + '</p>' +
+        (a.detail ? '<p class="pl-summary-detail">' + a.detail + '</p>' : '');
+      listEl.appendChild(item);
+    });
+
+    goTo('summary');
+  }
+
+  function checkCertify() {
+    document.getElementById('pl-final-btn').disabled = !document.getElementById('pl-certify-check').checked;
+  }
+
+  function reportHeight() {
+    window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', () => { buildQuestions(); reportHeight(); });
+</script>
+
+</body>
+</html>
