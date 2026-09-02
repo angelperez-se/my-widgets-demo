@@ -68,6 +68,13 @@
   /* Gracias */
   .pl-thanks { text-align: center; padding: 6px 0; }
   .pl-check-circle { width: 56px; height: 56px; border-radius: 50%; background: #E4F7EF; color: #1FA55C; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 26px; }
+
+  .pl-next-steps { text-align: left; background: #F7F9FA; border: 1px solid #E4E8ED; border-radius: 12px; padding: 6px 16px; margin-top: 4px; }
+  .pl-next-step { display: flex; align-items: flex-start; gap: 12px; padding: 13px 0; border-bottom: 1px solid #EBEEF1; }
+  .pl-next-step:last-child { border-bottom: none; }
+  .pl-next-step-icon { font-size: 20px; flex-shrink: 0; width: 26px; text-align: center; }
+  .pl-next-step-title { font-size: 13.5px; font-weight: 700; color: #1a1a1a; margin: 0 0 2px; }
+  .pl-next-step-text { font-size: 12.5px; color: #5b6572; line-height: 1.45; }
 </style>
 </head>
 <body>
@@ -133,7 +140,30 @@
         <div class="pl-thanks">
           <div class="pl-check-circle">✓</div>
           <h2 class="pl-title">¡Todo listo, Alejandra!</h2>
-          <p class="pl-subtitle">Tu disponibilidad y tu forma médica fueron registradas. Nos vemos pronto en las instalaciones de Cotemar. 🚢</p>
+          <p class="pl-subtitle">Tu disponibilidad y tu forma médica fueron registradas. Estos son tus siguientes pasos:</p>
+          <div class="pl-next-steps">
+            <div class="pl-next-step">
+              <span class="pl-next-step-icon">🏨</span>
+              <div>
+                <p class="pl-next-step-title">Ve al hotel</p>
+                <p class="pl-next-step-text">Puedes hospedarte en el Courtyard by Marriott Ciudad del Carmen Campeche mientras te llaman para tu embarque.</p>
+              </div>
+            </div>
+            <div class="pl-next-step">
+              <span class="pl-next-step-icon">🩺</span>
+              <div>
+                <p class="pl-next-step-title">Pasa a valoración médica</p>
+                <p class="pl-next-step-text">En cuanto puedas, acude a las instalaciones de Cotemar para tu valoración médica presencial.</p>
+              </div>
+            </div>
+            <div class="pl-next-step">
+              <span class="pl-next-step-icon">🍽️</span>
+              <div>
+                <p class="pl-next-step-title">Accede al comedor</p>
+                <p class="pl-next-step-text">Usa el código QR de tu credencial para entrar al comedor de las instalaciones.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
