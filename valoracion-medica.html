@@ -42,7 +42,7 @@
   .dm-corner-bl { bottom: 10px; left: 10px; border-right: none; border-top: none; border-radius: 0 0 0 8px; }
   .dm-scan-icon { font-size: 64px; position: relative; z-index: 1; line-height: 220px; }
   .dm-scan-line {
-    position: absolute; left: 14px; right: 14px; height: 3px; background: #00A8A8;
+    position: absolute; left: 14px; right: 14px; height: 3px; background: #00A8A8; z-index: 2;
     box-shadow: 0 0 8px rgba(0,168,168,.7); animation: dmScanMove 1.4s ease-in-out infinite;
   }
   @keyframes dmScanMove { 0%, 100% { top: 16px; } 50% { top: 200px; } }
@@ -86,8 +86,8 @@
   .dm-q-text { font-size: 13px; font-weight: 600; color: #1a1a1a; line-height: 1.4; margin: 0 0 8px; }
   .dm-yn-row { display: flex; gap: 8px; }
   .dm-yn-btn { flex: 1; max-width: 110px; border: 1.5px solid #D7DCE3; background: #fff; color: #5b6572; font-size: 13px; font-weight: 700; font-family: inherit; padding: 8px; border-radius: 8px; cursor: pointer; }
-  .dm-yn-btn.sel-si { background: #FBEAEA; border-color: #D9534F; color: #B5342F; }
-  .dm-yn-btn.sel-no { background: #E9F8EF; border-color: #1FA55C; color: #1FA55C; }
+  .dm-yn-btn.sel-concern { background: #FBEAEA; border-color: #D9534F; color: #B5342F; }
+  .dm-yn-btn.sel-good { background: #E9F8EF; border-color: #1FA55C; color: #1FA55C; }
 
   .dm-notes { width: 100%; min-height: 64px; border: 1.5px solid #D7DCE3; border-radius: 8px; padding: 10px; font-size: 13px; font-family: inherit; resize: vertical; color: #1a1a1a; margin-bottom: 18px; }
   .dm-notes:focus { outline: none; border-color: #0D2C4A; }
@@ -255,7 +255,7 @@
   const CLINICAL_QUESTIONS = [
     { id: 'c1', text: '¿Presenta signos de intoxicación o consumo de sustancias?' },
     { id: 'c2', text: '¿Presenta lesiones visibles o limitaciones físicas?' },
-    { id: 'c3', text: '¿Está apto para trabajo en alturas y espacios confinados?' },
+    { id: 'c3', text: '¿Está apto para trabajo en alturas y espacios confinados?', positive: true },
     { id: 'c4', text: '¿Presenta síntomas respiratorios o cardiovasculares agudos?' }
   ];
 
@@ -308,8 +308,12 @@
 
   function selectClinicalYN(id, value, btnEl) {
     clinicalAnswers[id] = value;
-    document.getElementById('dm-yn-' + id).querySelectorAll('.dm-yn-btn').forEach(b => b.classList.remove('sel-si', 'sel-no'));
-    btnEl.classList.add(value === 'si' ? 'sel-si' : 'sel-no');
+    const question = CLINICAL_QUESTIONS.find(q => q.id === id);
+    // Para preguntas normales, "Sí" es preocupante (rojo) y "No" es bueno (verde).
+    // Para preguntas de polaridad positiva (ej. "¿está apto...?"), es al revés.
+    const isGood = question.positive ? value === 'si' : value === 'no';
+    document.getElementById('dm-yn-' + id).querySelectorAll('.dm-yn-btn').forEach(b => b.classList.remove('sel-good', 'sel-concern'));
+    btnEl.classList.add(isGood ? 'sel-good' : 'sel-concern');
     checkExamComplete();
   }
 
@@ -340,7 +344,7 @@
     Object.keys(clinicalAnswers).forEach(k => delete clinicalAnswers[k]);
     ['v-bp', 'v-hr', 'v-temp', 'v-o2'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('dm-notes').value = '';
-    document.querySelectorAll('.dm-yn-btn').forEach(b => b.classList.remove('sel-si', 'sel-no'));
+    document.querySelectorAll('.dm-yn-btn').forEach(b => b.classList.remove('sel-good', 'sel-concern'));
     document.getElementById('dm-approve-btn').disabled = true;
     document.getElementById('dm-cancel-btn').disabled = true;
     document.getElementById('dm-print-btn').style.display = 'inline-block';
