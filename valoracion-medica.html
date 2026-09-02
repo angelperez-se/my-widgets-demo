@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Cotemar - Valoración Médica Pre-Embarque (tablet horizontal)">
+<meta name="widget-description" content="Widget para tablet horizontal de uso del doctor en Cotemar: simula escaneo de credencial QR, muestra datos del empleado y sus respuestas previas del Pase de Lista, formulario clinico del doctor (signos vitales + preguntas), aprobacion o cancelacion, y cupon de embarque con boton de impresion. Solo demo: no envia ni persiste datos reales en ningun lado.">
+<title>Valoración Médica - Cotemar</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+  .dm-outer { max-width: 1000px; margin: 0 auto; padding: 10px; }
+
+  .dm-card { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(10,30,45,.14); }
+
+  .dm-topbar { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #0D2C4A 0%, #0B4A5C 100%); padding: 14px 22px; color: #fff; }
+  .dm-topbar-title { font-size: 15px; font-weight: 800; }
+  .dm-topbar-sub { font-size: 11.5px; color: rgba(255,255,255,.7); }
+
+  .dm-body { padding: 26px 26px 24px; }
+
+  .dm-screen { display: none; }
+  .dm-screen.active { display: block; animation: dmFade .3s ease; }
+  @keyframes dmFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ============ PANTALLA 1: ESCANEAR ============ */
+  .dm-scan-wrap { text-align: center; padding: 30px 20px 10px; }
+  .dm-scan-title { font-size: 19px; font-weight: 800; color: #1a1a1a; margin: 0 0 8px; }
+  .dm-scan-sub { font-size: 13.5px; color: #5b6572; margin: 0 0 26px; }
+  .dm-scan-frame {
+    width: 220px; height: 220px; margin: 0 auto 26px; position: relative;
+    border-radius: 16px; background: #F3F6F8;
+  }
+  .dm-scan-frame::before, .dm-scan-frame::after,
+  .dm-corner-tr, .dm-corner-bl {
+    content: ''; position: absolute; width: 34px; height: 34px; border: 4px solid #0D2C4A;
+  }
+  .dm-scan-frame::before { top: 10px; left: 10px; border-right: none; border-bottom: none; border-radius: 8px 0 0 0; }
+  .dm-scan-frame::after { bottom: 10px; right: 10px; border-left: none; border-top: none; border-radius: 0 0 8px 0; }
+  .dm-corner-tr { top: 10px; right: 10px; border-left: none; border-bottom: none; border-radius: 0 8px 0 0; }
+  .dm-corner-bl { bottom: 10px; left: 10px; border-right: none; border-top: none; border-radius: 0 0 0 8px; }
+  .dm-scan-icon { font-size: 64px; position: relative; z-index: 1; line-height: 220px; }
+  .dm-scan-line {
+    position: absolute; left: 14px; right: 14px; height: 3px; background: #00A8A8;
+    box-shadow: 0 0 8px rgba(0,168,168,.7); animation: dmScanMove 1.4s ease-in-out infinite;
+  }
+  @keyframes dmScanMove { 0%, 100% { top: 16px; } 50% { top: 200px; } }
+  .dm-btn { border: none; border-radius: 9px; padding: 13px 26px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .dm-btn-primary { background: #0D2C4A; color: #fff; }
+  .dm-btn-primary:disabled { opacity: .35; cursor: not-allowed; }
+
+  /* ============ PANTALLA 2: EXAMEN (2 columnas) ============ */
+  .dm-grid { display: grid; grid-template-columns: 320px 1fr; gap: 24px; }
+  @media (max-width: 720px) { .dm-grid { grid-template-columns: 1fr; } }
+
+  .dm-panel-title { font-size: 12px; font-weight: 800; color: #8890a0; text-transform: uppercase; letter-spacing: .4px; margin: 0 0 12px; }
+
+  /* Columna izquierda: empleado */
+  .dm-emp-card { background: #F7F9FA; border: 1px solid #E4E8ED; border-radius: 12px; padding: 16px; margin-bottom: 18px; }
+  .dm-emp-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .dm-emp-avatar { width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg,#0D2C4A,#0B4A5C); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; flex-shrink: 0; }
+  .dm-emp-name { font-size: 15.5px; font-weight: 800; color: #1a1a1a; margin: 0 0 2px; }
+  .dm-emp-role { font-size: 12px; color: #5b6572; }
+  .dm-emp-meta { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #5b6572; border-top: 1px solid #E4E8ED; padding-top: 10px; }
+  .dm-emp-meta strong { color: #1a1a1a; }
+
+  .dm-pasedelista-item { padding: 8px 0; border-bottom: 1px solid #F0F2F5; }
+  .dm-pasedelista-item:last-child { border-bottom: none; }
+  .dm-pl-q { font-size: 11.5px; color: #8890a0; margin: 0 0 2px; line-height: 1.35; }
+  .dm-pl-a { font-size: 12.5px; font-weight: 700; color: #1a1a1a; }
+  .dm-pl-a.no { color: #1FA55C; }
+  .dm-pl-a.si { color: #B5651D; }
+  .dm-pl-detail { font-size: 11.5px; color: #5b6572; margin-top: 1px; }
+
+  /* Columna derecha: examen del doctor */
+  .dm-vitals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .dm-vital-field label { display: block; font-size: 11.5px; font-weight: 700; color: #5b6572; margin-bottom: 5px; }
+  .dm-vital-field input {
+    width: 100%; border: 1.5px solid #D7DCE3; border-radius: 8px; padding: 9px 10px;
+    font-size: 13.5px; font-family: inherit; color: #1a1a1a;
+  }
+  .dm-vital-field input:focus { outline: none; border-color: #0D2C4A; }
+
+  .dm-q { margin-bottom: 14px; }
+  .dm-q-text { font-size: 13px; font-weight: 600; color: #1a1a1a; line-height: 1.4; margin: 0 0 8px; }
+  .dm-yn-row { display: flex; gap: 8px; }
+  .dm-yn-btn { flex: 1; max-width: 110px; border: 1.5px solid #D7DCE3; background: #fff; color: #5b6572; font-size: 13px; font-weight: 700; font-family: inherit; padding: 8px; border-radius: 8px; cursor: pointer; }
+  .dm-yn-btn.sel-si { background: #FBEAEA; border-color: #D9534F; color: #B5342F; }
+  .dm-yn-btn.sel-no { background: #E9F8EF; border-color: #1FA55C; color: #1FA55C; }
+
+  .dm-notes { width: 100%; min-height: 64px; border: 1.5px solid #D7DCE3; border-radius: 8px; padding: 10px; font-size: 13px; font-family: inherit; resize: vertical; color: #1a1a1a; margin-bottom: 18px; }
+  .dm-notes:focus { outline: none; border-color: #0D2C4A; }
+
+  .dm-action-row { display: flex; gap: 12px; }
+  .dm-btn-approve { flex: 1; background: #1FA55C; color: #fff; }
+  .dm-btn-approve:disabled { opacity: .35; cursor: not-allowed; }
+  .dm-btn-cancel { flex: 1; background: #fff; color: #D9534F; border: 1.5px solid #D9534F; }
+  .dm-btn-cancel:disabled { opacity: .35; cursor: not-allowed; }
+
+  /* ============ PANTALLA 3: CUPÓN ============ */
+  .dm-coupon-wrap { text-align: center; padding: 10px 20px 4px; max-width: 460px; margin: 0 auto; }
+  .dm-approved-tag { display: inline-flex; align-items: center; gap: 6px; background: #E9F8EF; color: #1FA55C; font-size: 12.5px; font-weight: 800; padding: 6px 14px; border-radius: 20px; margin-bottom: 16px; }
+  .dm-coupon-placeholder {
+    height: 220px; border-radius: 12px; border: 2px dashed #B9C3CC;
+    background: repeating-linear-gradient(135deg, rgba(13,44,74,.06) 0 14px, rgba(13,44,74,.02) 14px 28px), #F3F6F8;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    color: #0D2C4A; margin-bottom: 18px;
+  }
+  .dm-coupon-placeholder img { width: 100%; height: 100%; object-fit: contain; border-radius: 10px; }
+  .dm-coupon-title { font-size: 15px; font-weight: 800; color: #1a1a1a; margin: 0 0 18px; }
+  .dm-print-status { font-size: 13px; color: #5b6572; margin: 14px 0; display: none; }
+  .dm-print-status.show { display: block; }
+
+  /* ============ PANTALLA 3b: CANCELADO ============ */
+  .dm-cancelled-wrap { text-align: center; padding: 30px 20px; max-width: 460px; margin: 0 auto; }
+  .dm-cancel-icon { width: 60px; height: 60px; border-radius: 50%; background: #FBEAEA; color: #D9534F; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px; }
+</style>
+</head>
+<body>
+
+<div class="dm-outer">
+  <div class="dm-card">
+
+    <div class="dm-topbar">
+      <div>
+        <div class="dm-topbar-title">🩺 Valoración Médica Pre-Embarque</div>
+        <div class="dm-topbar-sub">Cotemar · Ciudad del Carmen</div>
+      </div>
+    </div>
+
+    <div class="dm-body">
+
+      <!-- ============ 1. ESCANEAR ============ -->
+      <div class="dm-screen active" id="scr-scan">
+        <div class="dm-scan-wrap">
+          <h2 class="dm-scan-title">Escanea la credencial del empleado</h2>
+          <p class="dm-scan-sub">Coloca el código QR de la credencial frente a la cámara del tablet.</p>
+          <div class="dm-scan-frame" id="dm-scan-frame">
+            <div class="dm-corner-tr"></div>
+            <div class="dm-corner-bl"></div>
+            <img src="https://cotemar.staffbase.rocks/api/media/secure/external/v2/image/upload/a56e46a7c45cef0fba047549fb91f70c.png" alt="Código QR de la credencial" style="width:160px; height:160px; object-fit:contain; position:relative; z-index:1; margin-top:30px;">
+            <div class="dm-scan-line" id="dm-scan-line" style="display:none;"></div>
+          </div>
+          <button class="dm-btn dm-btn-primary" onclick="simulateScan()">Escanear credencial</button>
+        </div>
+      </div>
+
+      <!-- ============ 2. EXAMEN ============ -->
+      <div class="dm-screen" id="scr-exam">
+        <div class="dm-grid">
+
+          <!-- Columna izquierda -->
+          <div>
+            <p class="dm-panel-title">Datos del empleado</p>
+            <div class="dm-emp-card">
+              <div class="dm-emp-top">
+                <img class="dm-emp-avatar" src="https://cotemar.staffbase.rocks/api/media/secure/external/v2/image/upload/584a2385218eae3502483441d0e08785.png" alt="Alejandra González" style="object-fit:cover;">
+                <div>
+                  <p class="dm-emp-name">Alejandra González</p>
+                  <p class="dm-emp-role">Técnica de Mantenimiento</p>
+                </div>
+              </div>
+              <div class="dm-emp-meta">
+                <div>Folio: <strong>COT-2026-04821</strong></div>
+                <div>Plataforma destino: <strong>Ku-Maloob-Zaap</strong></div>
+                <div>Fecha de llegada: <strong id="dm-emp-date">—</strong></div>
+              </div>
+            </div>
+
+            <p class="dm-panel-title">Respuestas de su Pase de Lista</p>
+            <div class="dm-emp-card" id="dm-pasedelista"></div>
+          </div>
+
+          <!-- Columna derecha -->
+          <div>
+            <p class="dm-panel-title">Valoración clínica del doctor</p>
+
+            <div class="dm-vitals-grid">
+              <div class="dm-vital-field">
+                <label>Presión arterial</label>
+                <input type="text" id="v-bp" placeholder="120/80" oninput="checkExamComplete()">
+              </div>
+              <div class="dm-vital-field">
+                <label>Frecuencia cardiaca (lpm)</label>
+                <input type="text" id="v-hr" placeholder="72" oninput="checkExamComplete()">
+              </div>
+              <div class="dm-vital-field">
+                <label>Temperatura (°C)</label>
+                <input type="text" id="v-temp" placeholder="36.5" oninput="checkExamComplete()">
+              </div>
+              <div class="dm-vital-field">
+                <label>Saturación de O₂ (%)</label>
+                <input type="text" id="v-o2" placeholder="98" oninput="checkExamComplete()">
+              </div>
+            </div>
+
+            <div id="dm-questions"></div>
+
+            <label class="dm-panel-title" style="display:block;">Notas y observaciones</label>
+            <textarea class="dm-notes" id="dm-notes" placeholder="Observaciones adicionales del doctor (opcional)..."></textarea>
+
+            <div class="dm-action-row">
+              <button class="dm-btn dm-btn-approve" id="dm-approve-btn" disabled onclick="approveEmployee()">✅ Apruebo para embarcar</button>
+              <button class="dm-btn dm-btn-cancel" id="dm-cancel-btn" disabled onclick="cancelEmployee()">❌ Cancelo por razones médicas</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ============ 3a. CUPÓN (aprobado) ============ -->
+      <div class="dm-screen" id="scr-coupon">
+        <div class="dm-coupon-wrap">
+          <div class="dm-approved-tag">✅ Empleado aprobado para embarcar</div>
+          <h2 class="dm-coupon-title">Aquí está tu cupón para embarcarte</h2>
+
+          <div class="dm-coupon-placeholder" style="border:none; background:none; padding:0;">
+            <img src="https://cotemar.staffbase.rocks/api/media/secure/external/v2/image/upload/0e0a065121bfd68bab77f204f3e19582.png" alt="Cupón de embarque">
+          </div>
+
+          <button class="dm-btn dm-btn-primary" id="dm-print-btn" onclick="sendToPrinter()">🖨️ Mandar a la impresora</button>
+          <p class="dm-print-status" id="dm-print-status">Enviando a la impresora...</p>
+          <button class="dm-btn dm-btn-primary" id="dm-finish-btn" style="display:none; margin-top:8px; background:#5b6572;" onclick="resetToScan()">Terminar</button>
+        </div>
+      </div>
+
+      <!-- ============ 3b. CANCELADO ============ -->
+      <div class="dm-screen" id="scr-cancelled">
+        <div class="dm-cancelled-wrap">
+          <div class="dm-cancel-icon">✕</div>
+          <h2 class="dm-coupon-title">Empleado cancelado por razones médicas</h2>
+          <p style="font-size:13px; color:#5b6572; margin-bottom:20px;">Se ha registrado la cancelación. El empleado deberá acudir con el área correspondiente antes de intentar embarcar nuevamente.</p>
+          <button class="dm-btn dm-btn-primary" onclick="resetToScan()">Terminar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Demo conceptual: nada de esto se envía a ningún servidor ni se guarda.
+
+  // Respuestas ficticias que Alejandra ya dio en el widget de Pase de Lista.
+  const PASE_DE_LISTA = [
+    { q: '¿Buen estado de salud general?', a: 'no', text: 'Sí' },
+    { q: '¿Condición médica preexistente?', a: 'no', text: 'No' },
+    { q: '¿Tomando medicamento actualmente?', a: 'no', text: 'No' },
+    { q: '¿Fiebre, tos o síntomas recientes?', a: 'no', text: 'No' },
+    { q: '¿Alergias relevantes?', a: 'si', text: 'Sí', detail: 'Alergia a la penicilina' },
+    { q: '¿En condiciones de embarcar?', a: 'no', text: 'Sí' }
+  ];
+
+  const CLINICAL_QUESTIONS = [
+    { id: 'c1', text: '¿Presenta signos de intoxicación o consumo de sustancias?' },
+    { id: 'c2', text: '¿Presenta lesiones visibles o limitaciones físicas?' },
+    { id: 'c3', text: '¿Está apto para trabajo en alturas y espacios confinados?' },
+    { id: 'c4', text: '¿Presenta síntomas respiratorios o cardiovasculares agudos?' }
+  ];
+
+  const clinicalAnswers = {};
+
+  function goTo(id) {
+    document.querySelectorAll('.dm-screen').forEach(el => el.classList.remove('active'));
+    document.getElementById('scr-' + id).classList.add('active');
+    reportHeight();
+  }
+
+  function simulateScan() {
+    document.getElementById('dm-scan-line').style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('dm-emp-date').textContent = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+      renderPaseDeLista();
+      goTo('exam');
+    }, 1200);
+  }
+
+  function renderPaseDeLista() {
+    const wrap = document.getElementById('dm-pasedelista');
+    wrap.innerHTML = '';
+    PASE_DE_LISTA.forEach(item => {
+      const isPositiveFlag = item.a === 'si'; // 'si' aquí = respuesta que amerita atención (ej. alergia)
+      const div = document.createElement('div');
+      div.className = 'dm-pasedelista-item';
+      div.innerHTML =
+        '<p class="dm-pl-q">' + item.q + '</p>' +
+        '<p class="dm-pl-a ' + (isPositiveFlag ? 'si' : 'no') + '">' + item.text + '</p>' +
+        (item.detail ? '<p class="dm-pl-detail">' + item.detail + '</p>' : '');
+      wrap.appendChild(div);
+    });
+  }
+
+  function buildClinicalQuestions() {
+    const wrap = document.getElementById('dm-questions');
+    CLINICAL_QUESTIONS.forEach(q => {
+      const block = document.createElement('div');
+      block.className = 'dm-q';
+      block.innerHTML =
+        '<p class="dm-q-text">' + q.text + '</p>' +
+        '<div class="dm-yn-row" id="dm-yn-' + q.id + '">' +
+          '<button class="dm-yn-btn" onclick="selectClinicalYN(\'' + q.id + '\',\'si\',this)">Sí</button>' +
+          '<button class="dm-yn-btn" onclick="selectClinicalYN(\'' + q.id + '\',\'no\',this)">No</button>' +
+        '</div>';
+      wrap.appendChild(block);
+    });
+  }
+
+  function selectClinicalYN(id, value, btnEl) {
+    clinicalAnswers[id] = value;
+    document.getElementById('dm-yn-' + id).querySelectorAll('.dm-yn-btn').forEach(b => b.classList.remove('sel-si', 'sel-no'));
+    btnEl.classList.add(value === 'si' ? 'sel-si' : 'sel-no');
+    checkExamComplete();
+  }
+
+  function checkExamComplete() {
+    const vitalsFilled = ['v-bp', 'v-hr', 'v-temp', 'v-o2'].every(id => document.getElementById(id).value.trim().length > 0);
+    const questionsAnswered = CLINICAL_QUESTIONS.every(q => clinicalAnswers[q.id]);
+    const complete = vitalsFilled && questionsAnswered;
+    document.getElementById('dm-approve-btn').disabled = !complete;
+    document.getElementById('dm-cancel-btn').disabled = !complete;
+  }
+
+  function approveEmployee() { goTo('coupon'); }
+  function cancelEmployee() { goTo('cancelled'); }
+
+  function sendToPrinter() {
+    document.getElementById('dm-print-btn').style.display = 'none';
+    const status = document.getElementById('dm-print-status');
+    status.classList.add('show');
+    setTimeout(() => {
+      status.textContent = '✅ Enviado a la impresora';
+      document.getElementById('dm-finish-btn').style.display = 'inline-block';
+      reportHeight();
+    }, 1300);
+  }
+
+  function resetToScan() {
+    // Reinicia el estado para el siguiente empleado
+    Object.keys(clinicalAnswers).forEach(k => delete clinicalAnswers[k]);
+    ['v-bp', 'v-hr', 'v-temp', 'v-o2'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('dm-notes').value = '';
+    document.querySelectorAll('.dm-yn-btn').forEach(b => b.classList.remove('sel-si', 'sel-no'));
+    document.getElementById('dm-approve-btn').disabled = true;
+    document.getElementById('dm-cancel-btn').disabled = true;
+    document.getElementById('dm-print-btn').style.display = 'inline-block';
+    document.getElementById('dm-print-status').classList.remove('show');
+    document.getElementById('dm-finish-btn').style.display = 'none';
+    document.getElementById('dm-scan-line').style.display = 'none';
+    goTo('scan');
+  }
+
+  function reportHeight() {
+    window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', () => { buildClinicalQuestions(); reportHeight(); });
+</script>
+
+</body>
+</html>
