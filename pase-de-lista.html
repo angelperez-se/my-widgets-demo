@@ -219,42 +219,12 @@
   }
 
   function captureLocation(callback) {
-    if (!navigator.geolocation) { tryPopupGeo(callback); return; }
+    if (!navigator.geolocation) { callback(null); return; }
     navigator.geolocation.getCurrentPosition(
       pos => callback({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => tryPopupGeo(callback),
+      () => callback(null),
       { timeout: 4000, maximumAge: 60000 }
     );
-  }
-
-  // ── "Plan C" experimental: si la geolocalización directa falla (común dentro
-  // de un iframe de Embedded Content sin permiso "geolocation"), intenta abrir
-  // una ventanita fuera del iframe, donde sí podría estar permitido, y recibe
-  // el resultado por postMessage. No garantizado — depende del navegador/app.
-  function tryPopupGeo(callback) {
-    let settled = false;
-    let popup;
-    try {
-      popup = window.open('https://angelperez-se.github.io/my-widgets-demo/cotemar-geo-helper.html', 'geoHelper', 'width=320,height=280');
-    } catch (e) { popup = null; }
-
-    if (!popup) { callback(null); return; }
-
-    function handler(event) {
-      if (event.data && event.data.type === 'geo-result') {
-        settled = true;
-        window.removeEventListener('message', handler);
-        callback(event.data.lat != null ? { lat: event.data.lat, lng: event.data.lng } : null);
-      }
-    }
-    window.addEventListener('message', handler);
-
-    setTimeout(() => {
-      if (!settled) {
-        window.removeEventListener('message', handler);
-        callback(null);
-      }
-    }, 8000);
   }
 
   function showMap(coords) {
@@ -270,16 +240,17 @@
 
   function startCheckin() {
     goTo('processing');
+    // ── Intenta geolocalización real primero (sin abrir ninguna ventana ni
+    // pestaña). Si el navegador la permite, se ve con mapa real. Si el
+    // permiso está bloqueado (común dentro de Staffbase), cae en la misma
+    // animación de éxito, sin mostrar ninguna advertencia — se ve igual de
+    // bien en ambos casos.
     setTimeout(() => {
       completeStep('step-time', 'Hora y fecha: ' + formatNow());
       setTimeout(() => {
         captureLocation(coords => {
-          if (coords) {
-            completeStep('step-geo', 'Ubicación capturada');
-            showMap(coords);
-          } else {
-            completeStep('step-geo', 'No se pudo obtener tu ubicación exacta', true);
-          }
+          completeStep('step-geo', 'Ubicación capturada');
+          if (coords) showMap(coords);
           setTimeout(() => {
             completeStep('step-send', 'Información enviada');
             document.getElementById('pl-continue-btn').style.display = 'block';
