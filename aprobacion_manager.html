@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Cotemar — Viajes Ejecutivos</title>
+<style>
+  :root{
+    --navy:#0b2a52;
+    --navy-dark:#081d3a;
+    --orange:#e8720c;
+    --orange-light:#f2a13a;
+    --green:#1e6b2e;
+    --red:#a12b2b;
+    --amber:#a3720c;
+    --bg:#f2f4f7;
+    --card:#ffffff;
+    --muted:#6b7480;
+    --text:#16233a;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{
+    margin:0; padding:0;
+    background:var(--bg);
+    font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+    color:var(--text);
+  }
+  .app{
+    max-width:430px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--bg);
+    padding-bottom:24px;
+  }
+  .topbar{
+    background:var(--navy);
+    padding:16px 18px 14px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .topbar-left{ display:flex; align-items:center; gap:10px; }
+  .topbar-left img{ height:24px; }
+  .exec-chip{
+    display:flex; align-items:center; gap:8px;
+  }
+  .avatar{
+    width:32px; height:32px; border-radius:50%;
+    background:var(--orange);
+    color:#fff; font-weight:800; font-size:12pt;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .exec-info{ line-height:1.2; }
+  .exec-name{ color:#fff; font-size:10.5pt; font-weight:700; }
+  .exec-role{ color:#c7d3e2; font-size:8pt; }
+  .accent{ height:4px; background:linear-gradient(90deg,var(--orange) 0%, var(--orange-light) 100%); }
+
+  .tabs{
+    display:flex;
+    background:#fff;
+    border-bottom:1px solid #e3e6ea;
+    position:sticky; top:0; z-index:5;
+  }
+  .tab{
+    flex:1;
+    border:none;
+    background:none;
+    padding:13px 6px;
+    font-size:9.5pt;
+    font-weight:700;
+    color:var(--muted);
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    position:relative;
+    cursor:pointer;
+  }
+  .tab.active{ color:var(--navy); }
+  .tab.active::after{
+    content:'';
+    position:absolute; bottom:-1px; left:16%; right:16%;
+    height:3px; background:var(--orange); border-radius:3px 3px 0 0;
+  }
+  .badge{
+    background:var(--orange);
+    color:#fff;
+    font-size:7.5pt;
+    font-weight:800;
+    min-width:16px; height:16px;
+    border-radius:8px;
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:0 4px;
+  }
+  .badge.hidden{ display:none; }
+
+  .tab-content{ display:none; padding:14px 14px 6px 14px; }
+  .tab-content.active{ display:block; }
+
+  .section-title{
+    font-size:9pt;
+    font-weight:800;
+    color:var(--muted);
+    letter-spacing:0.4px;
+    text-transform:uppercase;
+    margin:6px 2px 10px 2px;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:12px;
+    padding:14px 14px 12px 14px;
+    margin-bottom:12px;
+    box-shadow:0 1px 3px rgba(16,32,64,0.08);
+    border-left:4px solid var(--amber);
+  }
+  .card.status-approved{ border-left-color:var(--green); }
+  .card.status-rejected{ border-left-color:var(--red); opacity:0.65; }
+  .card.status-confirmed{ border-left-color:var(--green); }
+  .card.status-pending-log{ border-left-color:var(--amber); }
+
+  .card-top{
+    display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;
+  }
+  .req-name{ font-size:10.5pt; font-weight:800; color:var(--text); }
+  .req-role{ font-size:8.3pt; color:var(--muted); margin-top:1px; }
+  .status-pill{
+    font-size:7.5pt; font-weight:800; padding:3px 9px; border-radius:10px;
+    white-space:nowrap;
+    background:#fdf1e2; color:var(--amber);
+  }
+  .status-pill.approved{ background:#e7f3e9; color:var(--green); }
+  .status-pill.rejected{ background:#f7e6e6; color:var(--red); }
+  .status-pill.confirmed{ background:#e7f3e9; color:var(--green); }
+
+  .trip-line{
+    display:flex; align-items:center; gap:8px;
+    font-size:9.7pt; color:var(--text); margin:5px 0;
+  }
+  .trip-line .icon{ font-size:11pt; width:18px; text-align:center; }
+  .trip-line b{ font-weight:700; }
+  .trip-meta{
+    font-size:8.6pt; color:var(--muted); margin-top:6px; line-height:1.4;
+  }
+
+  .cost-row{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:10px; padding-top:10px; border-top:1px dashed #e3e6ea;
+  }
+  .cost-label{ font-size:8.3pt; color:var(--muted); }
+  .cost-value{ font-size:11pt; font-weight:800; color:var(--text); }
+
+  .actions{
+    display:flex; gap:8px; margin-top:10px;
+  }
+  .btn{
+    flex:1;
+    border:none;
+    border-radius:8px;
+    padding:10px 6px;
+    font-size:9.3pt;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .btn-approve{ background:var(--green); color:#fff; }
+  .btn-reject{ background:#fff; color:var(--red); border:1.5px solid var(--red); }
+  .btn:disabled{ opacity:0.5; cursor:default; }
+
+  .resolved-note{
+    margin-top:10px;
+    font-size:8.6pt;
+    font-weight:700;
+  }
+  .resolved-note.approved{ color:var(--green); }
+  .resolved-note.rejected{ color:var(--red); }
+
+  .empty-state{
+    text-align:center;
+    padding:34px 16px;
+    color:var(--muted);
+    font-size:9.5pt;
+  }
+  .empty-state .emoji{ font-size:26pt; display:block; margin-bottom:8px; }
+
+  .summary-strip{
+    display:flex; gap:10px; padding:12px 14px 0 14px;
+  }
+  .mini-stat{
+    flex:1; background:#fff; border-radius:10px; padding:10px 8px; text-align:center;
+    box-shadow:0 1px 3px rgba(16,32,64,0.06);
+  }
+  .mini-stat .num{ font-size:15pt; font-weight:800; color:var(--navy); }
+  .mini-stat .lbl{ font-size:7.5pt; color:var(--muted); text-transform:uppercase; letter-spacing:0.3px; margin-top:2px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <img src="data:image/png;base64,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" alt="Cotemar">
+    </div>
+    <div class="exec-chip">
+      <div class="exec-info" style="text-align:right;">
+        <div class="exec-name">Alberto Reyes</div>
+        <div class="exec-role">VP Operaciones Costa Afuera</div>
+      </div>
+      <div class="avatar">AR</div>
+    </div>
+  </div>
+  <div class="accent"></div>
+
+  <div class="summary-strip">
+    <div class="mini-stat"><div class="num" id="statPending">3</div><div class="lbl">Por aprobar</div></div>
+    <div class="mini-stat"><div class="num">USD 5,200</div><div class="lbl">En revisión</div></div>
+    <div class="mini-stat"><div class="num">3</div><div class="lbl">Mis viajes</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="approvals">✅ Aprobaciones <span class="badge" id="badgeCount">3</span></button>
+    <button class="tab" data-tab="mytrips">🧳 Mis Viajes</button>
+  </div>
+
+  <!-- APROBACIONES -->
+  <div id="approvals" class="tab-content active">
+    <div class="section-title">Solicitudes pendientes</div>
+
+    <div class="card" data-card id="req1">
+      <div class="card-top">
+        <div>
+          <div class="req-name">Roberto Torres Mendoza</div>
+          <div class="req-role">Técnico de Mantenimiento — Plataforma Ku-A</div>
+        </div>
+        <div class="status-pill" data-pill>Urgente</div>
+      </div>
+      <div class="trip-line"><span class="icon">🚁</span> Embarque anticipado a <b>Plataforma Ku-A</b></div>
+      <div class="trip-line"><span class="icon">📅</span> 18–19 de septiembre de 2026</div>
+      <div class="trip-meta">Motivo: cobertura de guardia por incapacidad de compañero. Requiere autorización antes de las 20:00 hrs de hoy para reservar transporte.</div>
+      <div class="cost-row">
+        <div class="cost-label">Costo estimado</div>
+        <div class="cost-value">USD 850.00</div>
+      </div>
+      <div class="actions" data-actions>
+        <button class="btn btn-approve" data-approve>Aprobar</button>
+        <button class="btn btn-reject" data-reject>Rechazar</button>
+      </div>
+      <div class="resolved-note" data-resolved style="display:none;"></div>
+    </div>
+
+    <div class="card" data-card id="req2">
+      <div class="card-top">
+        <div>
+          <div class="req-name">Fernanda Ibarra</div>
+          <div class="req-role">Ingeniera de Procesos</div>
+        </div>
+        <div class="status-pill" data-pill>Pendiente</div>
+      </div>
+      <div class="trip-line"><span class="icon">✈️</span> Viaje a <b>Houston, TX</b></div>
+      <div class="trip-line"><span class="icon">📅</span> 22 al 26 de septiembre de 2026</div>
+      <div class="trip-meta">Motivo: capacitación certificada en sistema SCADA con proveedor. Incluye vuelo, hotel y viáticos.</div>
+      <div class="cost-row">
+        <div class="cost-label">Costo estimado</div>
+        <div class="cost-value">USD 3,200.00</div>
+      </div>
+      <div class="actions" data-actions>
+        <button class="btn btn-approve" data-approve>Aprobar</button>
+        <button class="btn btn-reject" data-reject>Rechazar</button>
+      </div>
+      <div class="resolved-note" data-resolved style="display:none;"></div>
+    </div>
+
+    <div class="card" data-card id="req3">
+      <div class="card-top">
+        <div>
+          <div class="req-name">Carlos Medina</div>
+          <div class="req-role">Supervisor HSEQ</div>
+        </div>
+        <div class="status-pill" data-pill>Pendiente</div>
+      </div>
+      <div class="trip-line"><span class="icon">🚗</span> Viaje a <b>Ciudad de México</b></div>
+      <div class="trip-line"><span class="icon">📅</span> 20 de septiembre de 2026</div>
+      <div class="trip-meta">Motivo: reunión de seguimiento HSEQ con Pemex, oficinas corporativas.</div>
+      <div class="cost-row">
+        <div class="cost-label">Costo estimado</div>
+        <div class="cost-value">USD 1,150.00</div>
+      </div>
+      <div class="actions" data-actions>
+        <button class="btn btn-approve" data-approve>Aprobar</button>
+        <button class="btn btn-reject" data-reject>Rechazar</button>
+      </div>
+      <div class="resolved-note" data-resolved style="display:none;"></div>
+    </div>
+
+    <div class="empty-state" id="emptyApprovals" style="display:none;">
+      <span class="emoji">🎉</span>
+      Ya no tienes solicitudes de viaje pendientes por aprobar.
+    </div>
+  </div>
+
+  <!-- MIS VIAJES -->
+  <div id="mytrips" class="tab-content">
+    <div class="section-title">Próximos viajes</div>
+
+    <div class="card status-confirmed">
+      <div class="card-top">
+        <div>
+          <div class="req-name">Reunión de Consejo</div>
+          <div class="req-role">Ciudad de México</div>
+        </div>
+        <div class="status-pill confirmed">Confirmado</div>
+      </div>
+      <div class="trip-line"><span class="icon">✈️</span> Vuelo Aeroméxico AM123 — CME → MEX</div>
+      <div class="trip-line"><span class="icon">📅</span> 25 de septiembre de 2026, 7:40 AM</div>
+      <div class="trip-meta">Hotel: Camino Real Polanco. Traslado aeropuerto incluido.</div>
+    </div>
+
+    <div class="card status-pending-log">
+      <div class="card-top">
+        <div>
+          <div class="req-name">Supervisión Trimestral</div>
+          <div class="req-role">Plataforma Ku-A</div>
+        </div>
+        <div class="status-pill">Logística en proceso</div>
+      </div>
+      <div class="trip-line"><span class="icon">🚁</span> Embarque desde Ciudad del Carmen</div>
+      <div class="trip-line"><span class="icon">📅</span> 2 de octubre de 2026</div>
+      <div class="trip-meta">Pendiente confirmar horario de vuelo helicóptero con Logística.</div>
+    </div>
+
+    <div class="card status-confirmed">
+      <div class="card-top">
+        <div>
+          <div class="req-name">Conferencia OTC</div>
+          <div class="req-role">Houston, TX</div>
+        </div>
+        <div class="status-pill confirmed">Confirmado</div>
+      </div>
+      <div class="trip-line"><span class="icon">✈️</span> Vuelo United UA905 — VER → IAH</div>
+      <div class="trip-line"><span class="icon">📅</span> 10 al 12 de noviembre de 2026</div>
+      <div class="trip-meta">Registro de conferencia y hospedaje ya confirmados por Asistencia Ejecutiva.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Tabs
+  const tabs = document.querySelectorAll('.tab');
+  const contents = document.querySelectorAll('.tab-content');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Approve / Reject logic
+  let pendingCount = document.querySelectorAll('[data-card]').length;
+  const badge = document.getElementById('badgeCount');
+  const statPending = document.getElementById('statPending');
+
+  function updateCount(){
+    badge.textContent = pendingCount;
+    statPending.textContent = pendingCount;
+    if(pendingCount === 0){
+      badge.classList.add('hidden');
+      document.getElementById('emptyApprovals').style.display = 'block';
+    }
+  }
+
+  document.querySelectorAll('[data-card]').forEach(card => {
+    const approveBtn = card.querySelector('[data-approve]');
+    const rejectBtn = card.querySelector('[data-reject]');
+    const actions = card.querySelector('[data-actions]');
+    const resolved = card.querySelector('[data-resolved]');
+    const pill = card.querySelector('[data-pill]');
+
+    approveBtn.addEventListener('click', () => {
+      card.classList.add('status-approved');
+      pill.textContent = 'Aprobado';
+      pill.classList.add('approved');
+      actions.style.display = 'none';
+      resolved.style.display = 'block';
+      resolved.classList.add('approved');
+      resolved.textContent = '✅ Aprobaste esta solicitud. Se notificó a Logística y al colaborador.';
+      pendingCount--;
+      updateCount();
+    });
+
+    rejectBtn.addEventListener('click', () => {
+      card.classList.add('status-rejected');
+      pill.textContent = 'Rechazado';
+      pill.classList.add('rejected');
+      actions.style.display = 'none';
+      resolved.style.display = 'block';
+      resolved.classList.add('rejected');
+      resolved.textContent = '❌ Rechazaste esta solicitud. Se notificó al colaborador con el motivo.';
+      pendingCount--;
+      updateCount();
+    });
+  });
+</script>
+
+</body>
+</html>
