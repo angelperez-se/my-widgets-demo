@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Bimbo - Capacitación LOTO con puntos de técnica al completar">
+<meta name="widget-description" content="Pagina de anuncio de la capacitacion LOTO (Bloqueo y Etiquetado) con un curso simulado tipo Cornerstone. Al dar clic en Comenzar formacion, anima el progreso y revela un panel de felicitacion con puntos de capacitacion tecnica ganados, ligado al mismo sistema de puntos de Sumate y Crece. Solo demo: no envia ni persiste nada en ningun lado.">
+<title>LOTO - Seguridad en Planta</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: transparent; font-family: Arial, Helvetica, sans-serif; }
+  .fade-in { animation: fadeIn .35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<div style="max-width: 460px; margin: 0 auto; background: #ffffff; border-radius: 18px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.12); border: 1px solid #e2e8f0;">
+
+  <!-- Header -->
+  <div style="background: #6E2C39; padding: clamp(14px,4vw,18px) clamp(18px,5vw,22px); display: flex; align-items: center; justify-content: space-between;">
+    <!-- TODO: reemplazar por el logo real de El Globo -->
+    <div style="background: #ffffff; border-radius: 8px; padding: 7px 13px; color: #6E2C39; font-size: clamp(14px,4vw,16px); font-weight: bold;">El Globo</div>
+    <div style="color: #ffffff; font-size: clamp(11px,3vw,12px); font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">Seguridad en Planta</div>
+  </div>
+
+  <!-- Hero -->
+  <div style="background: #6E2C39; padding: clamp(4px,2vw,8px) clamp(22px,6vw,28px) clamp(26px,6vw,32px); text-align: center;">
+    <div style="font-size: clamp(38px,11vw,48px); line-height: 1; margin-bottom: 12px;">🔒</div>
+    <div style="color: #F0C36D; font-size: clamp(11px,3vw,12px); font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px;">Nuevo proceso · Control de energías</div>
+    <div style="color: #ffffff; font-size: clamp(22px,6.2vw,28px); font-weight: bold; line-height: 1.2;">Llega el protocolo de Bloqueo y Etiquetado (LOTO)</div>
+  </div>
+
+  <!-- Cuerpo -->
+  <div style="padding: clamp(20px,5vw,26px) clamp(20px,5vw,24px);">
+    <div style="color: #334155; font-size: clamp(14px,3.8vw,15px); line-height: 1.65; margin-bottom: 16px;">A partir del <strong style="color: #6E2C39;">1 de octubre</strong> ponemos en marcha un nuevo estándar de seguridad en todas nuestras plantas: <strong style="color: #6E2C39;">Bloqueo y Etiquetado (LOTO)</strong>. Su objetivo es simple pero vital: garantizar que ningún equipo pueda encenderse mientras alguien le da mantenimiento.</div>
+    <div style="color: #334155; font-size: clamp(14px,3.8vw,15px); line-height: 1.65; margin-bottom: 20px;">Esto nos protege a todos. Antes de intervenir cualquier máquina, el protocolo será de cumplimiento obligatorio.</div>
+
+    <!-- Lo esencial -->
+    <div style="color: #6E2C39; font-size: clamp(13px,3.5vw,14px); font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">Lo esencial</div>
+    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+      <div style="width: 34px; height: 34px; flex: none; background: #F5EAEC; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px;">⚙️</div>
+      <div style="flex: 1;">
+        <div style="color: #0f172a; font-size: clamp(14px,3.8vw,15px); font-weight: bold; line-height: 1.3;">Qué es</div>
+        <div style="color: #475569; font-size: clamp(13px,3.5vw,14px); line-height: 1.5;">Bloquear y etiquetar toda fuente de energía antes de dar mantenimiento.</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+      <div style="width: 34px; height: 34px; flex: none; background: #F5EAEC; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px;">🔄</div>
+      <div style="flex: 1;">
+        <div style="color: #0f172a; font-size: clamp(14px,3.8vw,15px); font-weight: bold; line-height: 1.3;">Qué cambia</div>
+        <div style="color: #475569; font-size: clamp(13px,3.5vw,14px); line-height: 1.5;">Cada colaborador usará su propio candado y tarjeta personal antes de operar.</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 12px; margin-bottom: 22px;">
+      <div style="width: 34px; height: 34px; flex: none; background: #F5EAEC; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px;">🗓️</div>
+      <div style="flex: 1;">
+        <div style="color: #0f172a; font-size: clamp(14px,3.8vw,15px); font-weight: bold; line-height: 1.3;">Cuándo aplica</div>
+        <div style="color: #475569; font-size: clamp(13px,3.5vw,14px); line-height: 1.5;">En todo mantenimiento, limpieza o ajuste de equipo, sin excepción.</div>
+      </div>
+    </div>
+
+    <!-- ====== SECCIÓN CORNERSTONE (simula LMS embebido) ====== -->
+    <div style="border: 1px solid #d9e0e7; border-radius: 14px; overflow: hidden;">
+      <div style="background: #0f172a; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 9px; height: 9px; background: #ef4444; border-radius: 50%; display: inline-block;"></span>
+          <span style="color: #ffffff; font-size: clamp(12px,3.3vw,13px); font-weight: bold;">Cornerstone</span>
+          <span style="color: #94a3b8; font-size: clamp(11px,3vw,12px);">· Plataforma de Aprendizaje</span>
+        </div>
+        <span style="color: #64748b; font-size: clamp(10px,2.8vw,11px);">Embebido</span>
+      </div>
+
+      <div style="background: #f8fafc; padding: 16px;">
+        <div style="background: #fee2e2; color: #991b1b; font-size: clamp(10px,2.8vw,11px); font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; display: inline-block; border-radius: 20px; padding: 4px 10px; margin-bottom: 12px;">Formación obligatoria</div>
+
+        <!-- ============ ESTADO 1: CURSO ACTIVO ============ -->
+        <div id="course-active">
+          <video controls preload="metadata" style="width:100%; border-radius:10px; margin-bottom:12px; display:block; background:#000;">
+            <source src="https://angelperez-se.github.io/my-widgets-demo/training.mp4" type="video/mp4">
+          </video>
+
+          <div style="color: #0f172a; font-size: clamp(15px,4vw,16px); font-weight: bold; line-height: 1.3; margin-bottom: 4px;">Curso: Bloqueo y Etiquetado (LOTO)</div>
+          <div style="color: #64748b; font-size: clamp(12px,3.3vw,13px); margin-bottom: 12px;">Módulo 1 de 1 · Video + evaluación · 8 min</div>
+
+          <div style="background: #e2e8f0; border-radius: 20px; height: 8px; overflow: hidden; margin-bottom: 6px;">
+            <div id="progress-fill" style="background: #E4022B; width: 0%; height: 8px; border-radius: 20px; transition: width .35s ease;"></div>
+          </div>
+          <div id="progress-text" style="color: #94a3b8; font-size: clamp(11px,3vw,12px); margin-bottom: 14px;">0% completado · Fecha límite: 15 de octubre</div>
+
+          <div style="text-align: center;">
+            <button id="start-btn" onclick="startTraining()" style="display: inline-block; background: #E4022B; color: #ffffff; font-size: clamp(14px,3.8vw,15px); font-weight: bold; padding: 12px 30px; border-radius: 10px; border: none; cursor: pointer; font-family: inherit;">Comenzar formación</button>
+          </div>
+          <div style="color: #64748b; font-size: clamp(11px,3vw,12px); text-align: center; margin-top: 10px;">Al finalizar recibirás tu constancia en Cornerstone.</div>
+        </div>
+
+        <!-- ============ ESTADO 2: COMPLETADO ============ -->
+        <div id="course-complete" class="fade-in" style="display:none; text-align:center; padding: 8px 0 4px;">
+          <div style="width:56px; height:56px; border-radius:50%; background:#E4F7EF; color:#1FA55C; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:26px;">✓</div>
+          <div style="color:#0f172a; font-size:clamp(15px,4vw,16px); font-weight:bold; margin-bottom:6px;">¡Capacitación completada!</div>
+          <div style="color:#64748b; font-size:clamp(12.5px,3.4vw,13.5px); line-height:1.5; margin-bottom:16px;">Tu constancia ya está disponible en Cornerstone.</div>
+          <div style="display:inline-flex; align-items:center; gap:6px; background:#FFF6DE; color:#8a6d1a; font-size:14px; font-weight:800; padding:8px 18px; border-radius:20px; margin-bottom:16px;">🎉 Ganaste 250 puntos de capacitación técnica</div>
+          <div>
+            <a href="https://bimbo.staffbase.rocks/openlink/content/page/6a6ba71b6067b108d89f31e6" target="_top" style="display:inline-block; background:#6E2C39; color:#ffffff; text-decoration:none; font-size:clamp(13.5px,3.6vw,14.5px); font-weight:bold; padding:11px 26px; border-radius:10px;">Ver mis puntos →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ====== FIN SECCIÓN CORNERSTONE ====== -->
+  </div>
+
+  <!-- Franja inferior -->
+  <div style="background: #6E2C39; padding: clamp(11px,3vw,13px); text-align: center;">
+    <div style="color: #F0C36D; font-size: clamp(11px,3vw,12px);">El Globo · Alimentando un mundo mejor</div>
+  </div>
+</div>
+
+<script>
+  // ── Demo conceptual: la barra de progreso es una animación simulada, no un
+  // reproductor de video real. Nada de esto se envía ni se guarda en ningún lado.
+  function startTraining() {
+    document.getElementById('start-btn').disabled = true;
+    const fill = document.getElementById('progress-fill');
+    const text = document.getElementById('progress-text');
+    let pct = 0;
+    const interval = setInterval(() => {
+      pct += 20;
+      fill.style.width = pct + '%';
+      text.textContent = pct + '% completado · Fecha límite: 15 de octubre';
+      reportHeight();
+      if (pct >= 100) {
+        clearInterval(interval);
+        setTimeout(() => {
+          document.getElementById('course-active').style.display = 'none';
+          document.getElementById('course-complete').style.display = 'block';
+          reportHeight();
+        }, 500);
+      }
+    }, 450);
+  }
+
+  function reportHeight() {
+    window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', reportHeight);
+</script>
+
+</body>
+</html>
