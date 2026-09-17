@@ -682,6 +682,14 @@
 
         // Initialize
         switchTab('learnings');
+
+        // Le avisa a Staffbase qué tan alto es este widget, para que el iframe
+        // no se quede recortado en una altura más chica que la del mockup fijo.
+        function reportHeight() {
+            window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+        }
+        new ResizeObserver(reportHeight).observe(document.body);
+        window.addEventListener('load', reportHeight);
     </script>
 </body>
 </html>
