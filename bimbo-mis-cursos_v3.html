@@ -32,7 +32,7 @@
             width: 375px;
             height: 812px;
             background-color: var(--white);
-            border-radius: 30px;
+            border-radius: 0;
             overflow: hidden;
             position: relative;
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
@@ -391,6 +391,22 @@
         // --- DATA ---
         const myLearningsData = [
             {
+                id: 9,
+                title: "Cómo empacar un Garibaldi",
+                emojiTile: "🧁",
+                tileColor: "linear-gradient(135deg,#8b384a,#5a2230)",
+                status: "Obligatorio",
+                type: "En línea",
+                duration: "5 min",
+                dueDate: "Sin fecha límite",
+                description: "Empacar bien protege el producto y cuida la imagen de El Globo en cada mostrador. El Garibaldi se toma con pala pastelera (nunca con la mano), va sobre capacillo o papel encerado, y si van varios en la misma caja se separan con papel entre piezas.",
+                modules: ["Toma con pala pastelera, no con la mano", "Capacillo o papel encerado como base", "Separa piezas con papel entre ellas", "Cierra la caja sin presionar el pastel"],
+                isInteractive: true,
+                videoUrl: "https://angelperez-se.github.io/my-widgets-demo/garibaldi_hacer.mp4",
+                points: 250,
+                pointsLink: "https://bimbo.staffbase.rocks/openlink/content/page/6a6ba71b6067b108d89f31e6"
+            },
+            {
                 id: 8,
                 title: "Bloqueo y Etiquetado (LOTO)",
                 image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=300",
@@ -400,7 +416,7 @@
                 dueDate: "Vence el 15 de octubre",
                 description: "Nuevo estándar de seguridad para garantizar que ningún equipo pueda encenderse mientras alguien le da mantenimiento. Antes de intervenir cualquier máquina, este protocolo es de cumplimiento obligatorio.",
                 modules: ["Qué es el bloqueo y etiquetado", "Cómo cambia tu día a día", "Cuándo aplica el protocolo"],
-                isLoto: true,
+                isInteractive: true,
                 videoUrl: "https://angelperez-se.github.io/my-widgets-demo/training.mp4",
                 points: 250,
                 pointsLink: "https://bimbo.staffbase.rocks/openlink/content/page/6a6ba71b6067b108d89f31e6"
@@ -507,8 +523,8 @@
 
                 html += `
                     <div class="course-card" onclick="openDetails(${course.id})">
-                        <div class="card-img-wrap">
-                            <img src="${course.image}" class="card-img" alt="${course.title}">
+                        <div class="card-img-wrap"${course.tileColor ? ` style="background:${course.tileColor}; display:flex; align-items:center; justify-content:center; font-size:36px;"` : ''}>
+                            ${course.emojiTile ? course.emojiTile : `<img src="${course.image}" class="card-img" alt="${course.title}">`}
                             ${badgeHtml}
                         </div>
                         <div class="card-title">${course.title}</div>
@@ -578,15 +594,24 @@
 
         // --- MODAL: curso LOTO (video real + progreso + puntos) ---
 
-        function buildLotoModalBody(course) {
+        function buildInteractiveModalBody(course) {
             const modulesHtml = course.modules.map(mod => `
                 <li style="margin-bottom: 8px; color: #555;">${mod}</li>
             `).join('');
 
+            const hasRealVideo = course.videoUrl && !course.videoUrl.startsWith('REEMPLAZAR');
+            const mediaHtml = hasRealVideo
+                ? `<video controls preload="metadata" style="width:100%; height:180px; border-radius:12px; margin-bottom:20px; background:#000; object-fit:cover;">
+                       <source src="${course.videoUrl}" type="video/mp4">
+                   </video>`
+                : `<div style="height:180px; border-radius:12px; margin-bottom:20px; background: repeating-linear-gradient(135deg, rgba(93,46,142,.08) 0 14px, rgba(93,46,142,.03) 14px 28px), #f3f0fa; border:2px dashed #cbbde6; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:#5D2E8E;">
+                       <div style="font-size:30px;">🎬</div>
+                       <div style="font-size:12.5px; font-weight:700;">Espacio para el video</div>
+                       <div style="font-size:10.5px; color:#8a7aa8;">pendiente subir a GitHub Pages</div>
+                   </div>`;
+
             return `
-                <video controls preload="metadata" style="width:100%; height:180px; border-radius:12px; margin-bottom:20px; background:#000; object-fit:cover;">
-                    <source src="${course.videoUrl}" type="video/mp4">
-                </video>
+                ${mediaHtml}
                 <h2 class="detail-title">${course.title}</h2>
                 <div class="detail-meta">
                     <span>🎧 ${course.type}</span>
@@ -618,8 +643,8 @@
             `;
         }
 
-        function startLotoTraining() {
-            const btn = document.getElementById('loto-start-btn');
+        function startInteractiveTraining() {
+            const btn = document.getElementById('interactive-start-btn');
             if (btn) btn.disabled = true;
             const fill = document.getElementById('loto-progress-fill');
             const text = document.getElementById('loto-progress-text');
@@ -648,9 +673,9 @@
             const ctaContainer = document.getElementById('cta-container');
             ctaContainer.style.display = 'block';
 
-            if (course.isLoto) {
-                modalBody.innerHTML = buildLotoModalBody(course);
-                ctaContainer.innerHTML = '<button class="cta-btn" id="loto-start-btn" onclick="startLotoTraining()">Comenzar formación</button>';
+            if (course.isInteractive) {
+                modalBody.innerHTML = buildInteractiveModalBody(course);
+                ctaContainer.innerHTML = '<button class="cta-btn" id="interactive-start-btn" onclick="startInteractiveTraining()">Comenzar formación</button>';
             } else {
                 modalBody.innerHTML = buildStandardModalBody(course);
                 ctaContainer.innerHTML = '<button class="cta-btn">Iniciar capacitación</button>';
