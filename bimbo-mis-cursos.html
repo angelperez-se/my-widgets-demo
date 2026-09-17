@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integración de aprendizaje Cornerstone</title>
+    <style>
+        :root {
+            --primary-purple: #5D2E8E;
+            --primary-purple-light: #F3EFFF;
+            --text-dark: #1F1F1F;
+            --text-grey: #666666;
+            --bg-light: #F8F9FA;
+            --white: #FFFFFF;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+        body {
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Mobile Container Simulation */
+        .app-container {
+            width: 375px;
+            height: 812px;
+            background-color: var(--white);
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            padding: 44px 20px 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--white);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .brand-icon {
+            width: 24px;
+            height: 24px;
+            background-color: var(--primary-purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: #ddd;
+            background-image: url('https://i.pravatar.cc/100?img=5');
+            background-size: cover;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            padding: 0 20px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 0;
+            margin-right: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-grey);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--text-dark);
+        }
+
+        /* Scrollable Content */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 20px 20px 20px;
+            scrollbar-width: none;
+        }
+
+        .content-area::-webkit-scrollbar { display: none; }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .filter-btn {
+            font-size: 12px;
+            color: var(--text-grey);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        /* Course Grid */
+        .course-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .course-card {
+            background: var(--white);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .course-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-img-wrap {
+            height: 100px;
+            width: 100%;
+            background-color: #eee;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            color: white;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .status-required { background: rgba(30, 30, 30, 0.8); }
+        .status-inprogress { background: rgba(255, 140, 0, 0.9); }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-meta {
+            font-size: 11px;
+            color: var(--text-grey);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 2px;
+        }
+
+        .card-due {
+            font-size: 11px;
+            color: var(--text-grey);
+        }
+
+        /* Modal / Detail View */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 92%;
+            background: var(--white);
+            border-radius: 20px 20px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 101;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-active .modal-overlay { opacity: 1; pointer-events: auto; }
+        .modal-active .modal-content { transform: translateY(0); }
+
+        .modal-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-grey);
+        }
+
+        .modal-scroll {
+            overflow-y: auto;
+            padding: 0 20px 100px 20px;
+            flex: 1;
+        }
+
+        .hero-img {
+            width: 100%;
+            height: 180px;
+            background: #eee;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+
+        .detail-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .detail-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-grey);
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-desc-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .detail-desc {
+            font-size: 14px;
+            color: var(--text-grey);
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .detail-desc ul {
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .cta-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 20px;
+            background: var(--white);
+            border-top: 1px solid #eee;
+        }
+
+        .cta-btn {
+            width: 100%;
+            background-color: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .cta-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+        svg { width: 24px; height: 24px; fill: #999; }
+        .purple-fill { fill: var(--primary-purple); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <header>
+            <div class="brand">
+                <div class="brand-icon">★</div>
+                <span>Cornerstone</span>
+            </div>
+            <div class="user-actions">
+                <div style="position: relative;">
+                    🔔
+                    <div style="position:absolute; top:-2px; right:-2px; width:8px; height:8px; background:red; border-radius:50%;"></div>
+                </div>
+                <div class="avatar"></div>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('learnings')">Mis cursos</button>
+            <button class="tab-btn" onclick="switchTab('recommended')">Recomendados</button>
+        </div>
+
+        <div class="content-area" id="main-content">
+        </div>
+
+        <div class="modal-overlay" id="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-content" id="modal-content">
+            <div class="modal-header">
+                <h3>Detalles de la capacitación</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-scroll" id="modal-body">
+            </div>
+            <div class="cta-container" id="cta-container">
+                <button class="cta-btn">Iniciar capacitación</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA ---
+        const myLearningsData = [
+            {
+                id: 8,
+                title: "Bloqueo y Etiquetado (LOTO)",
+                image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=300",
+                status: "Obligatorio",
+                type: "En línea",
+                duration: "8 min",
+                dueDate: "Vence el 15 de octubre",
+                description: "Nuevo estándar de seguridad para garantizar que ningún equipo pueda encenderse mientras alguien le da mantenimiento. Antes de intervenir cualquier máquina, este protocolo es de cumplimiento obligatorio.",
+                modules: ["Qué es el bloqueo y etiquetado", "Cómo cambia tu día a día", "Cuándo aplica el protocolo"],
+                isLoto: true,
+                videoUrl: "https://angelperez-se.github.io/my-widgets-demo/training.mp4",
+                points: 250,
+                pointsLink: "https://bimbo.staffbase.rocks/openlink/content/page/6a6ba71b6067b108d89f31e6"
+            },
+            {
+                id: 1,
+                title: "Fundamentos de liderazgo",
+                image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=300",
+                status: "Obligatorio",
+                type: "En línea",
+                duration: "1 h",
+                dueDate: "Vence en 3 días",
+                description: "Domina las habilidades esenciales para liderar equipos de manera efectiva. Incluye comunicación, empatía y pensamiento estratégico.",
+                modules: ["Introducción al liderazgo", "Estilos de comunicación", "Resolución de conflictos"]
+            },
+            {
+                id: 2,
+                title: "Gestión de producto 101",
+                image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&q=80&w=300",
+                status: "En progreso",
+                type: "En línea",
+                duration: "45 min",
+                dueDate: "20 de enero",
+                description: "Una introducción al ciclo de vida del producto, desde la idea hasta el lanzamiento. Aprende a definir requerimientos y colaborar con ingeniería.",
+                modules: ["Ciclo de vida del producto", "Historias de usuario", "Hoja de ruta"]
+            },
+            {
+                id: 3,
+                title: "Capacitación en vivo: Seguridad",
+                image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=300",
+                status: null,
+                type: "Evento",
+                duration: "Todo el día",
+                dueDate: "28 de enero",
+                description: "Capacitación presencial de seguridad para el personal de almacén y operaciones. La asistencia es obligatoria.",
+                modules: ["Sesión de la mañana", "Manejo de equipo", "Protocolos de emergencia"]
+            },
+            {
+                id: 4,
+                title: "Comunicación entre culturas",
+                image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=300",
+                status: null,
+                type: "Evento",
+                duration: "3 h",
+                dueDate: "14 de febrero",
+                description: "Aprende a desenvolverte entre diferencias culturales dentro de un entorno laboral global.",
+                modules: ["Dimensiones culturales", "Señales no verbales", "Casos de estudio"]
+            }
+        ];
+
+        const recommendedData = [
+            {
+                id: 5,
+                title: "Privacidad de datos 2026",
+                image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=300",
+                status: "En progreso",
+                type: "En línea",
+                duration: "1 h",
+                dueDate: "Vence en 3 días",
+                description: "Aprende a manejar datos personales de forma responsable y comprende los principios clave de GDPR y CCPA para proteger la privacidad y cumplir con la normativa.",
+                modules: ["Datos personales", "Responsabilidades de GDPR y CCPA", "Buenas prácticas de privacidad"]
+            },
+            {
+                id: 6,
+                title: "Seguridad de la información",
+                image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=300",
+                status: null,
+                type: "En línea",
+                duration: "45 min",
+                dueDate: "20 de enero",
+                description: "Protección de los activos de la empresa frente a amenazas cibernéticas. Phishing, seguridad de contraseñas e ingeniería social.",
+                modules: ["Concientización sobre phishing", "Higiene de contraseñas", "Reporte de incidentes"]
+            },
+            {
+                id: 7,
+                title: "Excel avanzado",
+                image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=300",
+                status: "Nuevo",
+                type: "En línea",
+                duration: "2 h",
+                dueDate: "Opcional",
+                description: "Lleva tus hojas de cálculo al siguiente nivel con tablas dinámicas, BUSCARV y macros.",
+                modules: ["Fórmulas", "Tablas dinámicas", "Macros"]
+            }
+        ];
+
+        // --- RENDER LOGIC ---
+
+        function renderGrid(data, title) {
+            let html = `
+                <div class="section-header">
+                    <div class="section-title">${title}</div>
+                    <div class="filter-btn">Filtrar ▾</div>
+                </div>
+                <div class="course-grid">
+            `;
+
+            data.forEach(course => {
+                let badgeHtml = '';
+                if (course.status) {
+                    const badgeClass = course.status === 'Obligatorio' ? 'status-required' : 'status-inprogress';
+                    badgeHtml = `<span class="status-badge ${badgeClass}">${course.status}</span>`;
+                }
+
+                html += `
+                    <div class="course-card" onclick="openDetails(${course.id})">
+                        <div class="card-img-wrap">
+                            <img src="${course.image}" class="card-img" alt="${course.title}">
+                            ${badgeHtml}
+                        </div>
+                        <div class="card-title">${course.title}</div>
+                        <div class="card-meta">
+                            <span>🎧 ${course.type}</span> • <span>${course.duration}</span>
+                        </div>
+                        <div class="card-due">${course.dueDate}</div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            return html;
+        }
+
+        function switchTab(tabName) {
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            const container = document.getElementById('main-content');
+            
+            if (tabName === 'learnings') {
+                buttons[0].classList.add('active');
+                container.innerHTML = renderGrid(myLearningsData, "Mis cursos");
+            } else {
+                buttons[1].classList.add('active');
+                container.innerHTML = renderGrid(recommendedData, "Cursos recomendados");
+            }
+        }
+
+        // --- MODAL: cursos normales (sin cambios de comportamiento) ---
+
+        function buildStandardModalBody(course) {
+            const modulesHtml = course.modules.map(mod => `
+                <li style="margin-bottom: 8px; color: #555;">${mod}</li>
+            `).join('');
+
+            return `
+                <img src="${course.image.replace('w=300', 'w=600')}" class="hero-img">
+                <h2 class="detail-title">${course.title}</h2>
+                <div class="detail-meta">
+                    <span>🎧 ${course.type}</span>
+                    <span>⏱ ${course.duration}</span>
+                    <span>📅 ${course.dueDate}</span>
+                </div>
+
+                <div class="detail-desc-title">Acerca del curso</div>
+                <div class="detail-desc">
+                    ${course.description}
+                    <ul>${modulesHtml}</ul>
+                    <div style="text-align:right; margin-top:8px; color:var(--primary-purple); font-weight:600;">Ver todo</div>
+                </div>
+
+                <div class="detail-desc-title">Resumen de la sesión</div>
+                 <div style="display:flex; gap:12px; margin-top:12px;">
+                    <div style="display:flex; flex-direction:column; align-items:center;">
+                        <div style="width:24px; height:24px; background:#ccc; border-radius:50%; color:white; display:flex; justify-content:center; align-items:center; font-size:12px;">1</div>
+                        <div style="width:1px; height:30px; background:#eee;"></div>
+                    </div>
+                    <div>
+                        <div style="font-weight:600; font-size:14px;">Introducción</div>
+                        <div style="font-size:12px; color:#999;">5 min</div>
+                    </div>
+                 </div>
+            `;
+        }
+
+        // --- MODAL: curso LOTO (video real + progreso + puntos) ---
+
+        function buildLotoModalBody(course) {
+            const modulesHtml = course.modules.map(mod => `
+                <li style="margin-bottom: 8px; color: #555;">${mod}</li>
+            `).join('');
+
+            return `
+                <video controls preload="metadata" style="width:100%; height:180px; border-radius:12px; margin-bottom:20px; background:#000; object-fit:cover;">
+                    <source src="${course.videoUrl}" type="video/mp4">
+                </video>
+                <h2 class="detail-title">${course.title}</h2>
+                <div class="detail-meta">
+                    <span>🎧 ${course.type}</span>
+                    <span>⏱ ${course.duration}</span>
+                    <span>📅 ${course.dueDate}</span>
+                </div>
+
+                <div class="detail-desc-title">Acerca del curso</div>
+                <div class="detail-desc">
+                    ${course.description}
+                    <ul>${modulesHtml}</ul>
+                </div>
+
+                <div class="detail-desc-title">Progreso del curso</div>
+                <div style="background:#e2e8f0; border-radius:20px; height:8px; overflow:hidden; margin-bottom:6px;">
+                    <div id="loto-progress-fill" style="background:var(--primary-purple); width:0%; height:8px; border-radius:20px; transition:width .35s ease;"></div>
+                </div>
+                <div id="loto-progress-text" style="font-size:12px; color:#999; margin-bottom:20px;">0% completado</div>
+
+                <div id="loto-complete-panel" style="display:none; text-align:center; padding:20px; background:var(--primary-purple-light); border-radius:12px;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#E4F7EF; color:#1FA55C; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:24px;">✓</div>
+                    <div style="font-weight:700; margin-bottom:6px;">¡Capacitación completada!</div>
+                    <div style="font-size:13px; color:#666; margin-bottom:14px;">Tu constancia ya está disponible en Cornerstone.</div>
+                    <div style="display:inline-flex; align-items:center; gap:6px; background:#FFF6DE; color:#8a6d1a; font-size:13px; font-weight:800; padding:7px 16px; border-radius:20px; margin-bottom:14px;">🎉 Ganaste ${course.points} puntos de capacitación técnica</div>
+                    <div>
+                        <a href="${course.pointsLink}" target="_top" style="display:inline-block; background:var(--primary-purple); color:#fff; text-decoration:none; font-size:14px; font-weight:700; padding:11px 22px; border-radius:10px;">Ver mis puntos →</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startLotoTraining() {
+            const btn = document.getElementById('loto-start-btn');
+            if (btn) btn.disabled = true;
+            const fill = document.getElementById('loto-progress-fill');
+            const text = document.getElementById('loto-progress-text');
+            let pct = 0;
+            const interval = setInterval(() => {
+                pct += 20;
+                fill.style.width = pct + '%';
+                text.textContent = pct + '% completado';
+                if (pct >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('loto-complete-panel').style.display = 'block';
+                        document.getElementById('cta-container').style.display = 'none';
+                    }, 400);
+                }
+            }, 450);
+        }
+
+        // --- ABRIR / CERRAR MODAL ---
+
+        function openDetails(id) {
+            const course = [...myLearningsData, ...recommendedData].find(c => c.id === id);
+            if (!course) return;
+
+            const modalBody = document.getElementById('modal-body');
+            const ctaContainer = document.getElementById('cta-container');
+            ctaContainer.style.display = 'block';
+
+            if (course.isLoto) {
+                modalBody.innerHTML = buildLotoModalBody(course);
+                ctaContainer.innerHTML = '<button class="cta-btn" id="loto-start-btn" onclick="startLotoTraining()">Comenzar formación</button>';
+            } else {
+                modalBody.innerHTML = buildStandardModalBody(course);
+                ctaContainer.innerHTML = '<button class="cta-btn">Iniciar capacitación</button>';
+            }
+
+            document.body.classList.add('modal-active');
+        }
+
+        function closeModal() {
+            document.body.classList.remove('modal-active');
+        }
+
+        // Initialize
+        switchTab('learnings');
+    </script>
+</body>
+</html>
