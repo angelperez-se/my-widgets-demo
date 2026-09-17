@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integración de aprendizaje Cornerstone</title>
+    <style>
+        :root {
+            --primary-purple: #5D2E8E;
+            --primary-purple-light: #F3EFFF;
+            --text-dark: #1F1F1F;
+            --text-grey: #666666;
+            --bg-light: #F8F9FA;
+            --white: #FFFFFF;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+        body {
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Mobile Container Simulation */
+        .app-container {
+            width: 375px;
+            height: 812px;
+            background-color: var(--white);
+            border-radius: 0;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            padding: 44px 20px 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--white);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .brand-icon {
+            width: 24px;
+            height: 24px;
+            background-color: var(--primary-purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: #ddd;
+            background-image: url('https://i.pravatar.cc/100?img=5');
+            background-size: cover;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            padding: 0 20px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 0;
+            margin-right: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-grey);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--text-dark);
+        }
+
+        /* Scrollable Content */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 20px 20px 20px;
+            scrollbar-width: none;
+        }
+
+        .content-area::-webkit-scrollbar { display: none; }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .filter-btn {
+            font-size: 12px;
+            color: var(--text-grey);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        /* Course Grid */
+        .course-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .course-card {
+            background: var(--white);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .course-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-img-wrap {
+            height: 100px;
+            width: 100%;
+            background-color: #eee;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            color: white;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .status-required { background: rgba(30, 30, 30, 0.8); }
+        .status-inprogress { background: rgba(255, 140, 0, 0.9); }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-meta {
+            font-size: 11px;
+            color: var(--text-grey);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 2px;
+        }
+
+        .card-due {
+            font-size: 11px;
+            color: var(--text-grey);
+        }
+
+        /* Modal / Detail View */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 92%;
+            background: var(--white);
+            border-radius: 20px 20px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 101;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-active .modal-overlay { opacity: 1; pointer-events: auto; }
+        .modal-active .modal-content { transform: translateY(0); }
+
+        .modal-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-grey);
+        }
+
+        .modal-scroll {
+            overflow-y: auto;
+            padding: 0 20px 100px 20px;
+            flex: 1;
+        }
+
+        .hero-img {
+            width: 100%;
+            height: 180px;
+            background: #eee;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+
+        .detail-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .detail-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-grey);
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-desc-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .detail-desc {
+            font-size: 14px;
+            color: var(--text-grey);
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .detail-desc ul {
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .cta-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 20px;
+            background: var(--white);
+            border-top: 1px solid #eee;
+        }
+
+        .cta-btn {
+            width: 100%;
+            background-color: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .cta-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+        /* Bimbo Market: acordeones nativos con <details>, sin JS */
+        #screen-market summary { list-style: none; cursor: pointer; outline: none; }
+        #screen-market summary::-webkit-details-marker { display: none; }
+        #screen-market summary::marker { content: ""; }
+        #screen-market details[open] > .reveal { animation: bimboReveal .35s ease; }
+        @keyframes bimboReveal { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+        #screen-market .chev, #screen-market .plus { transition: transform .3s ease; display: inline-block; }
+        #screen-market details[open] .chev { transform: rotate(180deg); }
+        #screen-market details[open] .plus { transform: rotate(45deg); }
+        #screen-market { animation: marketSlideIn .32s ease-out; }
+        @keyframes marketSlideIn { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: translateX(0); } }
+        #screen-courses.reentering { animation: coursesSlideIn .28s ease-out; }
+        @keyframes coursesSlideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+
+        svg { width: 24px; height: 24px; fill: #999; }
+        .purple-fill { fill: var(--primary-purple); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <div id="screen-courses" style="display:flex; flex-direction:column; flex:1; min-height:0;">
+        <header>
+            <div class="brand">
+                <div class="brand-icon">★</div>
+                <span>Cornerstone</span>
+            </div>
+            <div class="user-actions">
+                <div style="position: relative;">
+                    🔔
+                    <div style="position:absolute; top:-2px; right:-2px; width:8px; height:8px; background:red; border-radius:50%;"></div>
+                </div>
+                <div class="avatar"></div>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('learnings')">Mis cursos</button>
+            <button class="tab-btn" onclick="switchTab('recommended')">Recomendados</button>
+        </div>
+
+        <div class="content-area" id="main-content">
+        </div>
+
+        <div class="modal-overlay" id="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-content" id="modal-content">
+            <div class="modal-header">
+                <h3>Detalles de la capacitación</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-scroll" id="modal-body">
+            </div>
+            <div class="cta-container" id="cta-container">
+                <button class="cta-btn">Iniciar capacitación</button>
+            </div>
+        </div>
+        </div>
+
+        <!-- ============ PANTALLA: BIMBO MARKET (puntos) ============ -->
+        <div id="screen-market" style="display:none; flex:1; overflow-y:auto; background:#F2F2F2; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+
+          <div style="padding:12px 16px; background:#fff; border-bottom:1px solid #eee;">
+            <button onclick="hideMarket()" style="background:none; border:none; color:#5D2E8E; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; padding:0;">← Volver a mis cursos</button>
+          </div>
+
+          <div style="width:100%; margin:0 auto; background:#F2F2F2;">
+
+            <!-- HEADER -->
+            <div style="background: #263576; padding: 16px 22px 24px; position: relative; overflow: hidden;">
+              <div style="position: absolute; right: -40px; top: -40px; width: 180px; height: 180px; background: radial-gradient(circle,rgba(237,28,36,0.28) 0%,transparent 70%); pointer-events: none;"></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; position: relative; z-index: 1;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="color: #ffffff; font-size: 20px; font-weight: 800; letter-spacing: -0.5px;">Bimbo</span>
+                  <span style="background: #ED1C24; color: #ffffff; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 4px; letter-spacing: 0.06em;">MARKET</span>
+                </div>
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; position: relative;"><span style="position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: #FF3340; border-radius: 50%; border: 1.5px solid #263576;"></span></div>
+              </div>
+              <div style="position: relative; z-index: 1;">
+                <p style="font-size: 12px; color: rgba(255,255,255,0.55); margin: 0 0 3px 0;">Bienvenida de vuelta</p>
+                <p style="font-size: 22px; font-weight: bold; color: #ffffff; letter-spacing: -0.5px; margin: 0 0 18px 0;">Hugo Bennett 👋</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 12px 16px; position: relative; z-index: 1;">
+                <div style="width: 36px; height: 36px; background: linear-gradient(135deg,#ED1C24 0%,#FF3340 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">⭐</div>
+                <div style="flex: 1;">
+                  <p style="font-size: 10px; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 2px 0;">Puntos disponibles</p>
+                  <p style="font-size: 17px; font-weight: bold; color: #ffffff; letter-spacing: -0.3px; margin: 0;">1,250 pts</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- BODY -->
+            <div style="padding: 20px 16px 48px;">
+
+              <!-- chips -->
+              <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;">
+                <div style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; background: #263576; color: #ffffff;">Todos</div>
+                <div style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; background: #FFFFFF; color: #1a1a1a; border: 1.5px solid #E0E0E0;">Telecom</div>
+                <div style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; background: #FFFFFF; color: #1a1a1a; border: 1.5px solid #E0E0E0;">Cine</div>
+                <div style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; background: #FFFFFF; color: #1a1a1a; border: 1.5px solid #E0E0E0;">Moda</div>
+                <div style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; background: #FFFFFF; color: #1a1a1a; border: 1.5px solid #E0E0E0;">Restaurantes</div>
+                <div style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; background: #FFFFFF; color: #1a1a1a; border: 1.5px solid #E0E0E0;">Salud</div>
+              </div>
+
+              <!-- FEATURED -->
+              <p style="font-size: 11px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 22px 0 12px 0;">Oferta destacada</p>
+              <details style="background: #263576; border-radius: 20px; overflow: hidden; margin-bottom: 4px; position: relative;">
+                <div style="position: absolute; right: -30px; bottom: -30px; width: 160px; height: 160px; background: radial-gradient(circle,rgba(237,28,36,0.40) 0%,transparent 65%); border-radius: 50%; pointer-events: none;"></div>
+                <div style="position: absolute; right: 24px; top: 46px; font-size: 52px; opacity: 0.85; pointer-events: none;">📱</div>
+                <summary style="padding: 20px 22px; position: relative; z-index: 1;">
+                  <span style="display: inline-block; background: #ED1C24; color: #ffffff; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px;">Exclusivo Bimbo</span>
+                  <p style="color: #ffffff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.15; margin: 0 0 6px 0;">20% de descuento<br>en Telcel</p>
+                  <p style="color: rgba(255,255,255,0.6); font-size: 13px; margin: 0 0 16px 0; line-height: 1.5;">Recargas y planes de datos. Solo para colaboradores.</p>
+                  <span style="display: inline-flex; align-items: center; gap: 8px; background: #ED1C24; border-radius: 20px; padding: 10px 20px;"><span style="color: #ffffff; font-size: 13px; font-weight: bold;">Ver cupón</span> <span class="chev" style="color: #ffffff; font-size: 13px;">▼</span></span>
+                </summary>
+                <div class="reveal" style="position: relative; z-index: 1;">
+                  <div style="padding: 0 22px 22px;">
+                    <div style="border: 2px dashed rgba(237,28,36,0.6); border-radius: 12px; padding: 16px; text-align: center; background: rgba(237,28,36,0.12); position: relative;">
+                      <div style="position: absolute; width: 16px; height: 16px; background: #263576; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid rgba(237,28,36,0.5);"></div>
+                      <div style="position: absolute; width: 16px; height: 16px; background: #263576; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid rgba(237,28,36,0.5);"></div>
+                      <p style="font-size: 9px; font-weight: bold; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+                      <p style="font-size: 26px; font-weight: 900; color: #FF3340; letter-spacing: 4px; margin: 0 0 6px 0;">BIMBO20TEL</p>
+                      <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin: 0;">Muestra en tienda o ingresa en telcel.com</p>
+                    </div>
+                    <p style="font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; margin: 10px 0 0 0;">⏱ Válido hasta el 30 de septiembre de 2026</p>
+                  </div>
+                </div>
+              </details>
+
+              <!-- GRID -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin: 22px 0 12px 0;">
+                <p style="font-size: 11px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0;">Descuentos para ti</p>
+                <span style="font-size: 12px; color: #ED1C24; font-weight: 600;">Ver todos</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+
+                <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden;">
+                  <summary>
+                    <div style="height: 76px; background: #FFF8DC; display: flex; align-items: center; justify-content: center; font-size: 34px; position: relative;">🎬 <span style="position: absolute; top: 8px; right: 8px; background: #263576; color: #ffffff; font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 20px;">2×1</span></div>
+                    <div style="padding: 10px 12px 12px;">
+                      <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 3px 0;">Cinépolis</p>
+                      <p style="font-size: 12px; font-weight: 600; color: #1a1a1a; line-height: 1.3; margin: 0 0 4px 0;">2×1 boletos miércoles</p>
+                      <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <p style="font-size: 15px; font-weight: 800; color: #ED1C24; margin: 0;">2×1</p>
+                        <span class="plus" style="font-size: 14px; color: #767676;">＋</span>
+                      </div>
+                      <p style="font-size: 9px; color: #767676; margin: 3px 0 0 0;">Vence 30 sep</p>
+                    </div>
+                  </summary>
+                  <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+                    <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+                      <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+                      <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+                      <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+                      <p style="font-size: 16px; font-weight: 900; color: #ED1C24; letter-spacing: 1px; margin: 0 0 6px 0; word-break: break-word;">BIMBOCINE2X1</p>
+                      <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0 0 12px 0;">Presenta en taquilla o en cinepolis.com</p>
+                      <a href="https://www.cinepolis.com" target="_blank" rel="noopener" style="display: inline-block; background: #ED1C24; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: bold; padding: 8px 18px; border-radius: 20px;">Ir a Cinépolis →</a>
+                    </div>
+                    <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Válido hasta el 30 de septiembre de 2026</p>
+                  </div>
+                </details>
+
+                <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden;">
+                  <summary>
+                    <div style="height: 76px; background: #EEF3FF; display: flex; align-items: center; justify-content: center; font-size: 34px; position: relative;">🛍️ <span style="position: absolute; top: 8px; right: 8px; background: #263576; color: #ffffff; font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 20px;">15%</span></div>
+                    <div style="padding: 10px 12px 12px;">
+                      <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 3px 0;">Liverpool</p>
+                      <p style="font-size: 12px; font-weight: 600; color: #1a1a1a; line-height: 1.3; margin: 0 0 4px 0;">15% ropa y accesorios</p>
+                      <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <p style="font-size: 15px; font-weight: 800; color: #ED1C24; margin: 0;">15% off</p>
+                        <span class="plus" style="font-size: 14px; color: #767676;">＋</span>
+                      </div>
+                      <p style="font-size: 9px; color: #767676; margin: 3px 0 0 0;">Vence 15 sep</p>
+                    </div>
+                  </summary>
+                  <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+                    <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+                      <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+                      <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+                      <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+                      <p style="font-size: 16px; font-weight: 900; color: #ED1C24; letter-spacing: 1px; margin: 0 0 6px 0; word-break: break-word;">BIMBOLIV15</p>
+                      <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Presenta en caja o al pagar en línea</p>
+                    </div>
+                    <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Válido hasta el 15 de septiembre de 2026</p>
+                  </div>
+                </details>
+
+                <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden;">
+                  <summary>
+                    <div style="height: 76px; background: #FFF5E6; display: flex; align-items: center; justify-content: center; font-size: 34px; position: relative;">🏪 <span style="position: absolute; top: 8px; right: 8px; background: #263576; color: #ffffff; font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 20px;">10%</span></div>
+                    <div style="padding: 10px 12px 12px;">
+                      <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 3px 0;">OXXO</p>
+                      <p style="font-size: 12px; font-weight: 600; color: #1a1a1a; line-height: 1.3; margin: 0 0 4px 0;">10% bebidas y snacks</p>
+                      <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <p style="font-size: 15px; font-weight: 800; color: #ED1C24; margin: 0;">10% off</p>
+                        <span class="plus" style="font-size: 14px; color: #767676;">＋</span>
+                      </div>
+                      <p style="font-size: 9px; color: #767676; margin: 3px 0 0 0;">Vence 30 sep</p>
+                    </div>
+                  </summary>
+                  <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+                    <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+                      <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+                      <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+                      <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+                      <p style="font-size: 16px; font-weight: 900; color: #ED1C24; letter-spacing: 1px; margin: 0 0 6px 0; word-break: break-word;">BIMBOOXXO10</p>
+                      <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Muestra al cajero antes de pagar</p>
+                    </div>
+                    <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Válido hasta el 30 de septiembre de 2026</p>
+                  </div>
+                </details>
+
+                <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden;">
+                  <summary>
+                    <div style="height: 76px; background: #E6F7FF; display: flex; align-items: center; justify-content: center; font-size: 34px; position: relative;">🛒 <span style="position: absolute; top: 8px; right: 8px; background: #263576; color: #ffffff; font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 20px;">$200</span></div>
+                    <div style="padding: 10px 12px 12px;">
+                      <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 3px 0;">Sam's Club</p>
+                      <p style="font-size: 12px; font-weight: 600; color: #1a1a1a; line-height: 1.3; margin: 0 0 4px 0;">$200 off membresía</p>
+                      <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <p style="font-size: 15px; font-weight: 800; color: #ED1C24; margin: 0;">$200 off</p>
+                        <span class="plus" style="font-size: 14px; color: #767676;">＋</span>
+                      </div>
+                      <p style="font-size: 9px; color: #767676; margin: 3px 0 0 0;">Vence 30 sep</p>
+                    </div>
+                  </summary>
+                  <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+                    <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+                      <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+                      <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+                      <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+                      <p style="font-size: 16px; font-weight: 900; color: #ED1C24; letter-spacing: 1px; margin: 0 0 6px 0; word-break: break-word;">BIMBOSAMS200</p>
+                      <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Presenta en el módulo de membresías</p>
+                    </div>
+                    <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Válido hasta el 30 de septiembre de 2026</p>
+                  </div>
+                </details>
+
+              </div>
+
+              <!-- LIST -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin: 22px 0 12px 0;">
+                <p style="font-size: 11px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0;">Más beneficios</p>
+                <span style="font-size: 12px; color: #ED1C24; font-weight: 600;">Ver todos</span>
+              </div>
+
+              <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 10px;">
+                <summary style="display: flex; align-items: center; gap: 12px; padding: 12px 14px;">
+                  <div style="width: 48px; height: 48px; border-radius: 12px; background: #E8F8EE; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">🎵</div>
+                  <div style="flex: 1;">
+                    <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0;">Spotify</p>
+                    <p style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin: 2px 0 3px 0;">3 meses Premium gratis</p>
+                    <p style="font-size: 12px; font-weight: bold; color: #ED1C24; margin: 0;">Gratis 3 meses</p>
+                  </div>
+                  <span class="plus" style="font-size: 18px; color: #767676;">＋</span>
+                </summary>
+                <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+                  <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+                    <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+                    <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+                    <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+                    <p style="font-size: 24px; font-weight: 900; color: #ED1C24; letter-spacing: 4px; margin: 0 0 6px 0;">BIMBOSPOT3M</p>
+                    <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Ingresa en spotify.com/redeem</p>
+                  </div>
+                  <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Válido hasta el 30 de septiembre de 2026</p>
+                </div>
+              </details>
+
+              <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 10px;">
+                <summary style="display: flex; align-items: center; gap: 12px; padding: 12px 14px;">
+                  <div style="width: 48px; height: 48px; border-radius: 12px; background: #FFF5E6; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">🍽️</div>
+                  <div style="flex: 1;">
+                    <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0;">VIPS</p>
+                    <p style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin: 2px 0 3px 0;">20% en tu cuenta los lunes</p>
+                    <p style="font-size: 12px; font-weight: bold; color: #ED1C24; margin: 0;">20% off lunes</p>
+                  </div>
+                  <span class="plus" style="font-size: 18px; color: #767676;">＋</span>
+                </summary>
+                <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+                  <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+                    <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+                    <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+                    <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+                    <p style="font-size: 24px; font-weight: 900; color: #ED1C24; letter-spacing: 4px; margin: 0 0 6px 0;">BIMBOVIPS20L</p>
+                    <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Muestra al mesero antes de pedir la cuenta</p>
+                  </div>
+                  <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Lunes de septiembre y octubre 2026</p>
+                </div>
+              </details>
+
+              <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 10px;">
+                <summary style="display: flex; align-items: center; gap: 12px; padding: 12px 14px;">
+                  <div style="width: 48px; height: 48px; border-radius: 12px; background: #F3EEFF; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">💊</div>
+                  <div style="flex: 1;">
+                    <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0;">Farmacias del Ahorro</p>
+                    <p style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin: 2px 0 3px 0;">12% en medicamentos</p>
+                    <p style="font-size: 12px; font-weight: bold; color: #ED1C24; margin: 0;">12% off</p>
+                  </div>
+                  <span class="plus" style="font-size: 18px; color: #767676;">＋</span>
+                </summary>
+                <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+                  <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+                    <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+                    <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+                    <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+                    <p style="font-size: 24px; font-weight: 900; color: #ED1C24; letter-spacing: 4px; margin: 0 0 6px 0;">BIMBOFARMA12</p>
+                    <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Menciona al farmacéutico antes de pagar</p>
+                  </div>
+                  <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Válido hasta el 30 de septiembre de 2026</p>
+                </div>
+              </details>
+
+              <details style="background: #FFFFFF; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 10px;">
+                <summary style="display: flex; align-items: center; gap: 12px; padding: 12px 14px;">
+                  <div style="width: 48px; height: 48px; border-radius: 12px; background: #F2F2F2; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">🚗</div>
+                  <div style="flex: 1;">
+                    <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.07em; margin: 0;">Uber</p>
+                    <p style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin: 2px 0 3px 0;">$50 de crédito al mes</p>
+                    <p style="font-size: 12px; font-weight: bold; color: #ED1C24; margin: 0;">$50 mensual</p>
+                  </div>
+                  <span class="plus" style="font-size: 18px; color: #767676;">＋</span>
+                </summary>
+                <div class="reveal" style="padding: 0 14px 16px 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+                  <div style="border: 2px dashed #ED1C24; border-radius: 12px; padding: 16px; text-align: center; background: #FFF3F4; position: relative; margin: 10px 0;">
+                    <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); left: -9px; border: 2px solid #ED1C24;"></div>
+                    <div style="position: absolute; width: 16px; height: 16px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translateY(-50%); right: -9px; border: 2px solid #ED1C24;"></div>
+                    <p style="font-size: 9px; font-weight: bold; color: #767676; text-transform: uppercase; letter-spacing: 0.09em; margin: 0 0 8px 0;">Tu código de descuento</p>
+                    <p style="font-size: 24px; font-weight: 900; color: #ED1C24; letter-spacing: 4px; margin: 0 0 6px 0;">BIMBOUBER50</p>
+                    <p style="font-size: 11px; color: #767676; line-height: 1.4; margin: 0;">Agrega en Uber &gt; Pago &gt; Agregar código</p>
+                  </div>
+                  <p style="font-size: 11px; color: #767676; text-align: center; margin: 0;">⏱ Se renueva el 1 de cada mes</p>
+                </div>
+              </details>
+
+            </div>
+          </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA ---
+        const myLearningsData = [
+            {
+                id: 10,
+                title: "Las 12 Máximas del Negocio: Introducción",
+                emojiTile: "🎯",
+                tileColor: "linear-gradient(135deg,#5D2E8E,#3d1d61)",
+                status: "Obligatorio",
+                type: "En línea",
+                duration: "3 min",
+                dueDate: "Sin fecha límite",
+                description: "Conoce el programa que va a guiar cómo pensamos y trabajamos como negocio: 12 máximas prácticas sobre gestión, liderazgo, cultura y más.",
+                modules: ["Qué son las 12 Máximas del Negocio", "Cómo se integran a tu día a día", "Qué sigue después de esta introducción"],
+                isInteractive: true,
+                videoUrl: "https://angelperez-se.github.io/my-widgets-demo/Video_realista_de_una_mujer_pr.mp4",
+                points: 250,
+                pointsCategory: "desarrollo",
+                pointsLink: "https://bimbo.staffbase.rocks/openlink/content/page/6a6ba71b6067b108d89f31e6"
+            },
+            {
+                id: 11,
+                title: "Gestión: Prioriza y decide con impacto",
+                image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&q=80&w=300",
+                status: "Obligatorio",
+                type: "En línea",
+                duration: "20 min",
+                dueDate: "Vence en 5 días",
+                description: "Herramientas prácticas para priorizar lo importante, tomar decisiones con datos y ejecutar sin perder tiempo.",
+                modules: ["Matriz de prioridades", "Toma de decisiones basada en datos", "Delegar con confianza"]
+            },
+            {
+                id: 12,
+                title: "Desarrollo: Aprende algo nuevo cada semana",
+                image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=300",
+                status: "En progreso",
+                type: "En línea",
+                duration: "25 min",
+                dueDate: "Sin fecha límite",
+                description: "El crecimiento no se detiene. Construye el hábito de aprender constantemente y comparte lo que sabes con tu equipo.",
+                modules: ["Mentalidad de crecimiento", "Plan de desarrollo personal", "Aprendizaje entre pares"]
+            },
+            {
+                id: 13,
+                title: "Liderazgo: Da el ejemplo primero",
+                image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=300",
+                status: "Obligatorio",
+                type: "En línea",
+                duration: "30 min",
+                dueDate: "Vence en 3 días",
+                description: "Liderar es primero una decisión personal. Aprende a inspirar con el ejemplo antes de pedirlo a los demás.",
+                modules: ["Liderazgo con el ejemplo", "Comunicación clara", "Dar y recibir feedback"]
+            },
+            {
+                id: 14,
+                title: "Obsesión por el Cliente: Todo empieza y termina con ellos",
+                image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=300",
+                status: null,
+                type: "En línea",
+                duration: "20 min",
+                dueDate: "Opcional",
+                description: "Cada decisión debe pasar por una pregunta: ¿esto le sirve al cliente? Aprende a poner al cliente en el centro de todo lo que haces.",
+                modules: ["Escuchar antes de responder", "Resolver desde la raíz", "Superar expectativas"]
+            },
+            {
+                id: 15,
+                title: "Cultura: Vivimos nuestros valores todos los días",
+                image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=300",
+                status: null,
+                type: "En línea",
+                duration: "20 min",
+                dueDate: "Opcional",
+                description: "Nuestra cultura no vive en un cartel, vive en cómo actuamos todos los días. Conoce los valores que nos definen y cómo se ven en la práctica.",
+                modules: ["Nuestros valores en acción", "Historias que nos representan", "Cómo reconocer la cultura en el día a día"]
+            }
+        ];
+
+        const recommendedData = [
+            {
+                id: 5,
+                title: "Privacidad de datos 2026",
+                image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=300",
+                status: "En progreso",
+                type: "En línea",
+                duration: "1 h",
+                dueDate: "Vence en 3 días",
+                description: "Aprende a manejar datos personales de forma responsable y comprende los principios clave de GDPR y CCPA para proteger la privacidad y cumplir con la normativa.",
+                modules: ["Datos personales", "Responsabilidades de GDPR y CCPA", "Buenas prácticas de privacidad"]
+            },
+            {
+                id: 6,
+                title: "Seguridad de la información",
+                image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=300",
+                status: null,
+                type: "En línea",
+                duration: "45 min",
+                dueDate: "20 de enero",
+                description: "Protección de los activos de la empresa frente a amenazas cibernéticas. Phishing, seguridad de contraseñas e ingeniería social.",
+                modules: ["Concientización sobre phishing", "Higiene de contraseñas", "Reporte de incidentes"]
+            },
+            {
+                id: 7,
+                title: "Excel avanzado",
+                image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=300",
+                status: "Nuevo",
+                type: "En línea",
+                duration: "2 h",
+                dueDate: "Opcional",
+                description: "Lleva tus hojas de cálculo al siguiente nivel con tablas dinámicas, BUSCARV y macros.",
+                modules: ["Fórmulas", "Tablas dinámicas", "Macros"]
+            }
+        ];
+
+        // --- RENDER LOGIC ---
+
+        function renderGrid(data, title) {
+            let html = `
+                <div class="section-header">
+                    <div class="section-title">${title}</div>
+                    <div class="filter-btn">Filtrar ▾</div>
+                </div>
+                <div class="course-grid">
+            `;
+
+            data.forEach(course => {
+                let badgeHtml = '';
+                if (course.status) {
+                    const badgeClass = course.status === 'Obligatorio' ? 'status-required' : 'status-inprogress';
+                    badgeHtml = `<span class="status-badge ${badgeClass}">${course.status}</span>`;
+                }
+
+                html += `
+                    <div class="course-card" onclick="openDetails(${course.id})">
+                        <div class="card-img-wrap"${course.tileColor ? ` style="background:${course.tileColor}; display:flex; align-items:center; justify-content:center; font-size:36px;"` : ''}>
+                            ${course.emojiTile ? course.emojiTile : `<img src="${course.image}" class="card-img" alt="${course.title}">`}
+                            ${badgeHtml}
+                        </div>
+                        <div class="card-title">${course.title}</div>
+                        <div class="card-meta">
+                            <span>🎧 ${course.type}</span> • <span>${course.duration}</span>
+                        </div>
+                        <div class="card-due">${course.dueDate}</div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            return html;
+        }
+
+        function switchTab(tabName) {
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            const container = document.getElementById('main-content');
+            
+            if (tabName === 'learnings') {
+                buttons[0].classList.add('active');
+                container.innerHTML = renderGrid(myLearningsData, "Mis cursos");
+            } else {
+                buttons[1].classList.add('active');
+                container.innerHTML = renderGrid(recommendedData, "Cursos recomendados");
+            }
+        }
+
+        // --- MODAL: cursos normales (sin cambios de comportamiento) ---
+
+        function buildStandardModalBody(course) {
+            const modulesHtml = course.modules.map(mod => `
+                <li style="margin-bottom: 8px; color: #555;">${mod}</li>
+            `).join('');
+
+            return `
+                <img src="${course.image.replace('w=300', 'w=600')}" class="hero-img">
+                <h2 class="detail-title">${course.title}</h2>
+                <div class="detail-meta">
+                    <span>🎧 ${course.type}</span>
+                    <span>⏱ ${course.duration}</span>
+                    <span>📅 ${course.dueDate}</span>
+                </div>
+
+                <div class="detail-desc-title">Acerca del curso</div>
+                <div class="detail-desc">
+                    ${course.description}
+                    <ul>${modulesHtml}</ul>
+                    <div style="text-align:right; margin-top:8px; color:var(--primary-purple); font-weight:600;">Ver todo</div>
+                </div>
+
+                <div class="detail-desc-title">Resumen de la sesión</div>
+                 <div style="display:flex; gap:12px; margin-top:12px;">
+                    <div style="display:flex; flex-direction:column; align-items:center;">
+                        <div style="width:24px; height:24px; background:#ccc; border-radius:50%; color:white; display:flex; justify-content:center; align-items:center; font-size:12px;">1</div>
+                        <div style="width:1px; height:30px; background:#eee;"></div>
+                    </div>
+                    <div>
+                        <div style="font-weight:600; font-size:14px;">Introducción</div>
+                        <div style="font-size:12px; color:#999;">5 min</div>
+                    </div>
+                 </div>
+            `;
+        }
+
+        // --- MODAL: curso LOTO (video real + progreso + puntos) ---
+
+        function buildInteractiveModalBody(course) {
+            const hasRealVideo = course.videoUrl && !course.videoUrl.startsWith('REEMPLAZAR');
+            const mediaHtml = hasRealVideo
+                ? `<video controls preload="metadata" style="width:100%; height:180px; border-radius:12px; margin-bottom:20px; background:#000; object-fit:cover;">
+                       <source src="${course.videoUrl}" type="video/mp4">
+                   </video>`
+                : `<div style="height:180px; border-radius:12px; margin-bottom:20px; background: repeating-linear-gradient(135deg, rgba(93,46,142,.08) 0 14px, rgba(93,46,142,.03) 14px 28px), #f3f0fa; border:2px dashed #cbbde6; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:#5D2E8E;">
+                       <div style="font-size:30px;">🎬</div>
+                       <div style="font-size:12.5px; font-weight:700;">Espacio para el video</div>
+                       <div style="font-size:10.5px; color:#8a7aa8;">pendiente subir a GitHub Pages</div>
+                   </div>`;
+
+            return `
+                ${mediaHtml}
+                <h2 class="detail-title">${course.title}</h2>
+                <div class="detail-meta">
+                    <span>🎧 ${course.type}</span>
+                    <span>⏱ ${course.duration}</span>
+                    <span>📅 ${course.dueDate}</span>
+                </div>
+
+                <div class="detail-desc-title">Progreso del curso</div>
+                <div style="background:#e2e8f0; border-radius:20px; height:8px; overflow:hidden; margin-bottom:6px;">
+                    <div id="loto-progress-fill" style="background:var(--primary-purple); width:0%; height:8px; border-radius:20px; transition:width .35s ease;"></div>
+                </div>
+                <div id="loto-progress-text" style="font-size:12px; color:#999; margin-bottom:20px;">0% completado</div>
+
+                <button class="cta-btn" id="interactive-start-btn" onclick="startInteractiveTraining()" style="margin-bottom:20px;">Comenzar formación</button>
+
+                <div id="loto-complete-panel" style="display:none; text-align:center; padding:20px; background:var(--primary-purple-light); border-radius:12px;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#E4F7EF; color:#1FA55C; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:24px;">✓</div>
+                    <div style="font-weight:700; margin-bottom:6px;">¡Capacitación completada!</div>
+                    <div style="font-size:13px; color:#666; margin-bottom:14px;">Tu constancia ya está disponible en Cornerstone.</div>
+                    <div style="display:inline-flex; align-items:center; gap:6px; background:#FFF6DE; color:#8a6d1a; font-size:13px; font-weight:800; padding:7px 16px; border-radius:20px; margin-bottom:14px;">🎉 Ganaste ${course.points} puntos de ${course.pointsCategory || 'desarrollo'}</div>
+                    <div>
+                        <button onclick="showMarket()" style="display:inline-block; background:var(--primary-purple); color:#fff; border:none; font-size:14px; font-weight:700; padding:11px 22px; border-radius:10px; cursor:pointer; font-family:inherit;">Ver mis puntos →</button>
+                    </div>
+                </div>
+                <div style="height:220px;"></div>
+            `;
+        }
+
+        function startInteractiveTraining() {
+            const btn = document.getElementById('interactive-start-btn');
+            if (btn) btn.disabled = true;
+            const fill = document.getElementById('loto-progress-fill');
+            const text = document.getElementById('loto-progress-text');
+            let pct = 0;
+            const interval = setInterval(() => {
+                pct += 20;
+                fill.style.width = pct + '%';
+                text.textContent = pct + '% completado';
+                if (pct >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('loto-complete-panel').style.display = 'block';
+                        document.getElementById('cta-container').style.display = 'none';
+                    }, 400);
+                }
+            }, 450);
+        }
+
+        // --- ABRIR / CERRAR MODAL ---
+
+        function openDetails(id) {
+            const course = [...myLearningsData, ...recommendedData].find(c => c.id === id);
+            if (!course) return;
+
+            const modalBody = document.getElementById('modal-body');
+            const ctaContainer = document.getElementById('cta-container');
+            ctaContainer.style.display = 'block';
+
+            if (course.isInteractive) {
+                modalBody.innerHTML = buildInteractiveModalBody(course);
+                ctaContainer.style.display = 'none';
+            } else {
+                modalBody.innerHTML = buildStandardModalBody(course);
+                ctaContainer.innerHTML = '<button class="cta-btn">Iniciar capacitación</button>';
+            }
+
+            document.body.classList.add('modal-active');
+        }
+
+        function closeModal() {
+            document.body.classList.remove('modal-active');
+        }
+
+        function showMarket() {
+            document.body.classList.remove('modal-active');
+            document.getElementById('screen-courses').style.display = 'none';
+            document.getElementById('screen-market').style.display = 'block';
+            reportHeight();
+        }
+
+        function hideMarket() {
+            document.getElementById('screen-market').style.display = 'none';
+            const courses = document.getElementById('screen-courses');
+            courses.style.display = 'flex';
+            courses.classList.remove('reentering');
+            void courses.offsetWidth; // fuerza el reflow para que la animación se repita
+            courses.classList.add('reentering');
+            reportHeight();
+        }
+
+        // Initialize
+        switchTab('learnings');
+
+        // Le avisa a Staffbase qué tan alto es este widget, para que el iframe
+        // no se quede recortado en una altura más chica que la del mockup fijo.
+        function reportHeight() {
+            window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+        }
+        new ResizeObserver(reportHeight).observe(document.body);
+        window.addEventListener('load', reportHeight);
+    </script>
+</body>
+</html>
