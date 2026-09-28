@@ -223,11 +223,11 @@
     // CDMX (coordenadas reales del edificio). No se intenta geolocalización
     // real del navegador, para que la demo se vea igual de bien siempre,
     // sin depender de permisos que suelen estar bloqueados dentro de Staffbase.
-    callback({ lat: 19.424639, lng: -99.174333, label: 'Torre Reforma, CDMX' });
+    callback({ lat: 19.424639, lng: -99.174333, label: 'Colonia Juárez, CDMX' });
   }
 
   function showMap(coords) {
-    const d = 0.01;
+    const d = 0.003;
     const bbox = (coords.lng - d) + ',' + (coords.lat - d) + ',' + (coords.lng + d) + ',' + (coords.lat + d);
     const src = 'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) +
       '&layer=mapnik&marker=' + coords.lat + ',' + coords.lng;
