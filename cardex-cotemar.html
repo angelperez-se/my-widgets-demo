@@ -65,6 +65,22 @@
   .ca-pend-due.open { color: #6b7684; font-weight: 600; }
 
   .ca-divider-space { height: 22px; }
+
+  .ca-course-item, .ca-pend-item { cursor: pointer; }
+
+  /* Vista de detalle */
+  .ca-back-row { padding: 4px 0 14px; }
+  .ca-back-btn { background: none; border: none; color: #0D2C4A; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; padding: 0; }
+  .ca-detail-media {
+    height: 170px; border-radius: 12px; margin-bottom: 16px; position: relative;
+    background: repeating-linear-gradient(135deg, rgba(13,44,74,.06) 0 14px, rgba(13,44,74,.02) 14px 28px), #F3F6F8;
+    border: 2px dashed #B9C3CC; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #0D2C4A;
+  }
+  .ca-detail-media .play-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(13,44,74,.85); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 4px; }
+  .ca-detail-title { font-size: 18px; font-weight: 800; color: #1a1a1a; margin: 0 0 8px; line-height: 1.3; }
+  .ca-detail-meta { font-size: 12.5px; color: #8890a0; margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .ca-detail-desc-label { font-size: 11.5px; font-weight: 700; color: #6b7684; text-transform: uppercase; letter-spacing: .3px; margin: 0 0 8px; }
+  .ca-detail-desc { font-size: 13.5px; color: #3a4450; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -121,6 +137,21 @@
       <div id="history-list"></div>
     </div>
 
+    <!-- ============ VISTA DE DETALLE ============ -->
+    <div class="ca-panel" id="panel-detail" style="padding: 16px;">
+      <div class="ca-back-row">
+        <button class="ca-back-btn" onclick="closeDetail()">← Volver</button>
+      </div>
+      <div class="ca-detail-media">
+        <div class="play-icon">▶</div>
+        <div style="font-size: 12px; font-weight: 700;">Video del curso</div>
+      </div>
+      <h2 class="ca-detail-title" id="detail-title"></h2>
+      <div class="ca-detail-meta" id="detail-meta"></div>
+      <p class="ca-detail-desc-label">Acerca del curso</p>
+      <p class="ca-detail-desc" id="detail-desc"></p>
+    </div>
+
   </div>
 </div>
 
@@ -134,20 +165,31 @@
   // Historial completo de cursos completados (el más reciente primero).
   // Los primeros 5 son los que se muestran en la pestaña Resumen.
   const COMPLETED = [
-    { name: 'Trabajo Seguro en Alturas', icon: '🪜', hours: 2,   date: daysAgo(5) },
-    { name: 'Manejo de Extintores y Control de Incendios', icon: '🧯', hours: 1.5, date: daysAgo(12) },
-    { name: 'Primeros Auxilios Básicos', icon: '🩹', hours: 3,   date: daysAgo(20) },
-    { name: 'Espacios Confinados: Riesgos y Prevención', icon: '🔒', hours: 2,   date: daysAgo(28) },
-    { name: 'Inducción a Plataforma Ku-Maloob-Zaap', icon: '🚁', hours: 4,   date: daysAgo(40) },
-    { name: 'NOM-033: Trabajo en Alturas (certificación inicial)', icon: '🪜', hours: 3,   date: daysAgo(65) },
-    { name: 'Manejo Defensivo Nivel 1', icon: '🚗', hours: 2.5, date: daysAgo(95) },
-    { name: 'Inducción General Cotemar', icon: '👋', hours: 3,   date: daysAgo(140) }
+    { name: 'Trabajo Seguro en Alturas', icon: '🪜', hours: 2,   date: daysAgo(5),
+      desc: 'Aprende los procedimientos correctos para trabajar de forma segura en alturas dentro de la plataforma: uso de arnés, líneas de vida, y puntos de anclaje certificados.' },
+    { name: 'Manejo de Extintores y Control de Incendios', icon: '🧯', hours: 1.5, date: daysAgo(12),
+      desc: 'Identifica los tipos de extintores según la clase de fuego, y practica el procedimiento correcto de uso en caso de un conato de incendio.' },
+    { name: 'Primeros Auxilios Básicos', icon: '🩹', hours: 3,   date: daysAgo(20),
+      desc: 'Técnicas esenciales de primeros auxilios: RCP, control de hemorragias, y estabilización de una persona lesionada mientras llega ayuda especializada.' },
+    { name: 'Espacios Confinados: Riesgos y Prevención', icon: '🔒', hours: 2,   date: daysAgo(28),
+      desc: 'Reconoce los riesgos de trabajar en espacios confinados (tanques, bodegas, ductos) y los protocolos de entrada segura, ventilación y monitoreo de gases.' },
+    { name: 'Inducción a Plataforma Ku-Maloob-Zaap', icon: '🚁', hours: 4,   date: daysAgo(40),
+      desc: 'Todo lo que necesitas saber antes de embarcar: rutas de evacuación, puntos de reunión, y normas de convivencia a bordo.' },
+    { name: 'NOM-033: Trabajo en Alturas (certificación inicial)', icon: '🪜', hours: 3,   date: daysAgo(65),
+      desc: 'Certificación inicial conforme a la norma NOM-033-STPS, requisito obligatorio para cualquier actividad que implique trabajo en alturas.' },
+    { name: 'Manejo Defensivo Nivel 1', icon: '🚗', hours: 2.5, date: daysAgo(95),
+      desc: 'Fundamentos de manejo defensivo para trayectos terrestres hacia y desde las instalaciones: anticipación de riesgos y toma de decisiones seguras al volante.' },
+    { name: 'Inducción General Cotemar', icon: '👋', hours: 3,   date: daysAgo(140),
+      desc: 'Bienvenida a Cotemar: historia de la empresa, valores, estructura organizacional y políticas generales para todo el personal de nuevo ingreso.' }
   ];
 
   const PENDING = [
-    { name: 'Recertificación NOM-033: Trabajo en Alturas', icon: '🪜', due: daysFromNow(15), urgency: 'urgent' },
-    { name: 'Ética y Anticorrupción (anual)', icon: '⚖️', due: daysFromNow(30), urgency: 'normal' },
-    { name: 'Manejo Defensivo Nivel 2', icon: '🚗', due: null, urgency: 'open' }
+    { name: 'Recertificación NOM-033: Trabajo en Alturas', icon: '🪜', due: daysFromNow(15), urgency: 'urgent',
+      desc: 'Renovación obligatoria de tu certificación de trabajo en alturas antes de que expire, conforme a la norma NOM-033-STPS.' },
+    { name: 'Ética y Anticorrupción (anual)', icon: '⚖️', due: daysFromNow(30), urgency: 'normal',
+      desc: 'Capacitación anual obligatoria sobre el código de ética de Cotemar, políticas anticorrupción y canales de denuncia.' },
+    { name: 'Manejo Defensivo Nivel 2', icon: '🚗', due: null, urgency: 'open',
+      desc: 'Continuación del curso de manejo defensivo, enfocado en condiciones climáticas adversas y manejo nocturno.' }
   ];
 
   function initials() { return ''; }
@@ -166,6 +208,7 @@
     COMPLETED.slice(0, 5).forEach(c => {
       const row = document.createElement('div');
       row.className = 'ca-course-item';
+      row.onclick = () => openDetail(c, 'resumen', 'Completado el ' + fmtDate(c.date) + ' · ' + fmtHours(c.hours));
       row.innerHTML =
         '<div class="ca-course-icon">' + c.icon + '</div>' +
         '<div class="ca-course-body">' +
@@ -184,6 +227,7 @@
       const dueText = p.urgency === 'open' ? 'Sin fecha límite' : 'Vence el ' + fmtDate(p.due);
       const row = document.createElement('div');
       row.className = 'ca-pend-item';
+      row.onclick = () => openDetail(p, 'cardex', dueText);
       row.innerHTML =
         '<div class="ca-pend-icon">' + p.icon + '</div>' +
         '<div class="ca-pend-body">' +
@@ -198,6 +242,7 @@
     COMPLETED.forEach(c => {
       const row = document.createElement('div');
       row.className = 'ca-course-item';
+      row.onclick = () => openDetail(c, 'cardex', 'Completado el ' + fmtDate(c.date) + ' · ' + fmtHours(c.hours));
       row.innerHTML =
         '<div class="ca-course-icon">' + c.icon + '</div>' +
         '<div class="ca-course-body">' +
@@ -209,11 +254,33 @@
     });
   }
 
+  let lastTab = 'resumen';
+
   function setTab(tab, btnEl) {
+    lastTab = tab;
     document.querySelectorAll('.ca-tab').forEach(b => b.classList.remove('active'));
     btnEl.classList.add('active');
     document.getElementById('panel-resumen').classList.toggle('active', tab === 'resumen');
     document.getElementById('panel-cardex').classList.toggle('active', tab === 'cardex');
+    document.getElementById('panel-detail').classList.remove('active');
+    reportHeight();
+  }
+
+  function openDetail(course, fromTab, metaText) {
+    lastTab = fromTab;
+    document.getElementById('panel-resumen').classList.remove('active');
+    document.getElementById('panel-cardex').classList.remove('active');
+    document.getElementById('detail-title').textContent = course.name;
+    document.getElementById('detail-meta').textContent = metaText;
+    document.getElementById('detail-desc').textContent = course.desc || 'Sin descripción disponible.';
+    document.getElementById('panel-detail').classList.add('active');
+    reportHeight();
+  }
+
+  function closeDetail() {
+    document.getElementById('panel-detail').classList.remove('active');
+    document.getElementById('panel-resumen').classList.toggle('active', lastTab === 'resumen');
+    document.getElementById('panel-cardex').classList.toggle('active', lastTab === 'cardex');
     reportHeight();
   }
 
