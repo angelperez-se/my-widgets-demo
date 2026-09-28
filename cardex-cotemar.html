@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Cotemar - Mi Capacitación y Aprendizaje">
+<meta name="widget-description" content="Widget con dos tabs: Resumen (horas invertidas, cursos completados, ultimos 5 tomados) y Cardex Personalizado (cursos pendientes por tomar + historial completo de completados). Datos ficticios para demo.">
+<title>Mi Capacitación y Aprendizaje</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+  .ca-outer { max-width: 460px; margin: 0 auto; padding: 10px; }
+  .ca-card { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 22px rgba(10,30,45,.14); }
+
+  .ca-header { position: relative; overflow: hidden; background: linear-gradient(135deg, #0D2C4A 0%, #0B4A5C 100%); padding: 20px 20px 18px; color: #fff; text-align: center; }
+  .ca-decor { position: absolute; top: -40px; right: -30px; width: 130px; height: 130px; border-radius: 50%; background: rgba(0,168,168,.20); }
+  .ca-eyebrow { position: relative; z-index: 1; font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,.7); letter-spacing: .4px; text-transform: uppercase; margin: 0 0 6px; }
+  .ca-logo-badge { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; background: #ffffff; border-radius: 8px; padding: 6px 14px; margin-bottom: 12px; }
+  .ca-logo-badge img { height: 22px; width: auto; display: block; }
+  .ca-title { position: relative; z-index: 1; font-size: 20px; font-weight: 800; margin: 0; }
+
+  /* Perfil personalizado */
+  .ca-profile { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: #F7F9FA; border-bottom: 1px solid #E4E8ED; }
+  .ca-profile-photo { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(10,30,45,.15); }
+  .ca-profile-greeting { font-size: 14.5px; font-weight: 800; color: #1a1a1a; margin: 0 0 2px; }
+  .ca-profile-role { font-size: 12px; color: #6b7684; margin: 0; }
+
+  /* Tabs */
+  .ca-tabs { display: flex; gap: 6px; padding: 14px 16px 4px; }
+  .ca-tab { flex: 1; border: none; background: #F2F3F8; color: #5b6572; font-size: 12.5px; font-weight: 700; font-family: inherit; padding: 9px 6px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+  .ca-tab.active { background: #0D2C4A; color: #fff; }
+
+  .ca-panel { display: none; padding: 16px; }
+  .ca-panel.active { display: block; animation: caFade .25s ease; }
+  @keyframes caFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* Summary stats */
+  .ca-stats-row { display: flex; gap: 10px; margin-bottom: 18px; }
+  .ca-stat-card { flex: 1; background: #F7F9FA; border: 1px solid #E4E8ED; border-radius: 12px; padding: 14px 12px; text-align: center; }
+  .ca-stat-icon { font-size: 20px; margin-bottom: 6px; }
+  .ca-stat-value { font-size: 20px; font-weight: 800; color: #0D2C4A; line-height: 1; margin-bottom: 3px; }
+  .ca-stat-label { font-size: 10.5px; color: #6b7684; font-weight: 600; }
+
+  .ca-sec-label { font-size: 11.5px; font-weight: 700; color: #6b7684; text-transform: uppercase; letter-spacing: .3px; margin: 0 0 10px; }
+
+  .ca-course-item { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid #F0F2F5; }
+  .ca-course-item:last-child { border-bottom: none; }
+  .ca-course-icon { width: 38px; height: 38px; border-radius: 10px; background: #EAF2F2; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .ca-course-body { flex: 1; min-width: 0; }
+  .ca-course-name { font-size: 13px; font-weight: 700; color: #1a1a1a; line-height: 1.3; margin: 0 0 3px; }
+  .ca-course-meta { font-size: 11.5px; color: #8890a0; }
+  .ca-course-right { flex-shrink: 0; text-align: right; }
+  .ca-course-dur { font-size: 12px; font-weight: 700; color: #0D2C4A; }
+
+  /* Cardex: pendientes */
+  .ca-pend-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #F0F2F5; }
+  .ca-pend-item:last-child { border-bottom: none; }
+  .ca-pend-icon { width: 38px; height: 38px; border-radius: 10px; background: #FFF6E0; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .ca-pend-body { flex: 1; min-width: 0; }
+  .ca-pend-name { font-size: 13px; font-weight: 700; color: #1a1a1a; line-height: 1.3; margin: 0 0 3px; }
+  .ca-pend-due { font-size: 11.5px; font-weight: 700; }
+  .ca-pend-due.urgent { color: #C0392B; }
+  .ca-pend-due.normal { color: #B5651D; }
+  .ca-pend-due.open { color: #6b7684; font-weight: 600; }
+
+  .ca-divider-space { height: 22px; }
+</style>
+</head>
+<body>
+
+<div class="ca-outer">
+  <div class="ca-card">
+
+    <div class="ca-header">
+      <div class="ca-decor"></div>
+      <div class="ca-logo-badge"><img src="https://angelperez-se.github.io/my-widgets-demo/Cotemar_Logob350x98.png" alt="Cotemar"></div>
+      <h1 class="ca-title">Mi Capacitación y Aprendizaje</h1>
+    </div>
+
+    <div class="ca-profile">
+      <img class="ca-profile-photo" src="https://angelperez-se.github.io/my-widgets-demo/Alejandra%20Trabajadora.png" alt="Alejandra González">
+      <div>
+        <p class="ca-profile-greeting">Hola, Alejandra 👋</p>
+        <p class="ca-profile-role">Técnica de Mantenimiento</p>
+      </div>
+    </div>
+
+    <div class="ca-tabs">
+      <button class="ca-tab active" id="tab-resumen" onclick="setTab('resumen', this)">Resumen</button>
+      <button class="ca-tab" id="tab-cardex" onclick="setTab('cardex', this)">Cardex Personalizado</button>
+    </div>
+
+    <!-- ============ TAB 1: RESUMEN ============ -->
+    <div class="ca-panel active" id="panel-resumen">
+      <div class="ca-stats-row">
+        <div class="ca-stat-card">
+          <div class="ca-stat-icon">🕒</div>
+          <div class="ca-stat-value" id="stat-hours">—</div>
+          <div class="ca-stat-label">Horas invertidas</div>
+        </div>
+        <div class="ca-stat-card">
+          <div class="ca-stat-icon">📚</div>
+          <div class="ca-stat-value" id="stat-count">—</div>
+          <div class="ca-stat-label">Cursos completados</div>
+        </div>
+      </div>
+
+      <p class="ca-sec-label">Tus últimos 5 cursos</p>
+      <div id="recent-list"></div>
+    </div>
+
+    <!-- ============ TAB 2: CARDEX PERSONALIZADO ============ -->
+    <div class="ca-panel" id="panel-cardex">
+      <p class="ca-sec-label">📋 Pendientes por tomar</p>
+      <div id="pending-list"></div>
+
+      <div class="ca-divider-space"></div>
+
+      <p class="ca-sec-label">✅ Historial completo</p>
+      <div id="history-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── Demo conceptual: datos ficticios en memoria, nada se envía ni se guarda.
+
+  function daysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return d; }
+  function daysFromNow(n) { const d = new Date(); d.setDate(d.getDate() + n); return d; }
+  function fmtDate(d) { return new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }).format(d); }
+
+  // Historial completo de cursos completados (el más reciente primero).
+  // Los primeros 5 son los que se muestran en la pestaña Resumen.
+  const COMPLETED = [
+    { name: 'Trabajo Seguro en Alturas', icon: '🪜', hours: 2,   date: daysAgo(5) },
+    { name: 'Manejo de Extintores y Control de Incendios', icon: '🧯', hours: 1.5, date: daysAgo(12) },
+    { name: 'Primeros Auxilios Básicos', icon: '🩹', hours: 3,   date: daysAgo(20) },
+    { name: 'Espacios Confinados: Riesgos y Prevención', icon: '🔒', hours: 2,   date: daysAgo(28) },
+    { name: 'Inducción a Plataforma Ku-Maloob-Zaap', icon: '🚁', hours: 4,   date: daysAgo(40) },
+    { name: 'NOM-033: Trabajo en Alturas (certificación inicial)', icon: '🪜', hours: 3,   date: daysAgo(65) },
+    { name: 'Manejo Defensivo Nivel 1', icon: '🚗', hours: 2.5, date: daysAgo(95) },
+    { name: 'Inducción General Cotemar', icon: '👋', hours: 3,   date: daysAgo(140) }
+  ];
+
+  const PENDING = [
+    { name: 'Recertificación NOM-033: Trabajo en Alturas', icon: '🪜', due: daysFromNow(15), urgency: 'urgent' },
+    { name: 'Ética y Anticorrupción (anual)', icon: '⚖️', due: daysFromNow(30), urgency: 'normal' },
+    { name: 'Manejo Defensivo Nivel 2', icon: '🚗', due: null, urgency: 'open' }
+  ];
+
+  function initials() { return ''; }
+
+  function fmtHours(h) {
+    return (h % 1 === 0 ? h : h.toFixed(1)) + ' h';
+  }
+
+  function renderRecent() {
+    const totalHours = COMPLETED.reduce((sum, c) => sum + c.hours, 0);
+    document.getElementById('stat-hours').textContent = (totalHours % 1 === 0 ? totalHours : totalHours.toFixed(1)) + 'h';
+    document.getElementById('stat-count').textContent = COMPLETED.length;
+
+    const list = document.getElementById('recent-list');
+    list.innerHTML = '';
+    COMPLETED.slice(0, 5).forEach(c => {
+      const row = document.createElement('div');
+      row.className = 'ca-course-item';
+      row.innerHTML =
+        '<div class="ca-course-icon">' + c.icon + '</div>' +
+        '<div class="ca-course-body">' +
+          '<p class="ca-course-name">' + c.name + '</p>' +
+          '<p class="ca-course-meta">Completado el ' + fmtDate(c.date) + '</p>' +
+        '</div>' +
+        '<div class="ca-course-right"><div class="ca-course-dur">' + fmtHours(c.hours) + '</div></div>';
+      list.appendChild(row);
+    });
+  }
+
+  function renderCardex() {
+    const pendList = document.getElementById('pending-list');
+    pendList.innerHTML = '';
+    PENDING.forEach(p => {
+      const dueText = p.urgency === 'open' ? 'Sin fecha límite' : 'Vence el ' + fmtDate(p.due);
+      const row = document.createElement('div');
+      row.className = 'ca-pend-item';
+      row.innerHTML =
+        '<div class="ca-pend-icon">' + p.icon + '</div>' +
+        '<div class="ca-pend-body">' +
+          '<p class="ca-pend-name">' + p.name + '</p>' +
+          '<p class="ca-pend-due ' + p.urgency + '">' + dueText + '</p>' +
+        '</div>';
+      pendList.appendChild(row);
+    });
+
+    const histList = document.getElementById('history-list');
+    histList.innerHTML = '';
+    COMPLETED.forEach(c => {
+      const row = document.createElement('div');
+      row.className = 'ca-course-item';
+      row.innerHTML =
+        '<div class="ca-course-icon">' + c.icon + '</div>' +
+        '<div class="ca-course-body">' +
+          '<p class="ca-course-name">' + c.name + '</p>' +
+          '<p class="ca-course-meta">' + fmtDate(c.date) + '</p>' +
+        '</div>' +
+        '<div class="ca-course-right"><div class="ca-course-dur">' + fmtHours(c.hours) + '</div></div>';
+      histList.appendChild(row);
+    });
+  }
+
+  function setTab(tab, btnEl) {
+    document.querySelectorAll('.ca-tab').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    document.getElementById('panel-resumen').classList.toggle('active', tab === 'resumen');
+    document.getElementById('panel-cardex').classList.toggle('active', tab === 'cardex');
+    reportHeight();
+  }
+
+  function reportHeight() {
+    window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', () => { renderRecent(); renderCardex(); reportHeight(); });
+</script>
+
+</body>
+</html>
