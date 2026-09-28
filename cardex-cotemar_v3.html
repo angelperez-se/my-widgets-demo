@@ -142,10 +142,7 @@
       <div class="ca-back-row">
         <button class="ca-back-btn" onclick="closeDetail()">← Volver</button>
       </div>
-      <div class="ca-detail-media">
-        <div class="play-icon">▶</div>
-        <div style="font-size: 12px; font-weight: 700;">Video del curso</div>
-      </div>
+      <div id="detail-media"></div>
       <h2 class="ca-detail-title" id="detail-title"></h2>
       <div class="ca-detail-meta" id="detail-meta"></div>
       <p class="ca-detail-desc-label">Acerca del curso</p>
@@ -166,11 +163,14 @@
   // Los primeros 5 son los que se muestran en la pestaña Resumen.
   const COMPLETED = [
     { name: 'Trabajo Seguro en Alturas', icon: '🪜', hours: 2,   date: daysAgo(5),
-      desc: 'Aprende los procedimientos correctos para trabajar de forma segura en alturas dentro de la plataforma: uso de arnés, líneas de vida, y puntos de anclaje certificados.' },
+      desc: 'Aprende los procedimientos correctos para trabajar de forma segura en alturas dentro de la plataforma: uso de arnés, líneas de vida, y puntos de anclaje certificados.',
+      videoUrl: 'https://angelperez-se.github.io/my-widgets-demo/video1.mp4' },
     { name: 'Manejo de Extintores y Control de Incendios', icon: '🧯', hours: 1.5, date: daysAgo(12),
-      desc: 'Identifica los tipos de extintores según la clase de fuego, y practica el procedimiento correcto de uso en caso de un conato de incendio.' },
+      desc: 'Identifica los tipos de extintores según la clase de fuego, y practica el procedimiento correcto de uso en caso de un conato de incendio.',
+      videoUrl: 'https://angelperez-se.github.io/my-widgets-demo/video2.mp4' },
     { name: 'Primeros Auxilios Básicos', icon: '🩹', hours: 3,   date: daysAgo(20),
-      desc: 'Técnicas esenciales de primeros auxilios: RCP, control de hemorragias, y estabilización de una persona lesionada mientras llega ayuda especializada.' },
+      desc: 'Técnicas esenciales de primeros auxilios: RCP, control de hemorragias, y estabilización de una persona lesionada mientras llega ayuda especializada.',
+      videoUrl: 'https://angelperez-se.github.io/my-widgets-demo/video3.mp4' },
     { name: 'Espacios Confinados: Riesgos y Prevención', icon: '🔒', hours: 2,   date: daysAgo(28),
       desc: 'Reconoce los riesgos de trabajar en espacios confinados (tanques, bodegas, ductos) y los protocolos de entrada segura, ventilación y monitoreo de gases.' },
     { name: 'Inducción a Plataforma Ku-Maloob-Zaap', icon: '🚁', hours: 4,   date: daysAgo(40),
@@ -273,6 +273,14 @@
     document.getElementById('detail-title').textContent = course.name;
     document.getElementById('detail-meta').textContent = metaText;
     document.getElementById('detail-desc').textContent = course.desc || 'Sin descripción disponible.';
+
+    const mediaEl = document.getElementById('detail-media');
+    if (course.videoUrl) {
+      mediaEl.innerHTML = '<video controls preload="metadata" style="width:100%; height:170px; border-radius:12px; margin-bottom:16px; background:#000; object-fit:cover;"><source src="' + course.videoUrl + '" type="video/mp4"></video>';
+    } else {
+      mediaEl.innerHTML = '<div class="ca-detail-media"><div class="play-icon">▶</div><div style="font-size:12px; font-weight:700;">Video del curso</div></div>';
+    }
+
     document.getElementById('panel-detail').classList.add('active');
     reportHeight();
   }
