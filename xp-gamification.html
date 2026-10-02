@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="XPlovers - Gamificação (XP Inc.)">
+<meta name="widget-description" content="Widget de gamificacao para intranet desktop do programa XPlovers de XP Inc: perfil com nivel/XP/streak/XPcoins/XPgems, ranking filtravel por Embaixador/Colaborador, galeria de insignias, e loja de recompensas. Dados ficticios para demo.">
+<title>XPlovers - Gamificação</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+  .xp-outer { max-width: 960px; margin: 0 auto; padding: 10px; }
+  .xp-card { background: #121212; border-radius: 18px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+
+  /* ============ HEADER ============ */
+  .xp-header { position: relative; overflow: hidden; background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%); padding: 26px 28px 22px; color: #fff; }
+  .xp-decor { position: absolute; top: -60px; right: -40px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(255,198,10,.18) 0%, transparent 70%); }
+  .xp-header-top { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+  .xp-wordmark { display: flex; align-items: center; gap: 8px; }
+  .xp-wordmark .dot { width: 9px; height: 9px; border-radius: 2px; background: #FFC60A; }
+  .xp-wordmark span { font-size: 15px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; }
+  .xp-program-tag { font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,.5); letter-spacing: .3px; }
+
+  .xp-greeting-row { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; }
+  .xp-avatar { width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg,#FFC60A,#E0A800); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; color: #121212; flex-shrink: 0; }
+  .xp-greeting-name { font-size: 19px; font-weight: 800; margin: 0 0 3px; }
+  .xp-role-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: #121212; background: #FFC60A; padding: 3px 10px; border-radius: 20px; }
+
+  /* ============ STATS ROW ============ */
+  .xp-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 18px; background: #0A0A0A; }
+  @media (max-width: 640px) { .xp-stats-row { grid-template-columns: repeat(2, 1fr); } }
+  .xp-stat-card { background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 12px; padding: 14px; }
+  .xp-stat-label { font-size: 10px; font-weight: 700; color: #8a8a8a; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+  .xp-stat-value { font-size: 20px; font-weight: 800; color: #fff; }
+  .xp-stat-sub { font-size: 11px; color: #777; margin-top: 2px; }
+  .xp-progress-track { height: 6px; background: #2A2A2A; border-radius: 4px; overflow: hidden; margin-top: 8px; }
+  .xp-progress-fill { height: 100%; background: linear-gradient(90deg,#FFC60A,#FFE58A); border-radius: 4px; }
+
+  /* ============ TABS ============ */
+  .xp-tabs { display: flex; gap: 6px; padding: 14px 18px 0; background: #121212; }
+  .xp-tab { flex: 1; border: none; background: #1A1A1A; color: #9a9a9a; font-size: 13px; font-weight: 700; font-family: inherit; padding: 11px 10px; border-radius: 10px 10px 0 0; cursor: pointer; }
+  .xp-tab.active { background: #1E1E1E; color: #FFC60A; }
+
+  .xp-tab-panel { display: none; background: #1E1E1E; padding: 20px; }
+  .xp-tab-panel.active { display: block; animation: xpFade .25s ease; }
+  @keyframes xpFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ============ RANKING ============ */
+  .xp-filter-row { display: flex; gap: 8px; margin-bottom: 18px; }
+  .xp-filter-pill { border: 1px solid #333; background: transparent; color: #9a9a9a; font-size: 12px; font-weight: 700; font-family: inherit; padding: 7px 14px; border-radius: 20px; cursor: pointer; }
+  .xp-filter-pill.active { background: #FFC60A; border-color: #FFC60A; color: #121212; }
+
+  .xp-podium { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 22px; }
+  .xp-podium-slot { flex: 1; text-align: center; }
+  .xp-podium-avatar { width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; color: #121212; position: relative; background: linear-gradient(135deg,#FFC60A,#E0A800); }
+  .xp-podium-slot.gold .xp-podium-avatar { width: 62px; height: 62px; font-size: 18px; box-shadow: 0 0 0 3px #FFC60A, 0 4px 16px rgba(255,198,10,.4); }
+  .xp-podium-slot.silver .xp-podium-avatar { box-shadow: 0 0 0 3px #C7CCD6; }
+  .xp-podium-slot.bronze .xp-podium-avatar { box-shadow: 0 0 0 3px #D6A374; }
+  .xp-medal { position: absolute; top: -8px; right: -4px; font-size: 16px; }
+  .xp-podium-name { font-size: 11.5px; font-weight: 700; color: #fff; margin: 0 0 2px; line-height: 1.25; }
+  .xp-podium-role { font-size: 9.5px; color: #FFC60A; margin-bottom: 4px; }
+  .xp-podium-xp { font-size: 13px; font-weight: 800; color: #FFC60A; }
+  .xp-podium-base { height: 10px; border-radius: 6px 6px 0 0; margin-top: 8px; }
+  .xp-podium-slot.gold .xp-podium-base { height: 22px; background: linear-gradient(180deg,#FFC60A,#E0A800); }
+  .xp-podium-slot.silver .xp-podium-base { height: 14px; background: linear-gradient(180deg,#D9DEE6,#B7BEC9); }
+  .xp-podium-slot.bronze .xp-podium-base { height: 10px; background: linear-gradient(180deg,#D6A374,#B98356); }
+
+  .xp-rank-row { display: flex; align-items: center; gap: 12px; padding: 10px 6px; border-bottom: 1px solid #2A2A2A; }
+  .xp-rank-row:last-child { border-bottom: none; }
+  .xp-rank-row.is-you { background: rgba(255,198,10,.08); border-radius: 10px; margin: 0 -6px; padding: 10px 12px; border-bottom: none !important; }
+  .xp-rank-num { width: 22px; text-align: center; font-size: 12.5px; font-weight: 800; color: #777; flex-shrink: 0; }
+  .xp-rank-avatar { width: 34px; height: 34px; border-radius: 50%; background: #2A2A2A; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 800; flex-shrink: 0; }
+  .xp-rank-body { flex: 1; min-width: 0; }
+  .xp-rank-name-line { display: flex; align-items: center; gap: 6px; }
+  .xp-rank-name { font-size: 13px; font-weight: 700; color: #fff; }
+  .xp-rank-you-tag { font-size: 9px; font-weight: 800; color: #121212; background: #FFC60A; padding: 1px 6px; border-radius: 8px; }
+  .xp-rank-role { font-size: 11px; color: #8a8a8a; }
+  .xp-rank-xp { font-size: 12.5px; font-weight: 800; color: #FFC60A; flex-shrink: 0; }
+
+  /* ============ INSÍGNIAS ============ */
+  .xp-badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .xp-badge-tile { background: #141414; border: 1px solid #2A2A2A; border-radius: 12px; padding: 16px 10px; text-align: center; }
+  .xp-badge-tile.locked { opacity: .4; }
+  .xp-badge-icon { font-size: 30px; margin-bottom: 8px; }
+  .xp-badge-tile.locked .xp-badge-icon { filter: grayscale(1); }
+  .xp-badge-name { font-size: 11.5px; font-weight: 700; color: #fff; line-height: 1.3; }
+  .xp-badge-tile.locked .xp-badge-name { color: #777; }
+
+  /* ============ RECOMPENSAS ============ */
+  .xp-reward-row { display: flex; align-items: center; gap: 14px; padding: 13px 6px; border-bottom: 1px solid #2A2A2A; }
+  .xp-reward-row:last-child { border-bottom: none; }
+  .xp-reward-icon { width: 42px; height: 42px; border-radius: 10px; background: #141414; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+  .xp-reward-body { flex: 1; min-width: 0; }
+  .xp-reward-name { font-size: 13.5px; font-weight: 700; color: #fff; margin: 0 0 2px; }
+  .xp-reward-cost { font-size: 11.5px; color: #FFC60A; font-weight: 700; }
+  .xp-redeem-btn { border: 1px solid #FFC60A; background: transparent; color: #FFC60A; font-size: 12px; font-weight: 700; font-family: inherit; padding: 8px 16px; border-radius: 20px; cursor: pointer; flex-shrink: 0; }
+  .xp-redeem-btn:hover { background: #FFC60A; color: #121212; }
+</style>
+</head>
+<body>
+
+<div class="xp-outer">
+  <div class="xp-card">
+
+    <div class="xp-header">
+      <div class="xp-decor"></div>
+      <div class="xp-header-top">
+        <div class="xp-wordmark"><span class="dot"></span><span>XPlovers</span></div>
+        <div class="xp-program-tag">Programa de Engajamento · XP Inc.</div>
+      </div>
+      <div class="xp-greeting-row">
+        <div class="xp-avatar">BL</div>
+        <div>
+          <p class="xp-greeting-name">Olá, Beatriz 👋</p>
+          <span class="xp-role-badge">🌟 Embaixadora</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="xp-stats-row">
+      <div class="xp-stat-card">
+        <div class="xp-stat-label">🎯 Nível</div>
+        <div class="xp-stat-value">12</div>
+        <div class="xp-progress-track"><div class="xp-progress-fill" style="width:94.6%;"></div></div>
+        <div class="xp-stat-sub">2.840 / 3.000 XP</div>
+      </div>
+      <div class="xp-stat-card">
+        <div class="xp-stat-label">🔥 Sequência</div>
+        <div class="xp-stat-value">18 dias</div>
+        <div class="xp-stat-sub">Seu recorde: 24 dias</div>
+      </div>
+      <div class="xp-stat-card">
+        <div class="xp-stat-label">🪙 XPcoins</div>
+        <div class="xp-stat-value">4.250</div>
+        <div class="xp-stat-sub">+180 esta semana</div>
+      </div>
+      <div class="xp-stat-card">
+        <div class="xp-stat-label">💎 XPgems</div>
+        <div class="xp-stat-value">36</div>
+        <div class="xp-stat-sub">+4 esta semana</div>
+      </div>
+    </div>
+
+    <div class="xp-tabs">
+      <button class="xp-tab active" id="tab-ranking" onclick="setTab('ranking', this)">🏆 Ranking</button>
+      <button class="xp-tab" id="tab-badges" onclick="setTab('badges', this)">🎖️ Insígnias</button>
+      <button class="xp-tab" id="tab-rewards" onclick="setTab('rewards', this)">🎁 Recompensas</button>
+    </div>
+
+    <!-- ============ RANKING ============ -->
+    <div class="xp-tab-panel active" id="panel-ranking">
+      <div class="xp-filter-row">
+        <button class="xp-filter-pill active" onclick="setRankFilter('all', this)">Geral</button>
+        <button class="xp-filter-pill" onclick="setRankFilter('embaixador', this)">🌟 Embaixadores</button>
+        <button class="xp-filter-pill" onclick="setRankFilter('colaborador', this)">👤 Colaboradores</button>
+      </div>
+      <div class="xp-podium" id="xp-podium"></div>
+      <div id="xp-rank-list"></div>
+    </div>
+
+    <!-- ============ INSÍGNIAS ============ -->
+    <div class="xp-tab-panel" id="panel-badges">
+      <div class="xp-badge-grid" id="xp-badge-grid"></div>
+    </div>
+
+    <!-- ============ RECOMPENSAS ============ -->
+    <div class="xp-tab-panel" id="panel-rewards">
+      <div id="xp-reward-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── Demo conceptual: dados fictícios em memória, nada é enviado ou salvo.
+
+  const RANKING = [
+    { name: 'Rafael Andrade',   role: 'embaixador',  xp: 8920 },
+    { name: 'Juliana Martins',  role: 'embaixador',  xp: 8340 },
+    { name: 'Thiago Souza',     role: 'colaborador', xp: 7980 },
+    { name: 'Beatriz Lima',     role: 'embaixador',  xp: 7960, isYou: true },
+    { name: 'Camila Rocha',     role: 'colaborador', xp: 7210 },
+    { name: 'Pedro H. Alves',   role: 'embaixador',  xp: 6850 },
+    { name: 'Fernanda Oliveira',role: 'colaborador', xp: 6430 },
+    { name: 'Gustavo Ribeiro',  role: 'colaborador', xp: 5920 },
+    { name: 'Larissa Costa',    role: 'embaixador',  xp: 5610 },
+    { name: 'Bruno Carvalho',   role: 'colaborador', xp: 5180 }
+  ];
+
+  const BADGES = [
+    { icon: '🚀', name: 'Pioneiro do XPlovers', earned: true },
+    { icon: '🎯', name: 'Primeira Missão', earned: true },
+    { icon: '🔥', name: 'Sequência de Fogo (7 dias)', earned: true },
+    { icon: '📈', name: 'Mestre dos Investimentos', earned: true },
+    { icon: '🤝', name: 'Mentor', earned: true },
+    { icon: '💬', name: 'Voz Ativa', earned: true },
+    { icon: '🏆', name: 'Top 10 no Ranking', earned: true },
+    { icon: '🌟', name: 'Embaixador do Mês', earned: false },
+    { icon: '🎓', name: 'Conhecimento Total', earned: false },
+    { icon: '💎', name: 'Colecionador de Gemas', earned: false }
+  ];
+
+  const REWARDS = [
+    { icon: '🏖️', name: 'Day-off Extra', cost: '2.000 XPcoins' },
+    { icon: '👕', name: 'Kit XP Exclusivo (boné + moletom)', cost: '1.500 XPcoins' },
+    { icon: '💳', name: 'Zero Taxa de Corretagem (1 mês)', cost: '10 XPgems' },
+    { icon: '🎓', name: 'Curso de Investimentos Avançado', cost: '3.000 XPcoins' },
+    { icon: '🍽️', name: 'Almoço com a Liderança', cost: '15 XPgems' },
+    { icon: '🎁', name: 'Vale-presente R$ 200', cost: '2.500 XPcoins' }
+  ];
+
+  let rankFilter = 'all';
+
+  function initials(name) {
+    const p = name.split(' ').filter(Boolean);
+    return ((p[0]?.[0] || '') + (p[1]?.[0] || '')).toUpperCase();
+  }
+
+  function roleLabel(role) {
+    return role === 'embaixador' ? '🌟 Embaixador(a)' : '👤 Colaborador(a)';
+  }
+
+  function setTab(tab, btnEl) {
+    document.querySelectorAll('.xp-tab').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    document.querySelectorAll('.xp-tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    reportHeight();
+  }
+
+  function setRankFilter(filter, btnEl) {
+    rankFilter = filter;
+    document.querySelectorAll('.xp-filter-pill').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    renderRanking();
+  }
+
+  function renderRanking() {
+    const filtered = RANKING.filter(p => rankFilter === 'all' || p.role === rankFilter).slice().sort((a, b) => b.xp - a.xp);
+
+    const podiumEl = document.getElementById('xp-podium');
+    const listEl = document.getElementById('xp-rank-list');
+    podiumEl.innerHTML = '';
+    listEl.innerHTML = '';
+
+    const top3 = filtered.slice(0, 3);
+    const rest = filtered.slice(3);
+    const order = [top3[1], top3[0], top3[2]];
+    const classes = ['silver', 'gold', 'bronze'];
+    const medals = ['🥈', '🥇', '🥉'];
+
+    order.forEach((p, i) => {
+      if (!p) return;
+      const slot = document.createElement('div');
+      slot.className = 'xp-podium-slot ' + classes[i];
+      slot.innerHTML =
+        '<div class="xp-podium-avatar">' + initials(p.name) + '<span class="xp-medal">' + medals[i] + '</span></div>' +
+        '<p class="xp-podium-name">' + p.name + (p.isYou ? ' 📍' : '') + '</p>' +
+        '<p class="xp-podium-role">' + roleLabel(p.role) + '</p>' +
+        '<p class="xp-podium-xp">' + p.xp.toLocaleString('pt-BR') + ' XP</p>' +
+        '<div class="xp-podium-base"></div>';
+      podiumEl.appendChild(slot);
+    });
+
+    rest.forEach((p, idx) => {
+      const row = document.createElement('div');
+      row.className = 'xp-rank-row' + (p.isYou ? ' is-you' : '');
+      row.innerHTML =
+        '<div class="xp-rank-num">' + (idx + 4) + '</div>' +
+        '<div class="xp-rank-avatar">' + initials(p.name) + '</div>' +
+        '<div class="xp-rank-body">' +
+          '<div class="xp-rank-name-line"><span class="xp-rank-name">' + p.name + '</span>' + (p.isYou ? '<span class="xp-rank-you-tag">Você</span>' : '') + '</div>' +
+          '<div class="xp-rank-role">' + roleLabel(p.role) + '</div>' +
+        '</div>' +
+        '<div class="xp-rank-xp">' + p.xp.toLocaleString('pt-BR') + ' XP</div>';
+      listEl.appendChild(row);
+    });
+
+    reportHeight();
+  }
+
+  function renderBadges() {
+    const grid = document.getElementById('xp-badge-grid');
+    grid.innerHTML = '';
+    BADGES.forEach(b => {
+      const tile = document.createElement('div');
+      tile.className = 'xp-badge-tile' + (b.earned ? '' : ' locked');
+      tile.innerHTML = '<div class="xp-badge-icon">' + b.icon + '</div><div class="xp-badge-name">' + b.name + '</div>';
+      grid.appendChild(tile);
+    });
+  }
+
+  function renderRewards() {
+    const list = document.getElementById('xp-reward-list');
+    list.innerHTML = '';
+    REWARDS.forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'xp-reward-row';
+      row.innerHTML =
+        '<div class="xp-reward-icon">' + r.icon + '</div>' +
+        '<div class="xp-reward-body"><p class="xp-reward-name">' + r.name + '</p><p class="xp-reward-cost">' + r.cost + '</p></div>' +
+        '<button class="xp-redeem-btn">Resgatar</button>';
+      list.appendChild(row);
+    });
+  }
+
+  function reportHeight() {
+    window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', () => { renderRanking(); renderBadges(); renderRewards(); reportHeight(); });
+</script>
+
+</body>
+</html>
