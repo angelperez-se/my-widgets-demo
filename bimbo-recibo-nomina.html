@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="Bimbo - Recibo de nómina (mockup)">
+<meta name="widget-description" content="Mockup de recibo de nomina quincenal para demo. Datos ficticios. No calcula ni valida nada real, es solo representacion visual.">
+<title>Recibo de Nómina</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: transparent; font-family: Arial, Helvetica, sans-serif; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; }
+</style>
+</head>
+<body>
+
+<div style="max-width: 440px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.12); border: 1px solid #e2e8f0;">
+
+  <!-- Header -->
+  <div style="background: #263576; padding: 20px 22px;">
+    <div class="row" style="margin-bottom: 14px;">
+      <div style="background: #ffffff; border-radius: 8px; padding: 6px 12px; color: #ED1C24; font-size: 15px; font-weight: bold;">Bimbo</div>
+      <div style="color: #A9B8EC; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">Recibo de Nómina</div>
+    </div>
+    <div style="color: #ffffff; font-size: 20px; font-weight: bold; line-height: 1.3;">Alejandra González</div>
+    <div style="color: #C7D0EE; font-size: 13px; margin-top: 2px;">Supervisora de Línea de Producción · Planta CDMX</div>
+  </div>
+
+  <!-- Periodo -->
+  <div style="background: #F3F5FB; padding: 12px 22px;">
+    <div class="row">
+      <div style="color: #475569; font-size: 12.5px;">Periodo de pago</div>
+      <div style="color: #0f172a; font-size: 12.5px; font-weight: bold;">01 – 15 oct 2026</div>
+    </div>
+    <div class="row" style="margin-top: 4px;">
+      <div style="color: #475569; font-size: 12.5px;">Fecha de pago</div>
+      <div style="color: #0f172a; font-size: 12.5px; font-weight: bold;">15 de octubre de 2026</div>
+    </div>
+  </div>
+
+  <div style="padding: 20px 22px;">
+
+    <!-- Datos del trabajador -->
+    <div style="color: #263576; font-size: 11.5px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px;">Datos del trabajador</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin-bottom: 20px;">
+      <div>
+        <div style="color: #94a3b8; font-size: 11px;">No. de empleado</div>
+        <div style="color: #0f172a; font-size: 13px; font-weight: 600;">BMX-04821</div>
+      </div>
+      <div>
+        <div style="color: #94a3b8; font-size: 11px;">Departamento</div>
+        <div style="color: #0f172a; font-size: 13px; font-weight: 600;">Producción</div>
+      </div>
+      <div>
+        <div style="color: #94a3b8; font-size: 11px;">RFC</div>
+        <div style="color: #0f172a; font-size: 13px; font-weight: 600;">GOAL900512Q12</div>
+      </div>
+      <div>
+        <div style="color: #94a3b8; font-size: 11px;">NSS</div>
+        <div style="color: #0f172a; font-size: 13px; font-weight: 600;">3457821094</div>
+      </div>
+      <div style="grid-column: 1 / -1;">
+        <div style="color: #94a3b8; font-size: 11px;">CURP</div>
+        <div style="color: #0f172a; font-size: 13px; font-weight: 600;">GOAL900512MDFNZL09</div>
+      </div>
+    </div>
+
+    <!-- Percepciones -->
+    <div style="color: #263576; font-size: 11.5px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px;">Percepciones</div>
+    <div style="margin-bottom: 6px;">
+      <div class="row" style="padding: 6px 0;">
+        <div style="color: #334155; font-size: 13.5px;">Sueldo</div>
+        <div style="color: #0f172a; font-size: 13.5px; font-weight: 600;">$8,500.00</div>
+      </div>
+      <div class="row" style="padding: 6px 0; border-top: 1px solid #f1f5f9;">
+        <div style="color: #334155; font-size: 13.5px;">Bono de productividad</div>
+        <div style="color: #0f172a; font-size: 13.5px; font-weight: 600;">$650.00</div>
+      </div>
+      <div class="row" style="padding: 6px 0; border-top: 1px solid #f1f5f9;">
+        <div style="color: #334155; font-size: 13.5px;">Premio de asistencia</div>
+        <div style="color: #0f172a; font-size: 13.5px; font-weight: 600;">$0.00</div>
+      </div>
+    </div>
+    <div class="row" style="padding: 8px 0; border-top: 1.5px solid #e2e8f0; margin-bottom: 18px;">
+      <div style="color: #0f172a; font-size: 13px; font-weight: bold;">Total percepciones</div>
+      <div style="color: #1FA55C; font-size: 14px; font-weight: bold;">$9,150.00</div>
+    </div>
+
+    <!-- Deducciones -->
+    <div style="color: #263576; font-size: 11.5px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px;">Deducciones</div>
+    <div style="margin-bottom: 6px;">
+      <div class="row" style="padding: 6px 0;">
+        <div style="color: #334155; font-size: 13.5px;">ISR</div>
+        <div style="color: #0f172a; font-size: 13.5px; font-weight: 600;">$1,120.00</div>
+      </div>
+      <div class="row" style="padding: 6px 0; border-top: 1px solid #f1f5f9;">
+        <div style="color: #334155; font-size: 13.5px;">IMSS</div>
+        <div style="color: #0f172a; font-size: 13.5px; font-weight: 600;">$310.00</div>
+      </div>
+      <div class="row" style="padding: 6px 0; border-top: 1px solid #f1f5f9;">
+        <div style="color: #334155; font-size: 13.5px;">Fondo de ahorro</div>
+        <div style="color: #0f172a; font-size: 13.5px; font-weight: 600;">$200.00</div>
+      </div>
+    </div>
+    <div class="row" style="padding: 8px 0; border-top: 1.5px solid #e2e8f0; margin-bottom: 22px;">
+      <div style="color: #0f172a; font-size: 13px; font-weight: bold;">Total deducciones</div>
+      <div style="color: #E4022B; font-size: 14px; font-weight: bold;">-$1,630.00</div>
+    </div>
+
+    <!-- Neto a pagar -->
+    <div style="background: #263576; border-radius: 12px; padding: 16px 18px; margin-bottom: 18px;">
+      <div class="row">
+        <div style="color: #C7D0EE; font-size: 12.5px; font-weight: 600;">Neto a pagar</div>
+        <div style="color: #ffffff; font-size: 22px; font-weight: bold;">$7,520.00</div>
+      </div>
+    </div>
+
+    <!-- Forma de pago -->
+    <div class="row" style="margin-bottom: 4px;">
+      <div style="color: #475569; font-size: 12px;">Forma de pago</div>
+      <div style="color: #0f172a; font-size: 12px; font-weight: 600;">Transferencia · BBVA ****4821</div>
+    </div>
+
+    <!-- Datos fiscales CFDI -->
+    <div style="border-top: 1px dashed #cbd5e1; margin-top: 16px; padding-top: 12px;">
+      <div style="color: #94a3b8; font-size: 10.5px; line-height: 1.6;">
+        Folio fiscal: A1B2C3D4-E5F6-7890-ABCD-1234567890EF<br>
+        Fecha y hora de timbrado: 15/10/2026 09:03:21<br>
+        RFC emisor: GBI840101AB3 · Régimen: 601 - General de Ley
+      </div>
+    </div>
+
+    <button onclick="alert('Demo: en producción esto descargaría el PDF timbrado del recibo.')" style="width: 100%; margin-top: 18px; background: #ffffff; color: #263576; border: 1.5px solid #263576; font-size: 14px; font-weight: bold; padding: 11px 0; border-radius: 10px; cursor: pointer; font-family: inherit;">Descargar PDF</button>
+
+  </div>
+</div>
+
+<script>
+  function reportHeight() {
+    window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', reportHeight);
+</script>
+
+</body>
+</html>
