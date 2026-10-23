@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="widget-name" content="CMI - Catálogo de Recompensas (standalone)">
+<meta name="widget-description" content="Widget independiente del catalogo de recompensas de CMI: merchandise (gorras, tazas, mochila, peluche, etc) y descuentos locales de Guatemala (Tigo, Cinemark, Paiz, Pollo Campero). Look and feel CMI (naranja), ancho doble para escritorio. Datos ficticios para demo.">
+<title>Catálogo de Recompensas CMI</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+  .mk-outer { max-width: 880px; margin: 0 auto; padding: 10px; }
+  .mk-card { background: #ffffff; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 24px rgba(20,30,70,.12); }
+
+  .mk-header { position: relative; overflow: hidden; background: linear-gradient(135deg, #E8720C 0%, #B85B00 100%); padding: 24px 26px 22px; color: #fff; }
+  .mk-decor-a { position: absolute; top: -40px; right: -30px; width: 150px; height: 150px; border-radius: 50%; background: rgba(255,255,255,.14); }
+  .mk-decor-b { position: absolute; bottom: -50px; left: -30px; width: 140px; height: 140px; border-radius: 50%; background: rgba(255,255,255,.06); }
+  .mk-top-row { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .mk-eyebrow { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.75); letter-spacing: .3px; text-transform: uppercase; margin: 0; }
+  .mk-points-pill { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 8px 16px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .mk-title { position: relative; z-index: 1; font-size: 22px; font-weight: 800; margin: 0 0 4px; }
+  .mk-subtitle { position: relative; z-index: 1; font-size: 13px; color: rgba(255,255,255,.85); margin: 0; }
+
+  .mk-body { padding: 22px 26px 30px; }
+  .mk-section-label { font-size: 11px; font-weight: 800; color: #767676; text-transform: uppercase; letter-spacing: .09em; margin: 24px 0 12px; }
+  .mk-section-label:first-child { margin-top: 0; }
+
+  .mk-featured { background: #1a1a2e; border-radius: 18px; padding: 22px 26px; position: relative; overflow: hidden; }
+  .mk-featured-decor { position: absolute; right: -30px; bottom: -30px; width: 170px; height: 170px; background: radial-gradient(circle,rgba(232,114,12,0.45) 0%,transparent 65%); border-radius: 50%; pointer-events: none; }
+  .mk-featured-badge { position: relative; z-index: 1; display: inline-block; background: #E8720C; color: #fff; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; }
+  .mk-featured-title { position: relative; z-index: 1; color: #fff; font-size: 23px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; margin: 0 0 6px; }
+  .mk-featured-desc { position: relative; z-index: 1; color: rgba(255,255,255,.6); font-size: 13px; margin: 0 0 18px; line-height: 1.5; max-width: 420px; }
+  .mk-code-box { position: relative; z-index: 1; border: 2px dashed rgba(232,114,12,0.6); border-radius: 12px; padding: 16px; text-align: center; background: rgba(232,114,12,0.12); max-width: 320px; }
+  .mk-code-label { font-size: 9px; font-weight: 800; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .09em; margin: 0 0 8px; }
+  .mk-code { font-size: 24px; font-weight: 900; color: #FFA552; letter-spacing: 3px; margin: 0 0 6px; }
+  .mk-code-note { font-size: 11px; color: rgba(255,255,255,.5); margin: 0; }
+
+  .mk-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .mk-product-card { background: #fff; border: 1px solid #eee; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.06); display: flex; flex-direction: column; }
+  .mk-product-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #F2F2F2; display: block; }
+  .mk-product-body { padding: 10px 12px 12px; flex: 1; display: flex; flex-direction: column; }
+  .mk-product-name { font-size: 12.5px; font-weight: 700; color: #1a1a1a; line-height: 1.3; margin: 0 0 10px; flex: 1; }
+  .mk-product-footer { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .mk-product-pts { font-size: 13px; font-weight: 800; color: #E8720C; white-space: nowrap; }
+  .mk-redeem-small { border: none; background: #E8720C; color: #fff; font-size: 11px; font-weight: 700; font-family: inherit; padding: 7px 11px; border-radius: 16px; cursor: pointer; white-space: nowrap; }
+  .mk-redeem-small.disabled { background: #D1D5DB; cursor: not-allowed; }
+  .mk-product-confirmed { width: 100%; text-align: center; font-size: 11px; font-weight: 700; color: #1FA55C; line-height: 1.4; }
+  .mk-product-confirmed .mk-branch-note { display: block; font-size: 10px; font-weight: 600; color: #767676; margin-top: 2px; }
+
+  .mk-discount-list { display: flex; flex-direction: column; gap: 10px; }
+  .mk-discount-row { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 12px 14px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  .mk-discount-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 21px; flex-shrink: 0; }
+  .mk-discount-name { font-size: 9px; font-weight: 800; color: #767676; text-transform: uppercase; letter-spacing: .07em; margin: 0; }
+  .mk-discount-desc { font-size: 13.5px; font-weight: 600; color: #1a1a1a; margin: 2px 0 0; }
+  .mk-discount-tag { font-size: 12.5px; font-weight: 800; color: #E8720C; flex-shrink: 0; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="mk-outer">
+  <div class="mk-card">
+
+    <div class="mk-header">
+      <div class="mk-decor-a"></div>
+      <div class="mk-decor-b"></div>
+      <div class="mk-top-row">
+        <p class="mk-eyebrow">🎁 Catálogo de Recompensas</p>
+        <div class="mk-points-pill">⭐ <span id="mk-points-balance">—</span> pts disponibles</div>
+      </div>
+      <h1 class="mk-title">Canjea tus puntos</h1>
+      <p class="mk-subtitle">Productos exclusivos CMI y descuentos para colaboradores en Guatemala</p>
+    </div>
+
+    <div class="mk-body">
+
+      <p class="mk-section-label">Oferta destacada</p>
+      <div class="mk-featured">
+        <div class="mk-featured-decor"></div>
+        <span class="mk-featured-badge">Exclusivo CMI</span>
+        <p class="mk-featured-title">20% de descuento<br>en Tigo</p>
+        <p class="mk-featured-desc">Recargas y planes de datos. Solo para colaboradores de CMI en Guatemala.</p>
+        <div class="mk-code-box">
+          <p class="mk-code-label">Tu código de descuento</p>
+          <p class="mk-code">CMI20TIGO</p>
+          <p class="mk-code-note">Muestra en tienda o ingresa en tigo.com.gt</p>
+        </div>
+      </div>
+
+      <p class="mk-section-label">Productos CMI</p>
+      <div class="mk-grid" id="mk-product-grid"></div>
+
+      <p class="mk-section-label">Descuentos para ti</p>
+      <div class="mk-discount-list" id="mk-discount-list"></div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Demo conceptual: datos ficticios en memoria, nada se envía ni se guarda.
+  let marketPoints = 1250; // saldo de Alejandra González, consistente con el widget de Súmate y Crece
+
+  const PRODUCTS = [
+    { name: 'Gorra CMI bordada', img: 'https://angelperez-se.github.io/my-widgets-demo/cmi-gorra.png', cost: 180 },
+    { name: 'Taza térmica CMI', img: 'https://angelperez-se.github.io/my-widgets-demo/cmi-taza.png', cost: 220 },
+    { name: 'Libreta y pluma CMI', img: 'https://angelperez-se.github.io/my-widgets-demo/cmi-libreta.png', cost: 150 },
+    { name: 'Mochila CMI', img: 'https://angelperez-se.github.io/my-widgets-demo/cmi-mochila.png', cost: 650 },
+    { name: 'Peluche Pollo Campero', img: 'https://angelperez-se.github.io/my-widgets-demo/cmi-peluche-campero.png', cost: 300 },
+    { name: 'Playera 106 Aniversario CMI', img: 'https://angelperez-se.github.io/my-widgets-demo/cmi-playera-106.png', cost: 350 },
+    { name: 'Audífonos inalámbricos CMI', img: 'https://angelperez-se.github.io/my-widgets-demo/cmi-audifonos.png', cost: 950 },
+    { name: 'Power bank CMI', img: 'https://angelperez-se.github.io/my-widgets-demo/cmi-powerbank.png', cost: 500 }
+  ];
+
+  const DISCOUNTS = [
+    { name: 'Cinemark', desc: '2x1 boletos entre semana', tag: '2×1', icon: '🎬', bg: '#FFF8DC' },
+    { name: 'Paiz', desc: '10% en tu compra de despensa', tag: '10% off', icon: '🛒', bg: '#E6F7FF' },
+    { name: 'Pollo Campero', desc: 'Combo gratis una vez al mes', tag: 'Gratis', icon: '🍗', bg: '#FBE9D0' },
+    { name: 'Uber', desc: 'Q50 de crédito al mes', tag: 'Q50', icon: '🚗', bg: '#F2F2F2' }
+  ];
+
+  function renderProducts() {
+    const grid = document.getElementById('mk-product-grid');
+    grid.innerHTML = '';
+    PRODUCTS.forEach((p, idx) => {
+      const card = document.createElement('div');
+      card.className = 'mk-product-card';
+      card.innerHTML =
+        '<img class="mk-product-img" src="' + p.img + '" alt="' + p.name + '" onerror="this.style.background=\'#F2F2F2\';this.alt=\'Imagen pendiente\';">' +
+        '<div class="mk-product-body">' +
+          '<p class="mk-product-name">' + p.name + '</p>' +
+          '<div class="mk-product-footer">' +
+            '<span class="mk-product-pts">' + p.cost + ' pts</span>' +
+            '<button class="mk-redeem-small" data-idx="' + idx + '">Canjear</button>' +
+          '</div>' +
+        '</div>';
+      grid.appendChild(card);
+    });
+    grid.querySelectorAll('.mk-redeem-small').forEach(btn => {
+      btn.addEventListener('click', () => redeemProduct(parseInt(btn.dataset.idx, 10), btn));
+    });
+  }
+
+  function renderDiscounts() {
+    const list = document.getElementById('mk-discount-list');
+    list.innerHTML = '';
+    DISCOUNTS.forEach(d => {
+      const row = document.createElement('div');
+      row.className = 'mk-discount-row';
+      row.innerHTML =
+        '<div class="mk-discount-icon" style="background:' + d.bg + '">' + d.icon + '</div>' +
+        '<div style="flex:1;">' +
+          '<p class="mk-discount-name">' + d.name + '</p>' +
+          '<p class="mk-discount-desc">' + d.desc + '</p>' +
+        '</div>' +
+        '<span class="mk-discount-tag">' + d.tag + '</span>';
+      list.appendChild(row);
+    });
+  }
+
+  function redeemProduct(idx, btn) {
+    if (btn.classList.contains('done')) return;
+    const cost = PRODUCTS[idx].cost;
+    if (marketPoints < cost) {
+      const original = btn.textContent;
+      btn.textContent = 'Puntos insuficientes';
+      btn.classList.add('disabled');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('disabled'); }, 1600);
+      return;
+    }
+    marketPoints -= cost;
+    updatePointsDisplay();
+    const footer = btn.closest('.mk-product-footer');
+    footer.innerHTML = '<div class="mk-product-confirmed">✓ Canjeado<span class="mk-branch-note">📦 Se enviará a tu sucursal</span></div>';
+  }
+
+  function updatePointsDisplay() {
+    document.getElementById('mk-points-balance').textContent = marketPoints.toLocaleString('es-MX');
+  }
+
+  function reportHeight() {
+    window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', () => {
+    updatePointsDisplay();
+    renderProducts();
+    renderDiscounts();
+    reportHeight();
+  });
+</script>
+
+</body>
+</html>
