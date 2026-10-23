@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dar un Reconocimiento</title>
+<style>
+  :root {
+    --brand: #263576;
+    --brand-light: #3b4a9e;
+    --accent: #ED1C24;
+    --text-dark: #1a1a2e;
+    --text-muted: #6b7280;
+    --border: #e7e7ea;
+    --bg-soft: #f6f7fb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: transparent;
+  }
+  .card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(20,20,40,0.08);
+    border: 1px solid var(--border);
+    padding: 16px;
+    max-width: 420px;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+
+  /* ---------- Header ---------- */
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .points-badge {
+    background: linear-gradient(135deg, var(--brand), var(--brand-light));
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 6px 11px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* ---------- Search ---------- */
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .search-wrap { position: relative; margin-bottom: 14px; }
+  .search-input {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 11px 12px 11px 36px;
+    font-size: 14.5px;
+    color: var(--text-dark);
+    background: var(--bg-soft);
+    outline: none;
+  }
+  .search-input:focus { border-color: var(--brand); background: #fff; }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    opacity: 0.45;
+    pointer-events: none;
+  }
+  .dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(20,20,40,0.12);
+    overflow: hidden;
+    z-index: 20;
+    display: none;
+  }
+  .dropdown.open { display: block; }
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    cursor: pointer;
+  }
+  .dropdown-item:hover,
+  .dropdown-item:active { background: var(--bg-soft); }
+  .dropdown-item + .dropdown-item { border-top: 1px solid var(--border); }
+  .dropdown-item img { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; }
+  .dropdown-item .name { font-size: 13.5px; font-weight: 600; color: var(--text-dark); }
+  .dropdown-item .role { font-size: 11.5px; color: var(--text-muted); }
+  .dropdown-empty { padding: 12px; font-size: 13px; color: var(--text-muted); text-align: center; }
+
+  /* ---------- Selected person chip ---------- */
+  .selected-chip {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-soft);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 9px 10px;
+    margin-bottom: 14px;
+  }
+  .selected-chip.open { display: flex; }
+  .selected-chip img { width: 36px; height: 36px; border-radius: 50%; }
+  .selected-chip .info { flex: 1; min-width: 0; }
+  .selected-chip .name { font-size: 14px; font-weight: 700; color: var(--text-dark); }
+  .selected-chip .role { font-size: 11.5px; color: var(--text-muted); }
+  .selected-chip .remove {
+    background: none; border: none; font-size: 18px; color: var(--text-muted);
+    cursor: pointer; padding: 4px 6px; line-height: 1;
+  }
+
+  /* ---------- Values selector ---------- */
+  .values-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .value-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    cursor: pointer;
+  }
+  .value-btn .value-icon { font-size: 15px; line-height: 1; }
+  .value-btn.active {
+    border-color: var(--brand);
+    background: var(--brand);
+    color: #fff;
+  }
+
+  /* ---------- Message ---------- */
+  .message-wrap { margin-bottom: 14px; }
+  textarea.message-input {
+    width: 100%;
+    min-height: 64px;
+    resize: none;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 13.5px;
+    font-family: inherit;
+    color: var(--text-dark);
+    background: var(--bg-soft);
+    outline: none;
+    line-height: 1.4;
+  }
+  textarea.message-input:focus { border-color: var(--brand); background: #fff; }
+
+  /* ---------- Submit ---------- */
+  .submit-btn {
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 0;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .submit-btn:active { opacity: 0.85; }
+  .submit-btn.shake { animation: shake 0.35s; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+
+  /* ---------- Success state ---------- */
+  .success-view {
+    display: none;
+    text-align: center;
+    padding: 10px 4px 4px;
+  }
+  .success-view.open { display: block; }
+  .success-check {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: #e8f7ee; color: #1a9850;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin: 0 auto 10px;
+  }
+  .success-title { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+  .success-sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
+  .success-sub strong { color: var(--text-dark); }
+  .new-balance {
+    background: var(--bg-soft);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    color: var(--text-dark);
+    margin-bottom: 14px;
+  }
+  .new-balance b { color: var(--brand); font-size: 15px; }
+  .again-btn {
+    width: 100%;
+    background: #fff;
+    border: 1.5px solid var(--brand);
+    color: var(--brand);
+    border-radius: 12px;
+    padding: 11px 0;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .form-view { display: block; }
+  .form-view.hidden { display: none; }
+
+  /* ---------- Recent feed ---------- */
+  .feed-section { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .feed-title {
+    font-size: 12px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.03em;
+    margin-bottom: 8px;
+  }
+  .feed-list { display: flex; flex-direction: column; gap: 10px; }
+  .feed-item { display: flex; align-items: flex-start; gap: 8px; }
+  .feed-item img { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; margin-top: 1px; }
+  .feed-item .feed-text-wrap { flex: 1; min-width: 0; }
+  .feed-item .feed-names { font-size: 12px; color: var(--text-dark); line-height: 1.3; }
+  .feed-item .feed-names b { font-weight: 700; }
+  .feed-item .feed-time-inline { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+  .feed-item .feed-message {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .feed-item.new { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="header-row">
+    <div class="title">🏆 Dar un reconocimiento</div>
+    <div class="points-badge" id="pointsBadge">250 pts disponibles</div>
+  </div>
+
+  <div class="form-view" id="formView">
+
+    <label class="field-label">¿A quién quieres reconocer?</label>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" id="searchInput" placeholder="Escribe un nombre...">
+      <div class="dropdown" id="dropdown"></div>
+    </div>
+
+    <div class="selected-chip" id="selectedChip">
+      <img id="selectedAvatar" src="" alt="">
+      <div class="info">
+        <div class="name" id="selectedName"></div>
+        <div class="role" id="selectedRole"></div>
+      </div>
+      <button class="remove" id="removeSelected" aria-label="Quitar">✕</button>
+    </div>
+
+    <label class="field-label">¿Qué valor estás reconociendo?</label>
+    <div class="values-grid" id="valuesGrid">
+      <button class="value-btn" data-value="justicia"><span class="value-icon">⚖️</span> Justicia</button>
+      <button class="value-btn" data-value="respeto"><span class="value-icon">🙏</span> Respeto</button>
+      <button class="value-btn" data-value="afecto"><span class="value-icon">❤️</span> Afecto</button>
+      <button class="value-btn" data-value="confianza"><span class="value-icon">🤝</span> Confianza</button>
+    </div>
+
+    <label class="field-label">Tu mensaje</label>
+    <div class="message-wrap">
+      <textarea class="message-input" id="messageInput" placeholder="Escribe un mensaje breve y genuino..."></textarea>
+    </div>
+
+    <button class="submit-btn" id="submitBtn">Enviar reconocimiento 🎉</button>
+  </div>
+
+  <div class="success-view" id="successView">
+    <div class="success-check">✓</div>
+    <div class="success-title">¡Reconocimiento enviado!</div>
+    <div class="success-sub" id="successSub"></div>
+    <div class="new-balance">Tu nuevo saldo es: <b id="newBalanceText"></b></div>
+    <button class="again-btn" id="againBtn">Dar otro reconocimiento</button>
+  </div>
+
+  <div class="feed-section">
+    <div class="feed-title">Reconocimientos recientes</div>
+    <div class="feed-list" id="feedList"></div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  const PEOPLE = [
+    { name: "Hugo Bennett", role: "Head of Transportation · Logistics", color: "ED1C24", photo: "https://angelperez-se.github.io/my-widgets-demo/Hugo.jpg" },
+    { name: "Carla Quijano", role: "VP Executiva · Comunicaciones y Corporate Affairs", color: "263576", photo: "https://angelperez-se.github.io/my-widgets-demo/Carla.jpeg" },
+    { name: "Laura Fernández", role: "Analista de Calidad", color: "0E8A6D", photo: null },
+    { name: "Diego Morales", role: "Supervisor de Línea", color: "8B5CF6", photo: null },
+    { name: "Ana Torres", role: "Coordinadora de RH", color: "F59E0B", photo: null }
+  ];
+
+  const VALUE_LABELS = { justicia: "Justicia", respeto: "Respeto", afecto: "Afecto", confianza: "Confianza" };
+  const VALUE_ICONS = { justicia: "⚖️", respeto: "🙏", afecto: "❤️", confianza: "🤝" };
+
+  function avatarUrl(person, size) {
+    if (person.photo) return person.photo;
+    const encoded = encodeURIComponent(person.name);
+    return `https://ui-avatars.com/api/?name=${encoded}&background=${person.color}&color=fff&bold=true&size=${size || 128}&rounded=true`;
+  }
+
+  function feedAvatarUrl(name, size) {
+    const match = PEOPLE.find(p => p.name === name);
+    if (match) return avatarUrl(match, size);
+    const encoded = encodeURIComponent(name);
+    return `https://ui-avatars.com/api/?name=${encoded}&background=9CA3AF&color=fff&bold=true&size=${size || 128}&rounded=true`;
+  }
+
+  const POINTS_TO_GIVE = 5;
+  const POINTS_EARNED = POINTS_TO_GIVE * 2;
+
+  let balance = 250;
+  let selectedPerson = null;
+  let selectedValue = null;
+
+  const searchInput = document.getElementById('searchInput');
+  const dropdown = document.getElementById('dropdown');
+  const selectedChip = document.getElementById('selectedChip');
+  const selectedAvatar = document.getElementById('selectedAvatar');
+  const selectedName = document.getElementById('selectedName');
+  const selectedRole = document.getElementById('selectedRole');
+  const removeSelected = document.getElementById('removeSelected');
+  const valueBtns = document.querySelectorAll('.value-btn');
+  const messageInput = document.getElementById('messageInput');
+  const submitBtn = document.getElementById('submitBtn');
+  const formView = document.getElementById('formView');
+  const successView = document.getElementById('successView');
+  const successSub = document.getElementById('successSub');
+  const newBalanceText = document.getElementById('newBalanceText');
+  const againBtn = document.getElementById('againBtn');
+  const pointsBadge = document.getElementById('pointsBadge');
+  const feedList = document.getElementById('feedList');
+
+  const INITIAL_FEED = [
+    { name: "María López", target: "Jorge Ramírez", value: "respeto", points: 5, time: "hace 2 h", message: "Gracias por escuchar a todos por igual en la junta de esta mañana" },
+    { name: "Diego Morales", target: "Ana Torres", value: "justicia", points: 5, time: "hace 5 h", message: "Gracias por repartir los turnos extra de forma justa esta quincena" },
+    { name: "Carla Quijano", target: "Hugo Bennett", value: "confianza", points: 5, time: "ayer", message: "Gracias por confiar en el equipo para resolver la auditoría sin supervisión" },
+    { name: "Ana Torres", target: "Laura Fernández", value: "afecto", points: 5, time: "hace 2 días", message: "Gracias por el cariño con el que recibes a cada persona nueva en la planta" }
+  ];
+
+  function renderFeedItem(item, isNew) {
+    const el = document.createElement('div');
+    el.className = 'feed-item' + (isNew ? ' new' : '');
+    const icon = VALUE_ICONS[item.value] || '';
+    el.innerHTML = `
+      <img src="${feedAvatarUrl(item.name, 64)}" alt="">
+      <div class="feed-text-wrap">
+        <div class="feed-names"><b>${item.name}</b> → <b>${item.target}</b> <span class="feed-time-inline">· ${item.time}</span></div>
+        <div class="feed-message">${icon} "${item.message}"</div>
+      </div>
+    `;
+    return el;
+  }
+
+  function renderFeed() {
+    feedList.innerHTML = '';
+    INITIAL_FEED.forEach(item => feedList.appendChild(renderFeedItem(item, false)));
+  }
+  renderFeed();
+
+  function updateBadge() {
+    pointsBadge.textContent = `${balance} pts disponibles`;
+  }
+
+  function renderDropdown(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; return; }
+    const matches = PEOPLE.filter(p => p.name.toLowerCase().includes(q));
+    dropdown.innerHTML = '';
+    if (matches.length === 0) {
+      dropdown.innerHTML = '<div class="dropdown-empty">No se encontró a nadie con ese nombre</div>';
+    } else {
+      matches.slice(0, 4).forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'dropdown-item';
+        item.innerHTML = `
+          <img src="${avatarUrl(p, 64)}" alt="">
+          <div>
+            <div class="name">${p.name}</div>
+            <div class="role">${p.role}</div>
+          </div>
+        `;
+        item.addEventListener('click', () => selectPerson(p));
+        dropdown.appendChild(item);
+      });
+    }
+    dropdown.classList.add('open');
+  }
+
+  function selectPerson(p) {
+    selectedPerson = p;
+    selectedAvatar.src = avatarUrl(p, 96);
+    selectedName.textContent = p.name;
+    selectedRole.textContent = p.role;
+    selectedChip.classList.add('open');
+    searchInput.value = '';
+    dropdown.classList.remove('open');
+    dropdown.innerHTML = '';
+  }
+
+  removeSelected.addEventListener('click', () => {
+    selectedPerson = null;
+    selectedChip.classList.remove('open');
+  });
+
+  searchInput.addEventListener('input', (e) => renderDropdown(e.target.value));
+  searchInput.addEventListener('focus', (e) => { if (e.target.value) renderDropdown(e.target.value); });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-wrap')) {
+      dropdown.classList.remove('open');
+    }
+  });
+
+  valueBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      valueBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedValue = btn.dataset.value;
+    });
+  });
+
+  function flashMissing(el) {
+    el.style.borderColor = '#ED1C24';
+    setTimeout(() => { el.style.borderColor = ''; }, 900);
+  }
+
+  submitBtn.addEventListener('click', () => {
+    let valid = true;
+    if (!selectedPerson) {
+      flashMissing(searchInput);
+      valid = false;
+    }
+    if (!selectedValue) {
+      valueBtns.forEach(b => flashMissing(b));
+      valid = false;
+    }
+    if (!messageInput.value.trim()) {
+      flashMissing(messageInput);
+      valid = false;
+    }
+    if (!valid) {
+      submitBtn.classList.remove('shake');
+      void submitBtn.offsetWidth;
+      submitBtn.classList.add('shake');
+      return;
+    }
+
+    balance += POINTS_EARNED;
+    updateBadge();
+
+    const firstName = selectedPerson.name.split(' ')[0];
+    successSub.innerHTML = `<strong>${selectedPerson.name}</strong> recibió <strong>${POINTS_TO_GIVE} puntos</strong> tuyos por <strong>${VALUE_LABELS[selectedValue]}</strong>, y tú ganaste <strong>${POINTS_EARNED} puntos</strong> por reconocer a ${firstName} 🎉`;
+    newBalanceText.textContent = `${balance} puntos`;
+
+    INITIAL_FEED.unshift({ name: "Tú", target: selectedPerson.name, value: selectedValue, points: POINTS_TO_GIVE, time: "ahora", message: messageInput.value.trim() });
+    const newItem = renderFeedItem(INITIAL_FEED[0], true);
+    feedList.insertBefore(newItem, feedList.firstChild);
+    if (feedList.children.length > 4) {
+      feedList.removeChild(feedList.lastChild);
+    }
+
+    formView.classList.add('hidden');
+    successView.classList.add('open');
+  });
+
+  againBtn.addEventListener('click', () => {
+    selectedPerson = null;
+    selectedValue = null;
+    selectedChip.classList.remove('open');
+    valueBtns.forEach(b => b.classList.remove('active'));
+    messageInput.value = '';
+    searchInput.value = '';
+    successView.classList.remove('open');
+    formView.classList.remove('hidden');
+  });
+
+  // Report height to Staffbase parent iframe
+  function reportHeight() {
+    const height = document.body.scrollHeight;
+    window.parent.postMessage({ type: 'resize', height: height }, '*');
+  }
+  window.addEventListener('load', reportHeight);
+  if (window.ResizeObserver) {
+    new ResizeObserver(reportHeight).observe(document.body);
+  }
+})();
+</script>
+
+</body>
+</html>
