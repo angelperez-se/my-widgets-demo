@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Integración de aprendizaje Cornerstone</title>
+    <title>Integración de aprendizaje GB University</title>
     <style>
         :root {
             --primary-purple: #5D2E8E;
@@ -51,22 +51,22 @@
 
         .brand {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            color: var(--text-dark);
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 3px;
         }
 
-        .brand-icon {
-            width: 24px;
-            height: 24px;
-            background-color: var(--primary-purple);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
+        .brand img {
+            height: 26px;
+            width: auto;
+            display: block;
+        }
+
+        .brand .powered-by {
+            font-size: 9px;
+            font-weight: 400;
+            color: #bbbbbb;
+            letter-spacing: 0.02em;
         }
 
         .user-actions {
@@ -367,8 +367,8 @@
         <div id="screen-courses" style="display:flex; flex-direction:column; flex:1; min-height:0;">
         <header>
             <div class="brand">
-                <div class="brand-icon">★</div>
-                <span>Cornerstone</span>
+                <img src="https://angelperez-se.github.io/my-widgets-demo/gbuniversity.png" alt="GB University">
+                <span class="powered-by">Powered by Cornerstone</span>
             </div>
             <div class="user-actions">
                 <div style="position: relative;">
