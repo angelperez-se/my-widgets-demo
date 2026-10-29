@@ -31,13 +31,14 @@
     content: ""; position: absolute; bottom: -60px; left: -40px; width: 170px; height: 170px;
     border-radius: 50%; background: rgba(255,255,255,.06);
   }
-  .dh-bimbo-pill {
-    position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center;
-    background: #ffffff; border-radius: 8px; padding: 7px 16px; margin-bottom: 16px;
+  .dh-combined-pill {
+    position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center;
+    width: fit-content; margin: 0 auto 18px;
+    background: #ffffff; border-radius: 14px; padding: 16px 28px 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.12);
   }
-  .dh-bimbo-pill img { height: 30px; display: block; }
-  .dh-logo-wrap { position: relative; z-index: 1; margin-bottom: 14px; }
-  .dh-logo-img { height: 100px; display: inline-block; }
+  .dh-combined-pill img.dh-bimbo-in-pill { height: 26px; display: block; margin-bottom: 10px; }
+  .dh-combined-pill img.dh-dilo-in-pill { height: 92px; display: block; }
   .dh-logo-fallback { display: none; }
   .dh-eyebrow {
     position: relative; z-index: 1; display: inline-block; background: rgba(255,255,255,.16);
@@ -134,13 +135,13 @@
     <!-- ============ PANTALLA: ANUNCIO ============ -->
     <div class="dh-screen active" id="scr-announce">
       <div class="dh-announce">
-        <div class="dh-bimbo-pill"><img src="https://angelperez-se.github.io/my-widgets-demo/bimbologo.png" alt="Grupo Bimbo"></div>
-        <div class="dh-logo-wrap">
-          <img class="dh-logo-img" src="https://angelperez-se.github.io/my-widgets-demo/dilohoy.png" alt="Dilo Hoy"
+        <div class="dh-combined-pill">
+          <img class="dh-bimbo-in-pill" src="https://angelperez-se.github.io/my-widgets-demo/bimbologo.png" alt="Grupo Bimbo">
+          <img class="dh-dilo-in-pill" src="https://angelperez-se.github.io/my-widgets-demo/dilohoy.png" alt="Dilo Hoy"
                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
           <div class="dh-logo-fallback" style="display:none; align-items:center; justify-content:center; gap:6px;">
-            <span style="width:9px;height:9px;border-radius:2px;background:#ffffff;"></span>
-            <span style="font-size:16px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#ffffff;">Dilo ¡Hoy!</span>
+            <span style="width:9px;height:9px;border-radius:2px;background:#C2228A;"></span>
+            <span style="font-size:16px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#C2228A;">Dilo ¡Hoy!</span>
           </div>
         </div>
         <div class="dh-eyebrow">📣 Encuesta de Experiencia · Bimbo</div>
