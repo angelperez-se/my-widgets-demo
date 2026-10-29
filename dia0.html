@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="widget-name" content="Bimbo - Día 0 (interactivo)">
+<meta name="widget-description" content="Pagina inmersiva de bienvenida para el dia 0 en Grupo Bimbo: hero personalizable, proposito, Regla de Oro con tarjetas expandibles, modulo de reconocimiento, comparativo Dia 0 vs Dia 1 interactivo, Osito (asistente IA) respondiendo preguntas reales, cultura y seguridad con tarjetas expandibles. Mockup de demo, no envia ni persiste nada.">
+<title>Día 0 en Grupo Bimbo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800&display=swap">
+<style>
+/* ===== Layout concept: an immersive vertical "día 0" journey — warm hero → propósito → Regla de Oro (interactiva) → de hoy a tu primer día → Osito → cultura y seguridad → cierre ===== */
+:root{
+  /* Marca empleadora "Nutre lo que amas" + azul/rojo clásicos Bimbo */
+  --purple:#3522A6;
+  --purple-deep:#241573;
+  --ink:#190E55;
+  --yellow:#FFC20E;
+  --sky:#29ABE2;
+  --red:#E2231A;
+  --blue:#0B2EA8;
+  /* Neutros cálidos */
+  --cream:#FBF7EF;
+  --card:#FFFFFF;
+  --text:#211a3f;
+  --muted:#6b6690;
+  --line:rgba(25,14,85,.12);
+  --shadow:0 18px 44px rgba(25,14,85,.16);
+  --shadow-sm:0 8px 22px rgba(25,14,85,.10);
+  --font-display:"Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --font-body:"Nunito Sans", system-ui, -apple-system, sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --cream:#120b2e;
+    --card:#1b1340;
+    --text:#f1eefc;
+    --muted:#b4acd9;
+    --line:rgba(255,255,255,.14);
+    --shadow:0 18px 44px rgba(0,0,0,.5);
+    --shadow-sm:0 8px 22px rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --cream:#120b2e;
+  --card:#1b1340;
+  --text:#f1eefc;
+  --muted:#b4acd9;
+  --line:rgba(255,255,255,.14);
+  --shadow:0 18px 44px rgba(0,0,0,.5);
+  --shadow-sm:0 8px 22px rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:var(--font-body);
+  color:var(--text);
+  background:var(--cream);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+img{max-width:100%}
+h1,h2,h3{font-family:var(--font-display);line-height:1.1;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:inherit}
+.wrap{width:100%;max-width:1060px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+section{padding-block:clamp(56px,8vw,104px)}
+.eyebrow{font-weight:800;letter-spacing:.16em;text-transform:uppercase;font-size:.72rem}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* ===== HERO ===== */
+.hero{
+  position:relative;color:#fff;overflow:hidden;
+  padding-top:clamp(70px,12vw,130px);padding-bottom:clamp(80px,13vw,150px);
+  background:
+    radial-gradient(1100px 520px at 88% -8%, rgba(41,171,226,.5), transparent 55%),
+    radial-gradient(760px 440px at 6% 108%, rgba(255,194,14,.28), transparent 52%),
+    linear-gradient(150deg,var(--purple) 0%, var(--purple-deep) 52%, var(--ink) 100%);
+}
+.blob{position:absolute;border-radius:52% 48% 60% 40%/50% 60% 40% 50%;filter:blur(2px);opacity:.9}
+.b1{width:120px;height:120px;background:var(--yellow);top:16%;right:9%;transform:rotate(18deg);opacity:.85;border-radius:50% 0 50% 50%}
+.b2{width:70px;height:70px;background:var(--sky);top:62%;right:20%;border-radius:50% 0 50% 50%;transform:rotate(60deg)}
+.b3{width:54px;height:54px;background:var(--red);top:30%;right:28%;border-radius:50% 0 50% 50%;transform:rotate(8deg);opacity:.85}
+.hero-logo-pill{position:relative;z-index:1;display:inline-flex;align-items:center;background:#fff;border-radius:10px;padding:9px 18px;margin-bottom:1.4rem;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+.hero-logo-pill img{height:28px;display:block}
+.hero-logo-fallback{display:none;font-family:var(--font-display);font-weight:800;color:var(--purple-deep);font-size:1rem}
+.hero .eyebrow{color:var(--yellow)}
+.hero h1{font-size:clamp(2.3rem,6.5vw,4.3rem);font-weight:800;margin:.5rem 0 0}
+.hero h1 .nm{color:var(--yellow)}
+.hero .lead{font-size:clamp(1.05rem,2.3vw,1.3rem);max-width:33ch;margin-top:1.1rem;color:rgba(255,255,255,.92)}
+.brandtag{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.6rem;padding:.5rem .95rem;border:1.5px solid rgba(255,255,255,.4);border-radius:999px;font-weight:800;font-size:.9rem;backdrop-filter:blur(4px)}
+.brandtag .dot{width:9px;height:9px;border-radius:50%;background:var(--yellow)}
+.namerow{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-top:1.8rem}
+.namerow label{font-weight:700;font-size:.9rem;color:rgba(255,255,255,.85)}
+.namerow input{
+  font-family:var(--font-body);font-size:1rem;font-weight:700;color:var(--ink);
+  border:none;border-radius:999px;padding:.7rem 1.1rem;min-width:190px;outline:none;
+  box-shadow:0 6px 18px rgba(0,0,0,.2);
+}
+.namerow input:focus-visible{box-shadow:0 0 0 3px var(--yellow)}
+.scrollcue{display:inline-flex;align-items:center;gap:.5rem;margin-top:2.2rem;color:#fff;text-decoration:none;font-weight:700;font-size:.92rem;opacity:.9}
+.scrollcue .arw{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.16);animation:bob 1.8s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+@media (prefers-reduced-motion: reduce){.scrollcue .arw{animation:none}}
+
+/* ===== PROPÓSITO ===== */
+.purpose{text-align:center}
+.purpose .eyebrow{color:var(--red)}
+.purpose h2{font-size:clamp(2rem,5.2vw,3.4rem);font-weight:800;margin:.6rem auto 0;max-width:16ch}
+.purpose h2 .hl{color:var(--purple)}
+.purpose .sub{color:var(--muted);font-size:1.12rem;max-width:52ch;margin:1.1rem auto 0}
+.pills{display:flex;flex-wrap:wrap;gap:.7rem;justify-content:center;margin-top:1.9rem}
+.pill{display:inline-flex;align-items:center;gap:.5rem;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:.6rem 1.1rem;font-weight:800;color:var(--purple-deep);box-shadow:var(--shadow-sm);font-size:.95rem}
+.pill svg{width:18px;height:18px}
+:root[data-theme="dark"] .pill{color:#d9d2ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pill{color:#d9d2ff}}
+
+/* ===== REGLA DE ORO ===== */
+.gold{background:linear-gradient(180deg,transparent, rgba(255,194,14,.09) 20%, transparent)}
+.sec-head{max-width:60ch}
+.sec-head .eyebrow{color:var(--purple)}
+.sec-head h2{font-size:clamp(1.9rem,4.6vw,3rem);font-weight:800;margin:.55rem 0 0}
+.sec-head .sub{color:var(--muted);font-size:1.08rem;margin-top:.9rem;max-width:56ch}
+.sec-head .quote{font-style:italic;color:var(--purple-deep);font-weight:700}
+:root[data-theme="dark"] .sec-head .quote{color:var(--yellow)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sec-head .quote{color:var(--yellow)}}
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:2rem}
+@media(max-width:860px){.pillars{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:460px){.pillars{grid-template-columns:1fr}}
+.pcard{
+  position:relative;text-align:left;cursor:pointer;border:none;width:100%;
+  background:var(--card);border-radius:22px;padding:1.5rem 1.35rem 1.4rem;box-shadow:var(--shadow-sm);
+  border-top:5px solid var(--pc);transition:transform .3s ease,box-shadow .3s ease;font-family:var(--font-body);
+  color:var(--text);
+}
+.pcard:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+.pcard .pic{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;background:color-mix(in srgb,var(--pc) 16%,transparent);color:var(--pc);margin-bottom:.9rem}
+.pcard .pic svg{width:28px;height:28px}
+.pcard h3{font-size:1.28rem;font-weight:800}
+.pcard .desc{color:var(--muted);font-size:.96rem;margin-top:.5rem;max-height:0;overflow:hidden;opacity:0;transition:max-height .4s ease,opacity .35s ease,margin .4s ease}
+.pcard.open .desc{max-height:220px;opacity:1;margin-top:.7rem}
+.pcard .more{display:inline-flex;align-items:center;gap:.35rem;margin-top:.8rem;color:var(--pc);font-weight:800;font-size:.85rem}
+.pcard .more .chev{transition:transform .3s ease}
+.pcard.open .more .chev{transform:rotate(180deg)}
+
+/* recognition mini-module */
+.recog{margin-top:1.8rem;background:linear-gradient(135deg,var(--purple),var(--purple-deep));color:#fff;border-radius:24px;padding:clamp(1.4rem,3vw,2.2rem);box-shadow:var(--shadow);display:grid;grid-template-columns:1.1fr 1fr;gap:1.6rem;align-items:center}
+@media(max-width:760px){.recog{grid-template-columns:1fr}}
+.recog h3{font-size:1.5rem;font-weight:800}
+.recog .eyebrow{color:var(--yellow)}
+.recog p{color:rgba(255,255,255,.9);margin-top:.6rem}
+.recog .demo{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:1.1rem}
+.recog .demo .q{font-weight:800;font-size:.95rem;margin-bottom:.7rem}
+.chipset{display:flex;flex-wrap:wrap;gap:.5rem}
+.chip{border:1.5px solid rgba(255,255,255,.45);background:transparent;color:#fff;border-radius:999px;padding:.45rem .9rem;font-weight:800;font-size:.85rem;cursor:pointer;font-family:var(--font-body);transition:all .2s ease}
+.chip[aria-pressed="true"]{background:var(--yellow);color:var(--ink);border-color:var(--yellow)}
+.recog .points{display:flex;align-items:baseline;gap:.5rem;margin-top:1rem;font-weight:800}
+.recog .points .n{font-family:var(--font-display);font-size:2rem;color:var(--yellow)}
+.recog .points .s{font-size:.8rem;color:rgba(255,255,255,.8);font-weight:700}
+
+/* ===== DE HOY A TU PRIMER DÍA ===== */
+.firstday{background:linear-gradient(180deg,transparent,rgba(41,171,226,.08))}
+.firstday .sec-head{margin-left:auto;margin-right:auto;text-align:center}
+.firstday .sec-head .eyebrow{color:var(--sky)}
+.firstday .sec-head .sub{margin-left:auto;margin-right:auto}
+.journey{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-top:2rem}
+@media(max-width:820px){.journey{grid-template-columns:1fr}}
+.day{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:clamp(1.3rem,3.5vw,1.9rem);box-shadow:var(--shadow-sm)}
+.day0{border-top:5px solid var(--sky)}
+.day1{border-top:5px solid var(--purple);background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--purple) 5%,var(--card)))}
+.day-h{margin-bottom:1.1rem}
+.badge{display:inline-flex;align-items:center;gap:.4rem;font-weight:800;font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;padding:.42rem .85rem;border-radius:999px}
+.badge.b0{background:color-mix(in srgb,var(--sky) 16%,transparent);color:var(--sky)}
+.badge.b1{background:color-mix(in srgb,var(--purple) 15%,transparent);color:var(--purple)}
+.day-h h3{font-size:1.28rem;font-weight:800;margin-top:.75rem}
+.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.8rem}
+.it{display:flex;gap:.8rem;align-items:center;border-radius:14px;padding:.3rem;margin:-.3rem;transition:background .2s ease}
+.it .ic{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center}
+.it .ic svg{width:20px;height:20px}
+.it .ic img{display:block}
+.it.ok{cursor:pointer}
+.it.ok:hover{background:color-mix(in srgb,var(--sky) 8%,transparent)}
+.it.ok .ic{background:color-mix(in srgb,var(--sky) 15%,transparent);color:var(--sky);transition:background .2s ease,color .2s ease}
+.it.lk{cursor:pointer}
+.it.lk:hover{background:color-mix(in srgb,var(--purple) 6%,transparent)}
+.it.lk .ic{background:color-mix(in srgb,var(--purple) 11%,transparent);color:var(--purple)}
+.it .tx{font-weight:800;font-size:1rem;line-height:1.25;transition:opacity .2s ease}
+.it .tx small{display:block;font-weight:600;font-size:.84rem;color:var(--muted);margin-top:.1rem}
+.it.lk .tx{color:var(--muted)}
+.it.lk .tx b{color:var(--text)}
+.it.ok.done .ic{background:color-mix(in srgb,#1f9d55 20%,transparent);color:#1f9d55}
+.it.ok.done .tx{opacity:.55;text-decoration:line-through}
+.unlock{margin-top:1.3rem;display:flex;gap:.9rem;align-items:center;justify-content:center;text-align:left;flex-wrap:wrap;background:linear-gradient(135deg,var(--purple),var(--purple-deep));color:#fff;border-radius:18px;padding:1.1rem 1.3rem;box-shadow:var(--shadow-sm)}
+.unlock .ic{flex:none;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.14);display:grid;place-items:center}
+.unlock .ic svg{width:22px;height:22px;color:var(--yellow)}
+.unlock p{font-size:.98rem;color:rgba(255,255,255,.92);max-width:52ch}
+.unlock p b{color:#fff}
+
+/* ===== OSITO ===== */
+.osito .card{background:linear-gradient(135deg,var(--sky),var(--purple));color:#fff;border-radius:26px;padding:clamp(1.6rem,3.5vw,2.6rem);box-shadow:var(--shadow);display:grid;grid-template-columns:auto 1fr;gap:1.6rem;align-items:start}
+@media(max-width:620px){.osito .card{grid-template-columns:1fr;text-align:center;justify-items:center}}
+.bear{width:120px;height:120px;flex:none}
+.osito .eyebrow{color:var(--yellow)}
+.osito h2{font-size:clamp(1.7rem,3.6vw,2.4rem);font-weight:800;margin:.4rem 0 0}
+.osito p{color:rgba(255,255,255,.92);margin-top:.7rem;max-width:48ch}
+.bubbles{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.bublead{flex-basis:100%;font-weight:800;font-size:.85rem;color:rgba(255,255,255,.75)}
+.bub{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:.5rem 1rem;font-weight:700;font-size:.85rem;color:#fff;cursor:pointer;font-family:var(--font-body);transition:background .2s ease,transform .15s ease}
+.bub:hover{background:rgba(255,255,255,.26)}
+.bub:active{transform:scale(.97)}
+.bub.active{background:var(--yellow);color:var(--ink);border-color:var(--yellow)}
+.osito-chat{display:none;margin-top:1.2rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:18px;padding:1.1rem 1.2rem;max-width:48ch}
+.osito-chat.show{display:block;animation:chatIn .3s ease}
+@keyframes chatIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.osito-chat-q{font-weight:800;font-size:.88rem;color:rgba(255,255,255,.75);margin-bottom:.7rem}
+.osito-chat-q::before{content:"Tú: "}
+.osito-typing{display:inline-flex;align-items:center;gap:.4rem;font-weight:700;font-size:.92rem;color:rgba(255,255,255,.85)}
+.osito-typing .dot{width:6px;height:6px;border-radius:50%;background:#fff;display:inline-block;animation:typingDot 1.1s ease-in-out infinite}
+.osito-typing .dot:nth-child(2){animation-delay:.15s}
+.osito-typing .dot:nth-child(3){animation-delay:.3s}
+@keyframes typingDot{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.osito-answer{font-weight:600;font-size:.95rem;color:#fff;line-height:1.55}
+.osito-answer::before{content:"🐻 Osito: ";font-weight:800}
+.osito-answer b{color:var(--yellow)}
+
+/* ===== CULTURA Y SEGURIDAD ===== */
+.safety .sec-head .eyebrow{color:var(--red)}
+.sg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.8rem}
+@media(max-width:760px){.sg-grid{grid-template-columns:1fr}}
+.sg{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:1.5rem;box-shadow:var(--shadow-sm);cursor:pointer;transition:transform .25s ease,box-shadow .25s ease}
+.sg:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.sg .ic{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;margin-bottom:.9rem}
+.sg .ic svg{width:26px;height:26px}
+.sg.c1 .ic{background:color-mix(in srgb,var(--sky) 18%,transparent);color:var(--sky)}
+.sg.c2 .ic{background:color-mix(in srgb,var(--purple) 18%,transparent);color:var(--purple)}
+.sg.c3 .ic{background:color-mix(in srgb,var(--red) 16%,transparent);color:var(--red)}
+.sg h3{font-size:1.2rem;font-weight:800}
+.sg p{color:var(--muted);font-size:.95rem;margin-top:.5rem}
+.sg .sg-more{color:var(--muted);font-size:.93rem;line-height:1.55;max-height:0;overflow:hidden;opacity:0;transition:max-height .4s ease,opacity .35s ease,margin .4s ease}
+.sg.open .sg-more{max-height:220px;opacity:1;margin-top:.6rem}
+.sg .more{display:inline-flex;align-items:center;gap:.35rem;margin-top:.9rem;color:var(--purple);font-weight:800;font-size:.84rem}
+.sg.c1 .more{color:var(--sky)}
+.sg.c3 .more{color:var(--red)}
+.sg .more .chev{transition:transform .3s ease}
+.sg.open .more .chev{transform:rotate(180deg)}
+.capsule{margin-top:1.6rem;background:linear-gradient(135deg,var(--purple-deep),var(--ink));color:#fff;border-radius:22px;padding:clamp(1.4rem,3vw,2rem);box-shadow:var(--shadow)}
+.capsule .eyebrow{color:var(--yellow)}
+.capsule h3{font-size:clamp(1.3rem,2.6vw,1.8rem);font-weight:800;margin:.4rem 0 0}
+.capsule p{color:rgba(255,255,255,.9);margin-top:.7rem;max-width:62ch}
+
+/* ===== CIERRE ===== */
+.closing{position:relative;overflow:hidden;color:#fff;text-align:center;
+  background:
+   radial-gradient(760px 400px at 82% 0%, rgba(41,171,226,.35),transparent 55%),
+   linear-gradient(140deg,var(--purple) 0%,var(--purple-deep) 55%,var(--ink) 100%)}
+.closing .eyebrow{color:var(--yellow)}
+.closing h2{font-size:clamp(2rem,5.5vw,3.6rem);font-weight:800;margin:.6rem auto 0;max-width:18ch}
+.closing p{color:rgba(255,255,255,.9);margin:1rem auto 0;max-width:46ch;font-size:1.1rem}
+.cta{display:inline-flex;align-items:center;gap:.6rem;margin-top:1.8rem;background:#fff;color:var(--purple-deep);font-weight:800;font-size:1.05rem;border:none;cursor:pointer;text-decoration:none;padding:.95rem 2rem;border-radius:999px;box-shadow:0 12px 30px rgba(0,0,0,.3);transition:transform .2s ease;font-family:var(--font-body)}
+.cta:hover{transform:translateY(-3px)}
+.footnote{margin-top:2.4rem;font-size:.8rem;color:rgba(255,255,255,.6)}
+
+/* ===== TOAST (para items bloqueados de Día 1) ===== */
+.bimbo-toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,16px);background:var(--ink);color:#fff;font-weight:700;font-size:.88rem;padding:.8rem 1.3rem;border-radius:999px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:all .25s ease;z-index:999;white-space:nowrap}
+.bimbo-toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+  <div class="wrap">
+    <div class="hero-logo-pill">
+      <img src="https://angelperez-se.github.io/my-widgets-demo/bimbologo.png" alt="Grupo Bimbo"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <span class="hero-logo-fallback">GRUPO BIMBO</span>
+    </div>
+    <span class="eyebrow">Día 0 · Tu bienvenida</span>
+    <h1>Hola<span class="nm" id="heroName"></span>,<br>te damos la bienvenida a Grupo Bimbo</h1>
+    <p class="lead">Antes de tu primer día, queremos que conozcas quiénes somos y lo que nos mueve.</p>
+    <div class="brandtag"><span class="dot"></span> Nutre lo que amas · <em style="font-weight:600;opacity:.85">Nourishing what you love</em></div>
+    <div class="namerow">
+      <label for="nameInput">Personaliza tu bienvenida:</label>
+      <input id="nameInput" type="text" placeholder="Escribe tu nombre" autocomplete="off" maxlength="22">
+    </div>
+    <a class="scrollcue" href="#proposito"><span class="arw">↓</span> Comienza tu recorrido</a>
+  </div>
+</header>
+
+<!-- ============ PROPÓSITO ============ -->
+<section id="proposito" class="purpose">
+  <div class="wrap reveal">
+    <span class="eyebrow">Nuestro propósito</span>
+    <h2>Alimentar un <span class="hl">mundo mejor</span></h2>
+    <p class="sub">Desde 1945 trabajamos para construir una empresa <strong>sostenible, altamente productiva y plenamente humana</strong>. Una empresa donde la persona está en el centro de todo lo que hacemos.</p>
+    <div class="pills">
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg> Plenamente humana</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0z"/><path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18M3 12h18"/></svg> Presente en el mundo</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.3 2.3 7.3L12 16.9 5.7 21l2.3-7.3-6-4.3h7.6z"/></svg> Altamente productiva</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REGLA DE ORO ============ -->
+<section class="gold">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">El corazón de nuestra cultura</span>
+      <h2>La Regla de Oro</h2>
+      <p class="sub">En Grupo Bimbo tratamos a todos los colaboradores con <span class="quote">justicia, respeto, afecto y confianza</span>. Son los cuatro pilares que guían cómo nos relacionamos, decidimos y trabajamos cada día.</p>
+    </div>
+    <div class="pillars">
+      <button class="pcard reveal" style="--pc:var(--sky)" data-pillar>
+        <span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 7l-4 6h8zM17 7l4 6h-8z"/><path d="M5 19h14"/></svg></span>
+        <h3>Justicia</h3>
+        <p class="desc">Decisiones equitativas y transparentes. Cada colaborador recibe un trato justo, con las mismas oportunidades para crecer y aportar.</p>
+        <span class="more">Conocer más <span class="chev">▾</span></span>
+      </button>
+      <button class="pcard reveal" style="--pc:var(--purple)" data-pillar>
+        <span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg></span>
+        <h3>Respeto</h3>
+        <p class="desc">Reconocemos la dignidad y la individualidad de cada persona. Escuchamos, valoramos las diferencias y cuidamos a quienes nos rodean.</p>
+        <span class="more">Conocer más <span class="chev">▾</span></span>
+      </button>
+      <button class="pcard reveal" style="--pc:var(--red)" data-pillar>
+        <span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8c0-2 1.6-4 4-4s4 1.8 4 4c0 4-8 9-8 9S4 12 4 8c0-2.2 1.8-4 4-4s4 2 4 4z"/></svg></span>
+        <h3>Afecto</h3>
+        <p class="desc">Nos importan las personas. Construimos relaciones cercanas y un ambiente cálido donde todos se sienten acompañados.</p>
+        <span class="more">Conocer más <span class="chev">▾</span></span>
+      </button>
+      <button class="pcard reveal" style="--pc:#1f9d55" data-pillar>
+        <span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <h3>Confianza</h3>
+        <p class="desc">Creemos en las personas y en su capacidad. Damos autonomía, cumplimos lo que prometemos y actuamos siempre con integridad.</p>
+        <span class="more">Conocer más <span class="chev">▾</span></span>
+      </button>
+    </div>
+
+    <!-- Reconocimiento -->
+    <div class="recog reveal">
+      <div>
+        <span class="eyebrow">La Regla de Oro, en acción</span>
+        <h3>Reconoce a quien marca la diferencia</h3>
+        <p>Da un reconocimiento a un colaborador por vivir uno de nuestros cuatro pilares. Suma puntos, colecciona estampas y haz que la cultura se sienta todos los días.</p>
+      </div>
+      <div class="demo">
+        <div class="q">¿Por qué quieres reconocer a un colaborador?</div>
+        <div class="chipset" id="recogChips">
+          <button class="chip" aria-pressed="false">Justicia</button>
+          <button class="chip" aria-pressed="false">Respeto</button>
+          <button class="chip" aria-pressed="false">Afecto</button>
+          <button class="chip" aria-pressed="false">Confianza</button>
+        </div>
+        <div class="points"><span class="n" id="recogPts">0</span><span class="s">puntos entregados</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DE HOY A TU PRIMER DÍA ============ -->
+<section class="firstday">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Tu recorrido</span>
+      <h2>De hoy a tu primer día</h2>
+      <p class="sub">Hoy es tu día 0: tómate tu tiempo para conocer tu nueva casa. Cuando llegues a la planta, se desbloquea todo lo demás. <em>Toca cualquier elemento para ver qué pasa.</em></p>
+    </div>
+    <div class="journey">
+      <!-- DÍA 0 -->
+      <div class="day day0 reveal">
+        <div class="day-h">
+          <span class="badge b0"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg> Hoy · Día 0</span>
+          <h3>Lo que puedes descubrir ahora</h3>
+        </div>
+        <ul class="items" id="day0List">
+          <li class="it ok" data-done-label="Videos de bienvenida">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+            <span class="tx">Videos de bienvenida<small>Conoce Grupo Bimbo en imágenes</small></span>
+          </li>
+          <li class="it ok" data-done-label="La Regla de Oro">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg></span>
+            <span class="tx">La Regla de Oro<small>Los 4 pilares de nuestra cultura</small></span>
+          </li>
+          <li class="it ok" data-done-label="Nuestro propósito">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg></span>
+            <span class="tx">Nuestro propósito<small>Alimentar un mundo mejor</small></span>
+          </li>
+          <li class="it ok" data-done-label="Nuestra historia desde 1945">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1-6 6M8 16a6 6 0 0 1 6-6"/><circle cx="12" cy="12" r="10"/></svg></span>
+            <span class="tx">Nuestra historia desde 1945<small>80 años alimentando a México y al mundo</small></span>
+          </li>
+        </ul>
+      </div>
+      <!-- DÍA 1 -->
+      <div class="day day1 reveal">
+        <div class="day-h">
+          <span class="badge b1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Tu primer día en la planta</span>
+          <h3>Todo esto se desbloquea</h3>
+        </div>
+        <ul class="items" id="day1List">
+          <li class="it lk">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="12" r="2.2"/><path d="M14 10h4M14 14h4M5.5 16c.6-1.6 2-2.3 3.5-2.3s2.9.7 3.5 2.3"/></svg></span>
+            <span class="tx"><b>Tu credencial digital</b><small>Tu llave para entrar y salir</small></span>
+          </li>
+          <li class="it lk">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+            <span class="tx"><b>Tu capacitación de seguridad</b><small>Lo primero, siempre: cuidarte</small></span>
+          </li>
+          <li class="it lk">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg></span>
+            <span class="tx"><b>Tu perfil y contacto de emergencia</b><small>Para conocerte y cuidarte</small></span>
+          </li>
+          <li class="it lk">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M16 14.2c2.5.4 4.5 2.6 4.5 5.8"/></svg></span>
+            <span class="tx"><b>Conoce a tu equipo y tu planta</b><small>Tu nueva comunidad te espera</small></span>
+          </li>
+          <li class="it lk">
+            <span class="ic">
+              <img src="https://angelperez-se.github.io/my-widgets-demo/GBUniversity.png" alt="GB University" style="height:22px;width:auto;display:block;"
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+              <svg style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/></svg>
+            </span>
+            <span class="tx"><b>Tus formaciones en GB University</b><small>Tu desarrollo arranca</small></span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="unlock reveal">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.9-1.3"/></svg></span>
+      <p><b>El día 1, cuando quedes dado de alta,</b> se desbloquea toda tu experiencia en la app: tu credencial, tus cursos, tu comunidad y mucho más.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OSITO ============ -->
+<section class="osito">
+  <div class="wrap reveal">
+    <div class="card">
+      <svg class="bear" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="34" cy="30" r="15" fill="#fff" opacity=".95"/>
+        <circle cx="86" cy="30" r="15" fill="#fff" opacity=".95"/>
+        <circle cx="34" cy="30" r="7" fill="#FFC20E"/>
+        <circle cx="86" cy="30" r="7" fill="#FFC20E"/>
+        <circle cx="60" cy="64" r="40" fill="#fff"/>
+        <circle cx="46" cy="58" r="5.5" fill="#241573"/>
+        <circle cx="74" cy="58" r="5.5" fill="#241573"/>
+        <ellipse cx="60" cy="74" rx="16" ry="13" fill="#FFE39A"/>
+        <ellipse cx="60" cy="70" rx="5" ry="4" fill="#241573"/>
+        <path d="M60 74c0 5 4 7 8 7M60 74c0 5-4 7-8 7" stroke="#241573" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <span class="eyebrow">Nunca estarás solo</span>
+        <h2>El Osito estará contigo</h2>
+        <p>Desde el día que te unas, el Osito te acompaña. Cuando tengas una duda, podrás preguntarle y te responderá al instante con la información que te corresponde conocer: desde tu recibo de nómina hasta cómo funciona cualquier proceso.</p>
+        <div class="bubbles" id="ositoBubbles">
+          <span class="bublead">Pruébalo, pregúntale algo:</span>
+          <button class="bub" data-q="nomina">¿Cómo saco mi recibo de nómina?</button>
+          <button class="bub" data-q="cursos">¿Dónde veo mis cursos?</button>
+          <button class="bub" data-q="regla">¿Qué es la Regla de Oro?</button>
+        </div>
+        <div class="osito-chat" id="ositoChat">
+          <div class="osito-chat-q" id="ositoChatQ"></div>
+          <div id="ositoTyping" class="osito-typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+          <div id="ositoAnswer" class="osito-answer" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CULTURA Y SEGURIDAD ============ -->
+<section class="safety">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Lo que más nos importa</span>
+      <h2>Cultura y seguridad, siempre primero</h2>
+      <p class="sub">Para Juan, nuestro Director General, tres cosas son esenciales en Grupo Bimbo. Y están presentes en todo lo que hacemos, desde el primer día.</p>
+    </div>
+    <div class="sg-grid">
+      <div class="sg c2 reveal" data-sg>
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/></svg></span>
+        <h3>Capacitación</h3>
+        <p>Crecemos contigo. Tu desarrollo es una prioridad, con formación continua a tu alcance.</p>
+        <p class="sg-more">Desde tu primer día vas a tener acceso a GB University, con rutas de aprendizaje pensadas para cada etapa de tu carrera en Bimbo.</p>
+        <span class="more">Conocer más <span class="chev">▾</span></span>
+      </div>
+      <div class="sg c1 reveal" data-sg>
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.6"/><path d="M16 14.5c2.6.4 4.5 2.6 4.5 5.5"/></svg></span>
+        <h3>Cultura</h3>
+        <p>La Regla de Oro, nuestros valores y nuestro propósito viven en cada interacción.</p>
+        <p class="sg-more">No es un cartel en la pared: vive en cómo nos hablamos, cómo decidimos y cómo celebramos los logros de cada quien, todos los días.</p>
+        <span class="more">Conocer más <span class="chev">▾</span></span>
+      </div>
+      <div class="sg c3 reveal" data-sg>
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6z"/></svg></span>
+        <h3>Seguridad</h3>
+        <p>Cuidarte es lo primero. Tu bienestar y el de tus compañeros nunca se negocian.</p>
+        <p class="sg-more">Cada turno arranca con una cápsula de seguridad. Si algo no se siente seguro, siempre tienes la autoridad de detenerlo y decirlo.</p>
+        <span class="more">Conocer más <span class="chev">▾</span></span>
+      </div>
+    </div>
+    <div class="capsule reveal">
+      <span class="eyebrow">Una costumbre que nos define</span>
+      <h3>La cápsula de cultura y seguridad</h3>
+      <p>En Grupo Bimbo, cada reunión abre con una cápsula de cultura y seguridad. Desde una junta de planta hasta la oficina de nuestro CEO: nos tomamos un momento para recordar quiénes somos y para cuidarnos. Pronto será parte natural de tu día a día.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CIERRE ============ -->
+<section class="closing">
+  <span class="blob b1" style="top:20%;right:12%"></span>
+  <div class="wrap reveal">
+    <span class="eyebrow">Esto apenas comienza</span>
+    <h2 id="closeHead">Bienvenido a Grupo Bimbo</h2>
+    <p>Nos alegra muchísimo que formes parte de esta gran familia. Aquí vas a nutrir lo que amas.</p>
+    <button class="cta" id="backToTopBtn">Volver a recorrerlo&nbsp; ↑</button>
+    <p class="footnote">Nutre lo que amas · Nourishing what you love</p>
+  </div>
+</section>
+
+<script>
+(function(){
+  // ---- Personalización de nombre ----
+  var input=document.getElementById('nameInput');
+  var heroName=document.getElementById('heroName');
+  var closeHead=document.getElementById('closeHead');
+  var currentName='';
+  function setName(){
+    currentName=(input.value||'').trim();
+    heroName.textContent=currentName?(', '+currentName):'';
+    closeHead.textContent=currentName?('Bienvenido a bordo, '+currentName):'Bienvenido a Grupo Bimbo';
+  }
+  input.addEventListener('input',setName);
+
+  // ---- Regla de Oro: expandir tarjetas ----
+  document.querySelectorAll('[data-pillar]').forEach(function(c){
+    c.addEventListener('click',function(){c.classList.toggle('open');reportHeight();});
+  });
+
+  // ---- Cultura y Seguridad: expandir tarjetas ----
+  document.querySelectorAll('[data-sg]').forEach(function(c){
+    c.addEventListener('click',function(){c.classList.toggle('open');reportHeight();});
+  });
+
+  // ---- Reconocimiento demo ----
+  var chips=document.querySelectorAll('#recogChips .chip');
+  var pts=document.getElementById('recogPts');
+  chips.forEach(function(ch){
+    ch.addEventListener('click',function(){
+      chips.forEach(function(o){if(o!==ch)o.setAttribute('aria-pressed','false');});
+      var on=ch.getAttribute('aria-pressed')==='true';
+      ch.setAttribute('aria-pressed',on?'false':'true');
+      pts.textContent=on?'0':'10';
+    });
+  });
+
+  // ---- Día 0: marcar como visto ----
+  document.querySelectorAll('#day0List .it.ok').forEach(function(li){
+    li.addEventListener('click',function(){
+      li.classList.toggle('done');
+    });
+  });
+
+  // ---- Día 1: mostrar que está bloqueado ----
+  document.querySelectorAll('#day1List .it.lk').forEach(function(li){
+    li.addEventListener('click',function(){
+      showToast('🔒 Esto se desbloquea en tu día 1 en planta');
+    });
+  });
+
+  // ---- Toast ----
+  var toastTimer=null;
+  window.showToast=function(msg){
+    var toast=document.getElementById('bimboToast');
+    if(!toast){
+      toast=document.createElement('div');
+      toast.id='bimboToast';
+      toast.className='bimbo-toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent=msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){toast.classList.remove('show');},2200);
+  };
+
+  // ---- Osito: respuestas reales ----
+  var OSITO_ANSWERS={
+    nomina:'En cuanto arranques, vas a poder consultar tu recibo de nómina directo desde la app: el periodo, la fecha de pago y a qué cuenta se deposita. Nada de estar buscando papelitos.',
+    cursos:'Tus cursos van a vivir en <b>GB University</b> 🎓, aquí mismo en la app. Ahí vas a ver tus formaciones, tu progreso, y vas a ir ganando puntos conforme avances.',
+    regla:'¡Es el corazón de todo! La Regla de Oro son nuestros 4 pilares: <b>Justicia, Respeto, Afecto y Confianza</b>. Los puedes explorar aquí arriba en esta misma página — dale clic a cada uno, tienen su propia historia.'
+  };
+  var ositoChat=document.getElementById('ositoChat');
+  var ositoChatQ=document.getElementById('ositoChatQ');
+  var ositoTyping=document.getElementById('ositoTyping');
+  var ositoAnswer=document.getElementById('ositoAnswer');
+  var ositoTimer=null;
+  document.querySelectorAll('#ositoBubbles .bub').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('#ositoBubbles .bub').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      ositoChatQ.textContent=btn.textContent;
+      ositoChat.classList.add('show');
+      ositoTyping.style.display='inline-flex';
+      ositoAnswer.style.display='none';
+      reportHeight();
+      clearTimeout(ositoTimer);
+      ositoTimer=setTimeout(function(){
+        ositoTyping.style.display='none';
+        var greeting=currentName?('¡Buena pregunta, '+currentName+'! '):'¡Buena pregunta! ';
+        ositoAnswer.innerHTML=greeting+OSITO_ANSWERS[btn.dataset.q];
+        ositoAnswer.style.display='block';
+        reportHeight();
+      },900);
+    });
+  });
+
+  // ---- Cierre: volver arriba con scroll suave en vez de link muerto ----
+  document.getElementById('backToTopBtn').addEventListener('click',function(){
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+
+  // ---- Reveal al hacer scroll ----
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+    },{threshold:.14});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  }else{
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
+  }
+
+  // ---- Le avisa a Staffbase que tan alto es esta pagina, para que el iframe no la recorte ----
+  function reportHeight(){
+    window.parent.postMessage({type:'resize', height: document.body.scrollHeight}, '*');
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', reportHeight);
+})();
+</script>
+</body>
+</html>
