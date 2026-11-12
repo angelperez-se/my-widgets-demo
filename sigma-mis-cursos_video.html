@@ -67,6 +67,12 @@
             height: 38px;
         }
 
+        .brand-logo-box { background: var(--navy); border-radius: 10px; height: 34px; padding: 0 12px; display: inline-flex; align-items: center; }
+
+        .brand-logo { height: 20px; width: auto; display: block; }
+
+        .brand-fallback { display: none; align-items: center; gap: 8px; }
+
         .brand-ico {
             width: 34px;
             height: 34px;
@@ -409,10 +415,10 @@
         <div id="screen-courses" style="display:flex; flex-direction:column; flex:1; min-height:0;">
         <header>
             <div class="brand">
-                <!-- Para usar el logo real: reemplaza el bloque .brand-mark por <img src="URL_DEL_LOGO_SIGMA" alt="Sigma University" style="height:38px;"> subido a Staffbase -->
                 <div class="brand-mark">
-                    <span class="brand-ico">🎓</span>
-                    <span class="brand-name">Sigma</span>
+                    <span class="brand-logo-box"><img class="brand-logo" src="https://angelperez-se.github.io/my-widgets-demo/SigmaFoods_logo.png" alt="Sigma Foods"
+                         onerror="this.parentNode.style.display='none'; this.parentNode.nextElementSibling.style.display='flex';"></span>
+                    <span class="brand-fallback"><span class="brand-ico">🎓</span><span class="brand-name">Sigma</span></span>
                     <span class="brand-tag">UNIVERSITY</span>
                 </div>
                 <span class="powered-by">Powered by Cornerstone</span>
@@ -461,9 +467,8 @@
   <div style="background: #081435; padding: 16px 22px 24px; position: relative; overflow: hidden;">
     <div style="position: absolute; right: -40px; top: -40px; width: 180px; height: 180px; background: radial-gradient(circle,rgba(213,0,50,0.35) 0%,transparent 70%); pointer-events: none;"></div>
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; position: relative; z-index: 1;">
-      <!-- Para usar el logo real: reemplaza el <span> de abajo por <img src="URL_DE_TU_LOGO_SIGMA" style="height:24px;"> subido a Staffbase -->
       <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="color: #ffffff; font-size: 20px; font-weight: 800; letter-spacing: -0.5px;">Sigma</span>
+        <div style="display: inline-flex; align-items: center;"><img src="https://angelperez-se.github.io/my-widgets-demo/SigmaFoods_logo.png" alt="Sigma Foods" style="height: 24px; width: auto; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display: none; font-size: 20px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">Sigma</span></div>
         <span style="background: #D50032; color: #ffffff; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 4px; letter-spacing: 0.06em;">MARKET</span>
       </div>
       <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; position: relative;"><span style="position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: #FFC72C; border-radius: 50%; border: 1.5px solid #081435;"></span></div>
@@ -754,8 +759,8 @@
                 description: "Conoce el programa que guía cómo pensamos y trabajamos como negocio: principios prácticos sobre gestión, liderazgo, cultura y más.",
                 modules: ["Qué son nuestros principios", "Cómo se integran a tu día a día", "Qué sigue después de esta introducción"],
                 isInteractive: true,
-                // Pega aquí la URL del video (subido a Staffbase). Mientras tenga "REEMPLAZAR" se muestra un espacio reservado.
-                videoUrl: "REEMPLAZAR_URL_VIDEO",
+                // URL del video del curso. Si se cambia a "REEMPLAZAR_URL_VIDEO" se muestra un espacio reservado en su lugar.
+                videoUrl: "https://angelperez-se.github.io/my-widgets-demo/cursos.mp4",
                 points: 250,
                 pointsCategory: "desarrollo",
                 // Sin uso en el código actual. Reemplaza el ID cuando exista la página de puntos en Sigma.
