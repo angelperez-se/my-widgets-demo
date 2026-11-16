@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconheça quem faz a diferença</title>
+<style>
+  /* Paleta inspirada na Vivo (roxo). Troque as variáveis abaixo para ajustar ao manual oficial. */
+  :root {
+    --purple: #660099;
+    --purple-dark: #4B0075;
+    --lilac-50: #FAF6FD;
+    --lilac-100: #F1E7F8;
+    --lilac-200: #E3D0F0;
+    --text: #1F1A24;
+    --muted: #6B6475;
+    --border: #E4DAEC;
+    --ok: #1E8E4E;
+    --err: #C62828;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+  html, body { background: transparent; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.45;
+  }
+
+  .widget {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(102, 0, 153, 0.08);
+    overflow: hidden;
+  }
+
+  /* ---------- Cabeçalho ---------- */
+  .head {
+    background: var(--purple);
+    color: #fff;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .title { font-size: 22px; font-weight: 700; line-height: 1.2; }
+  .subtitle { font-size: 14px; margin-top: 4px; color: rgba(255, 255, 255, 0.85); }
+  .badge {
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .badge strong { font-size: 15px; }
+
+  /* ---------- Corpo em duas colunas (desktop) ---------- */
+  .body { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+  .form-col { padding: 24px 28px 28px; }
+  .feed-col { padding: 24px; background: var(--lilac-50); border-left: 1px solid var(--lilac-100); }
+
+  .field { margin-bottom: 20px; }
+  .field-label { display: block; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .field-hint { font-weight: 400; color: var(--muted); }
+
+  /* ---------- Busca de pessoa ---------- */
+  .search-wrap { position: relative; }
+  .search-input, .message-input {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .search-input { padding: 12px 14px 12px 40px; }
+  .message-input { padding: 12px 14px; min-height: 104px; resize: vertical; line-height: 1.5; }
+  .search-input:hover, .message-input:hover { border-color: var(--lilac-200); }
+  .search-input:focus, .message-input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(102, 0, 153, 0.15); }
+  .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--muted); pointer-events: none; }
+  .invalid { border-color: var(--err) !important; }
+
+  .dropdown {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30;
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    box-shadow: 0 10px 28px rgba(75, 0, 117, 0.16);
+    overflow: hidden; display: none;
+  }
+  .dropdown.open { display: block; }
+  .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; cursor: pointer; }
+  .dropdown-item + .dropdown-item { border-top: 1px solid var(--lilac-100); }
+  .dropdown-item:hover, .dropdown-item.active { background: var(--lilac-50); }
+  .dropdown-item .name { font-size: 14px; font-weight: 600; }
+  .dropdown-item .role { font-size: 12px; color: var(--muted); }
+  .dropdown-empty { padding: 14px; font-size: 13px; color: var(--muted); text-align: center; }
+
+  .selected-chip {
+    display: none; align-items: center; gap: 12px;
+    background: var(--lilac-50); border: 1.5px solid var(--lilac-200);
+    border-radius: 12px; padding: 10px 12px;
+  }
+  .selected-chip.open { display: flex; }
+  .selected-chip .info { flex: 1; min-width: 0; }
+  .selected-chip .name { font-size: 14px; font-weight: 700; }
+  .selected-chip .role { font-size: 12px; color: var(--muted); }
+  .selected-chip .remove {
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    font-size: 18px; line-height: 1; padding: 6px 8px; border-radius: 8px;
+  }
+  .selected-chip .remove:hover { background: var(--lilac-100); color: var(--purple); }
+
+  /* ---------- Avatares com iniciais ---------- */
+  .av {
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%; font-weight: 700; letter-spacing: 0.02em; flex-shrink: 0; line-height: 1; color: #fff;
+  }
+
+  /* ---------- Valores ---------- */
+  .values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .value-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 56px; padding: 8px 10px;
+    border: 1.5px solid var(--border); border-radius: 12px; background: #fff;
+    font-family: inherit; font-size: 13px; font-weight: 600; line-height: 1.2; text-align: left; color: var(--text);
+    cursor: pointer; transition: border-color .15s, background .15s, color .15s;
+  }
+  .value-btn .ico { font-size: 18px; line-height: 1; flex-shrink: 0; }
+  .value-btn:hover { border-color: var(--purple); background: var(--lilac-50); }
+  .value-btn:focus-visible, .btn:focus-visible, .remove:focus-visible { outline: 3px solid rgba(102, 0, 153, 0.35); outline-offset: 2px; }
+  .value-btn.active { border-color: var(--purple); background: var(--purple); color: #fff; }
+
+  .counter { text-align: right; font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  /* ---------- Envio ---------- */
+  .actions { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 4px; }
+  .helper { font-size: 12.5px; color: var(--muted); max-width: 300px; }
+  .btn {
+    border: none; border-radius: 999px; padding: 13px 30px;
+    font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    transition: background .15s, transform .05s;
+  }
+  .btn-primary { background: var(--purple); color: #fff; }
+  .btn-primary:hover { background: var(--purple-dark); }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-secondary { background: #fff; color: var(--purple); border: 1.5px solid var(--purple); padding: 11px 28px; }
+  .btn-secondary:hover { background: var(--lilac-50); }
+  .error-msg { color: var(--err); font-size: 13px; font-weight: 600; margin-bottom: 12px; min-height: 18px; }
+
+  /* ---------- Sucesso ---------- */
+  .success { text-align: center; padding: 36px 12px 12px; }
+  .success-check {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: #E6F5EC; color: var(--ok);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; margin: 0 auto 16px;
+  }
+  .success-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .success-sub { font-size: 14px; color: var(--muted); max-width: 380px; margin: 0 auto 24px; line-height: 1.55; }
+  .success-sub strong { color: var(--text); }
+
+  /* ---------- Mural ---------- */
+  .feed-title { font-size: 12px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 14px; }
+  .feed-list { display: flex; flex-direction: column; gap: 14px; }
+  .feed-item { display: flex; gap: 12px; align-items: flex-start; background: #fff; border: 1px solid var(--lilac-100); border-radius: 12px; padding: 12px 14px; }
+  .feed-item.new { animation: fadeIn .4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .who { font-size: 13px; line-height: 1.35; }
+  .meta { margin-top: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 12px; color: var(--muted); }
+  .tag { background: var(--lilac-100); color: var(--purple-dark); border-radius: 999px; padding: 2px 10px; font-weight: 600; }
+  .msg {
+    margin-top: 6px; font-size: 13px; color: var(--text); font-style: italic;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  /* Segurança para telas estreitas (a prioridade é desktop) */
+  @media (max-width: 760px) {
+    .body { grid-template-columns: 1fr; }
+    .feed-col { border-left: none; border-top: 1px solid var(--lilac-100); }
+    .values-grid { grid-template-columns: repeat(2, 1fr); }
+    .head { flex-direction: column; align-items: flex-start; }
+    .actions { flex-direction: column; align-items: stretch; }
+    .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="widget">
+
+  <header class="head">
+    <div>
+      <h2 class="title">Reconheça quem faz a diferença</h2>
+      <p class="subtitle">Indique um colega, escolha o valor e conte o que essa pessoa fez.</p>
+    </div>
+    <div class="badge"><strong id="monthCount">128</strong> reconhecimentos neste mês</div>
+  </header>
+
+  <div class="body">
+
+    <section class="form-col">
+
+      <div id="formView">
+        <div class="field">
+          <label class="field-label" for="searchInput">Quem você quer reconhecer?</label>
+          <div class="search-wrap" id="searchWrap">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+            <input type="text" class="search-input" id="searchInput" placeholder="Digite o nome do colega" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="dropdown">
+            <div class="dropdown" id="dropdown" role="listbox"></div>
+          </div>
+          <div class="selected-chip" id="selectedChip">
+            <span id="selectedAvatarWrap"></span>
+            <div class="info">
+              <div class="name" id="selectedName"></div>
+              <div class="role" id="selectedRole"></div>
+            </div>
+            <button type="button" class="remove" id="removeSelected" aria-label="Remover pessoa selecionada">&#10005;</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Qual valor você quer destacar?</span>
+          <div class="values-grid" id="valuesGrid"></div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="messageInput">Sua mensagem <span class="field-hint">(conte o que a pessoa fez e qual foi o impacto)</span></label>
+          <textarea class="message-input" id="messageInput" maxlength="280" placeholder="Ex.: Obrigado por apoiar a equipe no fechamento do mês. Sua ajuda fez toda a diferença."></textarea>
+          <div class="counter"><span id="charCount">0</span>/280</div>
+        </div>
+
+        <div class="error-msg" id="errorMsg" role="alert"></div>
+
+        <div class="actions">
+          <p class="helper">O reconhecimento fica visível no mural para todos os colaboradores.</p>
+          <button type="button" class="btn btn-primary" id="submitBtn">Enviar reconhecimento</button>
+        </div>
+      </div>
+
+      <div class="success" id="successView" hidden aria-live="polite">
+        <div class="success-check">&#10003;</div>
+        <div class="success-title">Reconhecimento enviado!</div>
+        <p class="success-sub" id="successSub"></p>
+        <button type="button" class="btn btn-secondary" id="againBtn">Reconhecer outra pessoa</button>
+      </div>
+
+    </section>
+
+    <aside class="feed-col">
+      <div class="feed-title">Mural de reconhecimentos</div>
+      <div class="feed-list" id="feedList"></div>
+    </aside>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  // ----- Dados fictícios para a demonstração (substitua pelos reais ou por uma API) -----
+  var ME = { name: "Mariana Souza", role: "Analista de RH" };
+
+  var PEOPLE = [
+    { name: "Rafael Moura", role: "Analista de Atendimento" },
+    { name: "Camila Duarte", role: "Coordenadora de Comunicação Interna" },
+    { name: "Bruno Carvalho", role: "Especialista de Rede" },
+    { name: "Juliana Andrade", role: "Gerente de Experiência do Cliente" },
+    { name: "Thiago Nascimento", role: "Analista de TI" },
+    { name: "Fernanda Lima", role: "Consultora de Vendas" }
+  ];
+
+  // Mesmos valores citados na notícia do programa.
+  var VALUES = [
+    { key: "colaboracao", label: "Colaboração", icon: "🤝" },
+    { key: "inovacao", label: "Inovação", icon: "💡" },
+    { key: "cliente", label: "Foco no cliente", icon: "🎯" },
+    { key: "inclusao", label: "Inclusão", icon: "🌍" },
+    { key: "pessoas", label: "Desenvolvimento de pessoas", icon: "🌱" },
+    { key: "responsabilidade", label: "Responsabilidade na execução", icon: "✅" }
+  ];
+
+  var FEED = [
+    { from: "Camila Duarte", to: "Rafael Moura", value: "colaboracao", time: "há 2 h", message: "Obrigada por ajudar a equipe de atendimento no pico de demanda da manhã. Fez toda a diferença para os clientes." },
+    { from: "Bruno Carvalho", to: "Fernanda Lima", value: "inovacao", time: "há 5 h", message: "A ideia de simplificar o fluxo de propostas economizou tempo de todo o time comercial." },
+    { from: "Juliana Andrade", to: "Thiago Nascimento", value: "cliente", time: "ontem", message: "Obrigada por resolver o incidente e manter o cliente informado em cada etapa." },
+    { from: "Rafael Moura", to: "Juliana Andrade", value: "pessoas", time: "há 2 dias", message: "Obrigado pela mentoria e por compartilhar conhecimento com tanta generosidade." },
+    { from: "Fernanda Lima", to: "Bruno Carvalho", value: "responsabilidade", time: "há 3 dias", message: "Entrega impecável no prazo, mesmo com o escopo mudando no meio do caminho." }
+  ];
+
+  var COLORS = ["#660099", "#7A1FB3", "#4B0075", "#9340C4", "#5B2A86", "#A25ACF"];
+  var MAX_FEED = 6;
+
+  // ----- Utilitários -----
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function initials(name) {
+    var p = name.split(" ").filter(Boolean);
+    return ((p[0] ? p[0][0] : "") + (p[1] ? p[1][0] : "")).toUpperCase();
+  }
+  function colorFor(name) {
+    var h = 0;
+    for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return COLORS[h % COLORS.length];
+  }
+  function avatar(name, size) {
+    var a = el("span", "av", initials(name));
+    a.style.width = size + "px";
+    a.style.height = size + "px";
+    a.style.fontSize = Math.round(size * 0.37) + "px";
+    a.style.background = colorFor(name);
+    return a;
+  }
+  function valueByKey(k) { return VALUES.filter(function (v) { return v.key === k; })[0]; }
+
+  // ----- Estado -----
+  var selectedPerson = null;
+  var selectedValue = null;
+  var matches = [];
+  var activeIdx = -1;
+  var monthCount = 128;
+
+  var searchInput = $("searchInput");
+  var dropdown = $("dropdown");
+  var selectedChip = $("selectedChip");
+  var messageInput = $("messageInput");
+
+  // ----- Valores -----
+  var grid = $("valuesGrid");
+  VALUES.forEach(function (v) {
+    var b = el("button", "value-btn");
+    b.type = "button";
+    b.setAttribute("aria-pressed", "false");
+    b.dataset.key = v.key;
+    b.appendChild(el("span", "ico", v.icon));
+    b.appendChild(el("span", null, v.label));
+    b.addEventListener("click", function () {
+      selectedValue = v.key;
+      Array.prototype.forEach.call(grid.children, function (c) {
+        var on = c === b;
+        c.classList.toggle("active", on);
+        c.setAttribute("aria-pressed", on ? "true" : "false");
+        c.classList.remove("invalid");
+      });
+    });
+    grid.appendChild(b);
+  });
+
+  // ----- Busca -----
+  function closeDropdown() {
+    dropdown.classList.remove("open");
+    searchInput.setAttribute("aria-expanded", "false");
+    activeIdx = -1;
+  }
+  function highlight() {
+    Array.prototype.forEach.call(dropdown.children, function (c, i) {
+      c.classList.toggle("active", i === activeIdx);
+    });
+  }
+  function renderDropdown(query) {
+    var q = query.trim().toLowerCase();
+    matches = PEOPLE.filter(function (p) { return !q || p.name.toLowerCase().indexOf(q) !== -1; }).slice(0, 5);
+    dropdown.innerHTML = "";
+    if (!matches.length) {
+      dropdown.appendChild(el("div", "dropdown-empty", "Ninguém encontrado com esse nome"));
+    } else {
+      matches.forEach(function (p) {
+        var item = el("div", "dropdown-item");
+        item.setAttribute("role", "option");
+        item.appendChild(avatar(p.name, 36));
+        var t = el("div");
+        t.appendChild(el("div", "name", p.name));
+        t.appendChild(el("div", "role", p.role));
+        item.appendChild(t);
+        item.addEventListener("mousedown", function (e) { e.preventDefault(); selectPerson(p); });
+        dropdown.appendChild(item);
+      });
+    }
+    activeIdx = -1;
+    dropdown.classList.add("open");
+    searchInput.setAttribute("aria-expanded", "true");
+  }
+  function selectPerson(p) {
+    selectedPerson = p;
+    var wrap = $("selectedAvatarWrap");
+    wrap.innerHTML = "";
+    wrap.appendChild(avatar(p.name, 40));
+    $("selectedName").textContent = p.name;
+    $("selectedRole").textContent = p.role;
+    selectedChip.classList.add("open");
+    $("searchWrap").hidden = true;
+    searchInput.value = "";
+    closeDropdown();
+  }
+  $("removeSelected").addEventListener("click", function () {
+    selectedPerson = null;
+    selectedChip.classList.remove("open");
+    $("searchWrap").hidden = false;
+    searchInput.focus();
+  });
+  searchInput.addEventListener("input", function (e) { renderDropdown(e.target.value); });
+  searchInput.addEventListener("focus", function (e) { renderDropdown(e.target.value); });
+  searchInput.addEventListener("blur", function () { setTimeout(closeDropdown, 120); });
+  searchInput.addEventListener("keydown", function (e) {
+    if (!dropdown.classList.contains("open") || !matches.length) return;
+    if (e.key === "ArrowDown") { activeIdx = Math.min(activeIdx + 1, matches.length - 1); highlight(); e.preventDefault(); }
+    else if (e.key === "ArrowUp") { activeIdx = Math.max(activeIdx - 1, 0); highlight(); e.preventDefault(); }
+    else if (e.key === "Enter" && activeIdx >= 0) { selectPerson(matches[activeIdx]); e.preventDefault(); }
+    else if (e.key === "Escape") { closeDropdown(); }
+  });
+
+  // ----- Mensagem -----
+  messageInput.addEventListener("input", function () {
+    $("charCount").textContent = messageInput.value.length;
+    messageInput.classList.remove("invalid");
+  });
+
+  // ----- Mural -----
+  function feedItem(item, isNew) {
+    var row = el("div", "feed-item" + (isNew ? " new" : ""));
+    row.appendChild(avatar(item.from, 36));
+    var body = el("div");
+    var who = el("div", "who");
+    who.appendChild(el("b", null, item.from));
+    who.appendChild(document.createTextNode(" reconheceu "));
+    who.appendChild(el("b", null, item.to));
+    body.appendChild(who);
+    var v = valueByKey(item.value);
+    var meta = el("div", "meta");
+    meta.appendChild(el("span", "tag", v ? v.icon + " " + v.label : ""));
+    meta.appendChild(el("span", null, "· " + item.time));
+    body.appendChild(meta);
+    body.appendChild(el("p", "msg", "“" + item.message + "”"));
+    row.appendChild(body);
+    return row;
+  }
+  function renderFeed() {
+    var list = $("feedList");
+    list.innerHTML = "";
+    FEED.slice(0, MAX_FEED).forEach(function (it) { list.appendChild(feedItem(it, false)); });
+  }
+  renderFeed();
+
+  // ----- Envio -----
+  $("submitBtn").addEventListener("click", function () {
+    var missing = [];
+    if (!selectedPerson) { missing.push("a pessoa"); searchInput.classList.add("invalid"); }
+    if (!selectedValue) { missing.push("o valor"); Array.prototype.forEach.call(grid.children, function (c) { c.classList.add("invalid"); }); }
+    if (!messageInput.value.trim()) { missing.push("a mensagem"); messageInput.classList.add("invalid"); }
+    if (missing.length) {
+      $("errorMsg").textContent = "Falta escolher: " + missing.join(", ") + ".";
+      return;
+    }
+    $("errorMsg").textContent = "";
+
+    var v = valueByKey(selectedValue);
+    var sub = $("successSub");
+    sub.innerHTML = "";
+    sub.appendChild(el("strong", null, selectedPerson.name));
+    sub.appendChild(document.createTextNode(" vai receber o seu reconhecimento por "));
+    sub.appendChild(el("strong", null, v.label));
+    sub.appendChild(document.createTextNode(". Ele já aparece no mural ao lado."));
+
+    FEED.unshift({ from: ME.name, to: selectedPerson.name, value: selectedValue, time: "agora", message: messageInput.value.trim() });
+    var list = $("feedList");
+    list.insertBefore(feedItem(FEED[0], true), list.firstChild);
+    while (list.children.length > MAX_FEED) list.removeChild(list.lastChild);
+
+    monthCount += 1;
+    $("monthCount").textContent = monthCount;
+
+    $("formView").hidden = true;
+    $("successView").hidden = false;
+  });
+
+  $("againBtn").addEventListener("click", function () {
+    selectedPerson = null;
+    selectedValue = null;
+    selectedChip.classList.remove("open");
+    $("searchWrap").hidden = false;
+    Array.prototype.forEach.call(grid.children, function (c) { c.classList.remove("active", "invalid"); c.setAttribute("aria-pressed", "false"); });
+    messageInput.value = "";
+    $("charCount").textContent = "0";
+    searchInput.classList.remove("invalid");
+    $("successView").hidden = true;
+    $("formView").hidden = false;
+  });
+
+  // ----- Altura para o iframe da Staffbase -----
+  function reportHeight() {
+    window.parent.postMessage({ type: "resize", height: document.body.scrollHeight }, "*");
+  }
+  window.addEventListener("load", reportHeight);
+  if (window.ResizeObserver) new ResizeObserver(reportHeight).observe(document.body);
+})();
+</script>
+
+</body>
+</html>
